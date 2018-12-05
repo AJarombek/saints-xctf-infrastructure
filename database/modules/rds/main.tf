@@ -12,7 +12,7 @@ terraform {
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/database"
+    key = "saints-xctf-infrastructure/database/rds"
     region = "us-east-1"
   }
 }
@@ -72,5 +72,25 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   name = "saintsxctf"
   engine = "MySQL"
   allocated_storage = 5
-  backup_retention_period = 0
+  backup_retention_period = 3
+  storage_type = "gp2"
+  backup_window = "06:00-07:00"
+  username = "${var.username}"
+  password = "${var.password}"
+  vpc_security_group_ids = ["${aws_security_group.saints-xctf-database-security.id}"]
+
+  # Enables HA for the database instance
+  multi_az = true
+
+  tags {
+    Name = "SaintsXCTF MySQL Database"
+  }
+}
+
+resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
+  subnet_ids = ["${data.aws_subnet.saints-xctf-com-vpc-private-subnet}"]
+
+  tags {
+    Name = "SaintsXCTF MySQL Database Subnets"
+  }
 }
