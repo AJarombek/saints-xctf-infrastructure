@@ -4,17 +4,8 @@
  * Date: 12/3/2018
  */
 
-provider "aws" {
-  region = "us-east-1"
-}
-
-terraform {
-  backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
-    encrypt = true
-    key = "saints-xctf-infrastructure/database/rds"
-    region = "us-east-1"
-  }
+locals {
+  env = "${var.prod ? "prod" : "dev"}"
 }
 
 #----------------------------------
@@ -41,7 +32,7 @@ data "aws_subnet" "saints-xctf-com-vpc-private-subnet" {
 
 data "aws_security_group" "saints-xctf-website-security" {
   tags {
-    Name = "SaintsXCTF Website Security"
+    Name = "SaintsXCTF ${upper(local.env)} Website Security"
   }
 }
 
@@ -50,7 +41,7 @@ data "aws_security_group" "saints-xctf-website-security" {
 #------------------------------------
 
 resource "aws_security_group" "saints-xctf-database-security" {
-  name = "saints-xctf-database-security"
+  name = "saints-xctf-database-security-${local.env}"
   description = "Allow incoming traffic to the MySQL port"
   vpc_id = "${data.aws_vpc.saints-xctf-com-vpc.id}"
 
@@ -63,7 +54,7 @@ resource "aws_security_group" "saints-xctf-database-security" {
   }
 
   tags {
-    Name = "SaintsXCTF MySQL Database Security"
+    Name = "SaintsXCTF MySQL ${upper(local.env)} Database Security"
   }
 }
 
@@ -83,7 +74,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   multi_az = true
 
   tags {
-    Name = "SaintsXCTF MySQL Database"
+    Name = "SaintsXCTF MySQL ${upper(local.env)} Database"
   }
 }
 
@@ -91,6 +82,29 @@ resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   subnet_ids = ["${data.aws_subnet.saints-xctf-com-vpc-private-subnet}"]
 
   tags {
-    Name = "SaintsXCTF MySQL Database Subnets"
+    Name = "SaintsXCTF MySQL ${upper(local.env)} Database Subnets"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "saints-xctf-mysql-database-storage-low-alarm" {
+  alarm_name = "saints-xctf-mysql-${var.prod ? "prod" : "dev"}-database-storage-low-alarm"
+  alarm_description = "Monitors if the SaintsXCTF MySQL Database is running low on storage in ${upper(local.env)}"
+
+  metric_name = "FreeStorageSpace"
+  namespace = "AWS/RDS"
+  comparison_operator = "LessThanThreshold"
+
+  # The number of periods where data is compared to the threshold
+  evaluation_periods = 2
+
+  # The number of seconds that the statistic is applied
+  period = 120
+  statistic = "Average"
+
+  # The value that trips the alarm
+  threshold = 20
+
+  dimensions {
+    DBInstanceIdentifier = "${aws_db_instance.saints-xctf-mysql-database.id}"
   }
 }

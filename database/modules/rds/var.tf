@@ -4,6 +4,11 @@
  * Date: 12/4/2018
  */
 
+variable "prod" {
+  description = "If the environment that rds instance lives in is production"
+  default = false
+}
+
 variable "username" {
   description = "Master username for the database"
   default = "andy"

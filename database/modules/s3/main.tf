@@ -4,25 +4,8 @@
  * Date: 12/3/2018
  */
 
-provider "aws" {
-  region = "us-east-1"
-}
-
-terraform {
-  backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
-    encrypt = true
-    key = "saints-xctf-infrastructure/database/s3"
-    region = "us-east-1"
-  }
-}
-
-#----------------------------------------
-# SaintsXCTF S3 Database Backup Resources
-#----------------------------------------
-
 resource "aws_s3_bucket" "saints-xctf-db-backups" {
-  bucket = "saints-xctf-db-backups"
+  bucket = "saints-xctf-db-backups-${var.prod ? "prod" : "dev"}"
 
   # Bucket owner gets full control, nobody else has access
   acl = "private"
