@@ -1,0 +1,28 @@
+# Ansible Playbook for my SaintsXCTF AMI
+# Author: Andrew Jarombek
+# Date: 12/8/2018
+
+- hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+
+    - name: Install PHP and Apache
+      become: yes
+      apt:
+        pkg: "{{item}}"
+        state: installed
+        force: yes
+      with_items:
+        - apache2
+        - curl
+        - php
+        - libapache2-mod-php
+        - php-mcrypt
+        - php-mysql
+
+    - name: Update APT Packages
+      become: yes
+      apt:
+        update_cache: yes
