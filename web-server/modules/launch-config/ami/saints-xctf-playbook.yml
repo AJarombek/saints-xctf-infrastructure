@@ -8,6 +8,11 @@
 
   tasks:
 
+    - name: Update APT Packages
+      become: yes
+      apt:
+        update_cache: yes
+
     - name: Install PHP and Apache
       become: yes
       apt:
@@ -22,7 +27,11 @@
         - php-mcrypt
         - php-mysql
 
-    - name: Update APT Packages
+    - name: Configure LAMP
       become: yes
-      apt:
-        update_cache: yes
+      command: "{{item}}"
+      ignore_errors: True
+      with_items:
+        - echo "ServerName saintsxctf.com" >> /etc/apache2/apache2.conf
+        - apache2ctl configtest
+        - systemctl restart apache2
