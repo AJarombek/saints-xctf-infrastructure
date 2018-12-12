@@ -85,3 +85,49 @@ resource "aws_autoscaling_group" "saints-xctf-asg" {
     value = "saints-xctf-server-${local.env}-asg"
   }
 }
+
+resource "aws_autoscaling_schedule" "saints-xctf-server-asg-schedule" {
+  count = "${length(var.autoscaling_schedules)}"
+
+  autoscaling_group_name = "${aws_autoscaling_group.saints-xctf-asg.name}"
+  scheduled_action_name = "${lookup(element(var.autoscaling_schedules, count.index), "name", "default-schedule")}"
+
+  max_size = "${lookup(element(var.autoscaling_schedules, count.index), "max_size", 0)}"
+  min_size = "${lookup(element(var.autoscaling_schedules, count.index), "min_size", 0)}"
+  desired_capacity = "${lookup(element(var.autoscaling_schedules, count.index), "desired_capacity", 0)}"
+
+  recurrence = "${lookup(element(var.autoscaling_schedules, count.index), "recurrence", "0 5 * * *")}"
+}
+
+resource "aws_elb" "saints-xctf-server-elb" {
+  name = "saints-xctf-${local.env}-server-elb"
+
+  subnets = ["${data.aws_subnet.saints-xctf-vpc-public-subnet.id}"]
+  security_groups = [
+    "${data.aws_security_group.public-subnet-security-group.id}",
+    "${}"
+  ]
+
+  listener {
+    instance_port = "${var.instance_port}"
+    instance_protocol = "http"
+    lb_port = 80
+    lb_protocol = "http"
+  }
+
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 2
+    timeout = 3
+    interval = 30
+    target = "TCP:${var.instance_port}"
+  }
+
+  tags {
+    Name = "SaintsXCTFcom Server ${upper(local.env)} ELB"
+  }
+}
+
+resource "aws_security_group" "saints-xctf-server-lc-security-group" {
+  
+}

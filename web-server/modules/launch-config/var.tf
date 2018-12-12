@@ -23,3 +23,14 @@ variable "desired_capacity" {
   description = "The desired number of intances in the autoscaling group"
   default = 1
 }
+
+variable "autoscaling_schedules" {
+  description = "A list of autoscaling schedule parameters"
+  type = "list"
+  default = []
+}
+
+variable "instance_port" {
+  description = "The port on the EC2 instances to receive requests from the load balancer"
+  default = 8080
+}
