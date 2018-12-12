@@ -24,7 +24,7 @@
   "provisioners": [
     {
       "type": "shell",
-      "script": "./setup-saints-xctf-image.sh"
+      "script": "./saints-xctf-setup-image.sh"
     },
     {
       "type": "ansible-local",

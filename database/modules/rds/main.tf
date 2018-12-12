@@ -14,25 +14,25 @@ locals {
 
 data "aws_vpc" "saints-xctf-com-vpc" {
   tags {
-    Name = "SaintsXCTFCom VPC"
+    Name = "SaintsXCTFcom VPC"
   }
 }
 
 data "aws_subnet" "saints-xctf-com-vpc-public-subnet" {
   tags {
-    Name = "SaintsXCTFCom VPC Public Subnet"
+    Name = "SaintsXCTFcom VPC Public Subnet"
   }
 }
 
 data "aws_subnet" "saints-xctf-com-vpc-private-subnet" {
   tags {
-    Name = "SaintsXCTFCom VPC Private Subnet"
+    Name = "SaintsXCTFcom VPC Private Subnet"
   }
 }
 
 data "aws_security_group" "saints-xctf-website-security" {
   tags {
-    Name = "SaintsXCTF ${upper(local.env)} Website Security"
+    Name = "SaintsXCTFcom ${upper(local.env)} Website Security"
   }
 }
 
@@ -54,7 +54,7 @@ resource "aws_security_group" "saints-xctf-database-security" {
   }
 
   tags {
-    Name = "SaintsXCTF MySQL ${upper(local.env)} Database Security"
+    Name = "SaintsXCTFcom MySQL ${upper(local.env)} Database Security"
   }
 }
 
@@ -74,7 +74,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   multi_az = true
 
   tags {
-    Name = "SaintsXCTF MySQL ${upper(local.env)} Database"
+    Name = "SaintsXCTFcom MySQL ${upper(local.env)} Database"
   }
 }
 
@@ -82,7 +82,7 @@ resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   subnet_ids = ["${data.aws_subnet.saints-xctf-com-vpc-private-subnet}"]
 
   tags {
-    Name = "SaintsXCTF MySQL ${upper(local.env)} Database Subnets"
+    Name = "SaintsXCTFcom MySQL ${upper(local.env)} Database Subnets"
   }
 }
 
