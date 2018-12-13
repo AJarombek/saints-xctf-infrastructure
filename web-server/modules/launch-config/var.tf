@@ -34,3 +34,15 @@ variable "instance_port" {
   description = "The port on the EC2 instances to receive requests from the load balancer"
   default = 8080
 }
+
+variable "launch-config-sg-rules" {
+  description = "A list of security group rules for the launch configuration"
+  type = "list"
+  default = []
+}
+
+variable "load-balancer-sg-rules" {
+  description = "A list of security group rules for the load balancer"
+  type = "list"
+  default = []
+}

@@ -24,13 +24,6 @@ data "aws_subnet" "saints-xctf-vpc-public-subnet" {
   }
 }
 
-data "aws_security_group" "public-subnet-security-group" {
-  filter {
-    name = "group-name"
-    values = ["saintsxctfcom-vpc-public-security"]
-  }
-}
-
 data "aws_ami" "saints-xctf-ami" {
   most_recent = true
 
@@ -54,7 +47,7 @@ resource "aws_launch_configuration" "saints-xctf-server-lc" {
   name = "saints-xctf-server-${local.env}-lc"
   image_id = "${data.aws_ami.saints-xctf-ami.id}"
   instance_type = "t2.micro"
-  security_groups = ["${}"]
+  security_groups = ["${aws_security_group.saints-xctf-server-lc-security-group.id}"]
 
   user_data = "${data.template_file.saints-xctf-startup.rendered}"
 
@@ -103,10 +96,7 @@ resource "aws_elb" "saints-xctf-server-elb" {
   name = "saints-xctf-${local.env}-server-elb"
 
   subnets = ["${data.aws_subnet.saints-xctf-vpc-public-subnet.id}"]
-  security_groups = [
-    "${data.aws_security_group.public-subnet-security-group.id}",
-    "${}"
-  ]
+  security_groups = ["${aws_security_group.saints-xctf-server-elb-security-group.id}"]
 
   listener {
     instance_port = "${var.instance_port}"
@@ -129,5 +119,47 @@ resource "aws_elb" "saints-xctf-server-elb" {
 }
 
 resource "aws_security_group" "saints-xctf-server-lc-security-group" {
-  
+  name = "saints-xctf-${local.env}-server-lc-security-group"
+  vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "saints-xctf-server-lc-security-group-rule" {
+  count = "${length(var.launch-config-sg-rules)}"
+
+  security_group_id = "${aws_security_group.saints-xctf-server-lc-security-group.id}"
+  type = "${lookup(element(var.launch-config-sg-rules, count.index), "type", "ingress")}"
+
+  from_port = "${lookup(element(var.launch-config-sg-rules, count.index), "from_port", 0)}"
+  to_port = "${lookup(element(var.launch-config-sg-rules, count.index), "to_port", 0)}"
+  protocol = "${lookup(element(var.launch-config-sg-rules, count.index), "protocol", "-1")}"
+
+  cidr_blocks = ["${lookup(element(var.launch-config-sg-rules, count.index), "cidr_blocks", null)}"]
+  source_security_group_id = "${lookup(element(var.launch-config-sg-rules, count.index), "source_sg", null)}"
+}
+
+resource "aws_security_group" "saints-xctf-server-elb-security-group" {
+  name = "saints-xctf-${local.env}-server-elb-security-group"
+  vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "saints-xctf-server-elb-security-group-rule" {
+  count = "${length(var.load-balancer-sg-rules)}"
+
+  security_group_id = "${aws_security_group.saints-xctf-server-elb-security-group.id}"
+  type = "${lookup(element(var.load-balancer-sg-rules, count.index), "type", "ingress")}"
+
+  from_port = "${lookup(element(var.load-balancer-sg-rules, count.index), "from_port", 0)}"
+  to_port = "${lookup(element(var.load-balancer-sg-rules, count.index), "to_port", 0)}"
+  protocol = "${lookup(element(var.load-balancer-sg-rules, count.index), "protocol", "-1")}"
+
+  cidr_blocks = ["${lookup(element(var.load-balancer-sg-rules, count.index), "cidr_blocks", null)}"]
+  source_security_group_id = "${lookup(element(var.load-balancer-sg-rules, count.index), "source_sg", null)}"
 }

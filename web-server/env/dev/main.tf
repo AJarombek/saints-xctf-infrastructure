@@ -5,6 +5,10 @@
  */
 
 locals {
+  # Environment
+  prod = false
+
+  # Autoscaling schedules
   max_size_on = 1
   min_size_on = 1
   desired_capacity_on = 1
@@ -12,6 +16,9 @@ locals {
   max_size_off = 0
   min_size_off = 0
   desired_capacity_off = 0
+
+  # Port for load balancer to listen to on EC2 instances
+  instance_port = 8080
 }
 
 provider "aws" {
@@ -27,9 +34,16 @@ terraform {
   }
 }
 
+data "aws_security_group" "saints-xctf-database-sg" {
+  tags {
+    Name = "SaintsXCTFcom MySQL ${upper(local.prod ? "PROD" : "DEV")} Database Security"
+  }
+}
+
 module "launch-config" {
   source = "../../modules/launch-config"
-  prod = false
+  prod = "${local.prod}"
+  instance_port = "${local.instance_port}"
 
   autoscaling_schedules = [
     {
@@ -73,6 +87,52 @@ module "launch-config" {
       min_size = "${local.min_size_off}"
       desired_capacity = "${local.desired_capacity_off}"
       recurrence = "30 3 * * 0,1"
+    }
+  ]
+
+  launch-config-sg-rules = [
+    {
+      # Inbound traffic from the internet
+      type = "ingress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+    {
+      # Outbound traffic to the MySQL database
+      type = "egress"
+      from_port = 3306
+      to_port = 3306
+      protocol = "tcp"
+      source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
+    }
+  ]
+
+  load-balancer-sg-rules = [
+    {
+      # Inbound traffic from the internet
+      type = "ingress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+    {
+      # Outbound traffic for health checks
+      type = "egress"
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+    {
+      # Outbound traffic to the MySQL database
+      type = "egress"
+      from_port = 3306
+      to_port = 3306
+      protocol = "tcp"
+      source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
     }
   ]
 }
