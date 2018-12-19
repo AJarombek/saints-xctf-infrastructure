@@ -29,7 +29,7 @@ data "aws_ami" "saints-xctf-ami" {
 
   filter {
     name = "name"
-    values = ["saints-xctf-web-server*"]
+    values = ["saints-xctf-web-server"]
   }
 
   owners = ["739088120071"]
