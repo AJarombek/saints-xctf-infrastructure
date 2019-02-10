@@ -2,7 +2,9 @@
 
 ### Overview
 
-This repository holds application specific infrastructure for the [saintsxctf.com](https://www.saintsxctf.com/) website.
+This repository holds application specific infrastructure for the [saintsxctf.com](https://www.saintsxctf.com/) website.  The 
+VPCs for SaintsXCTF.com are configured in the [global-aws-infrastructure](https://github.com/AJarombek/global-aws-infrastructure) 
+repository.
 
 ### Directories
 
@@ -10,3 +12,4 @@ This repository holds application specific infrastructure for the [saintsxctf.co
 |-------------------|-----------------------------------------------------------------------------|
 | `database`        | Contains infrastructure for the SaintsXCTF MySQL database                   |
 | `web-server`      | Contains infrastructure for the SaintsXCTF Web Server                       |
+| `0x18`            | 24th                                                                        |

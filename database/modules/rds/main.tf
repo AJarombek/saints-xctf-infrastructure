@@ -6,6 +6,7 @@
 
 locals {
   env = "${var.prod ? "prod" : "dev"}"
+  subnet_number = "${var.prod ? 0 : 1}"
 }
 
 #----------------------------------
@@ -20,21 +21,29 @@ data "aws_vpc" "saints-xctf-com-vpc" {
 
 data "aws_subnet" "saints-xctf-com-vpc-public-subnet" {
   tags {
-    Name = "SaintsXCTFcom VPC Public Subnet"
+    Name = "SaintsXCTFcom VPC Public Subnet ${local.subnet_number}"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-private-subnet" {
+data "aws_subnet" "saints-xctf-com-vpc-private-subnet-0" {
   tags {
-    Name = "SaintsXCTFcom VPC Private Subnet"
+    Name = "SaintsXCTFcom VPC Private Subnet 0"
   }
 }
 
+data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
+  tags {
+    Name = "SaintsXCTFcom VPC Private Subnet 1"
+  }
+}
+
+/*
 data "aws_security_group" "saints-xctf-website-security" {
   tags {
     Name = "SaintsXCTFcom ${upper(local.env)} Website Security"
   }
 }
+*/
 
 #------------------------------------
 # SaintsXCTF MySQL Database Resources
@@ -50,7 +59,7 @@ resource "aws_security_group" "saints-xctf-database-security" {
     from_port = 3306
     to_port = 3306
     cidr_blocks = ["${data.aws_subnet.saints-xctf-com-vpc-public-subnet.cidr_block}"]
-    security_groups = ["${data.aws_security_group.saints-xctf-website-security.id}"]
+    # security_groups = ["${data.aws_security_group.saints-xctf-website-security.id}"]
   }
 
   tags {
@@ -59,6 +68,7 @@ resource "aws_security_group" "saints-xctf-database-security" {
 }
 
 resource "aws_db_instance" "saints-xctf-mysql-database" {
+  identifier = "saints-extf-mysql-database-${local.env}"
   instance_class = "db.t2.micro"
   name = "saintsxctf"
   engine = "MySQL"
@@ -69,6 +79,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   username = "${var.username}"
   password = "${var.password}"
   vpc_security_group_ids = ["${aws_security_group.saints-xctf-database-security.id}"]
+  db_subnet_group_name = "${aws_db_subnet_group.saints-xctf-mysql-database-subnet.name}"
 
   # Enables HA for the database instance
   multi_az = true
@@ -79,7 +90,10 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
 }
 
 resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
-  subnet_ids = ["${data.aws_subnet.saints-xctf-com-vpc-private-subnet}"]
+  subnet_ids = [
+    "${data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.id}",
+    "${data.aws_subnet.saints-xctf-com-vpc-private-subnet-1.id}"
+  ]
 
   tags {
     Name = "SaintsXCTFcom MySQL ${upper(local.env)} Database Subnets"

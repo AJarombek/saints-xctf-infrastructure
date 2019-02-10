@@ -6,6 +6,7 @@
 
 locals {
   env = "${var.prod ? "prod" : "dev"}"
+  subnet_number = "${var.prod ? 0 : 1}"
 }
 
 #-----------------------
@@ -20,7 +21,7 @@ data "aws_vpc" "saints-xctf-vpc" {
 
 data "aws_subnet" "saints-xctf-vpc-public-subnet" {
   tags {
-    Name = "SaintsXCTFcom VPC Public Subnet"
+    Name = "SaintsXCTFcom VPC Public Subnet ${local.subnet_number}"
   }
 }
 
@@ -29,7 +30,7 @@ data "aws_ami" "saints-xctf-ami" {
 
   filter {
     name = "name"
-    values = ["saints-xctf-web-server"]
+    values = ["saints-xctf-web-server*"]
   }
 
   owners = ["739088120071"]
@@ -92,29 +93,48 @@ resource "aws_autoscaling_schedule" "saints-xctf-server-asg-schedule" {
   recurrence = "${lookup(element(var.autoscaling_schedules, count.index), "recurrence", "0 5 * * *")}"
 }
 
-resource "aws_elb" "saints-xctf-server-elb" {
-  name = "saints-xctf-${local.env}-server-elb"
+resource "aws_lb" "saints-xctf-server-application-lb" {
+  name = "saints-xctf-${local.env}-server-application-lb"
+  load_balancer_type = "application"
 
   subnets = ["${data.aws_subnet.saints-xctf-vpc-public-subnet.id}"]
   security_groups = ["${aws_security_group.saints-xctf-server-elb-security-group.id}"]
 
-  listener {
-    instance_port = "${var.instance_port}"
-    instance_protocol = "http"
-    lb_port = 80
-    lb_protocol = "http"
+  tags {
+    Name = "SaintsXCTFcom Server ${upper(local.env)} Application LB"
   }
+}
+
+resource "aws_lb_listener" "saints-xctf-server-application-lb-listener" {
+  load_balancer_arn = "${aws_lb.saints-xctf-server-application-lb.arn}"
+  port = 80
+  protocol = "http"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"
+    type = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "saints-xctf-server-application-lb-target-group" {
+  name = "saints-xctf-server-lb-target"
 
   health_check {
-    healthy_threshold = 2
+    interval = 10
+    timeout = 5
+    healthy_threshold = 3
     unhealthy_threshold = 2
-    timeout = 3
-    interval = 30
-    target = "TCP:${var.instance_port}"
+    protocol = "http"
+    path = "/"
+    matcher = "200-299"
   }
 
+  port = 80
+  protocol = "http"
+  vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
+
   tags {
-    Name = "SaintsXCTFcom Server ${upper(local.env)} ELB"
+    Name = "SaintsXCTFcom Server ${upper(local.env)} Application LB Target Group"
   }
 }
 

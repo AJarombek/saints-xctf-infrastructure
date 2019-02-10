@@ -4,14 +4,19 @@
  * Date: 12/3/2018
  */
 
+locals {
+  env = "${var.prod ? "prod" : "dev"}"
+}
+
 resource "aws_s3_bucket" "saints-xctf-db-backups" {
-  bucket = "saints-xctf-db-backups-${var.prod ? "prod" : "dev"}"
+  bucket = "saints-xctf-db-backups-${local.env}"
 
   # Bucket owner gets full control, nobody else has access
   acl = "private"
 
   # Policy allows for resources in this AWS account to create and read objects
-  policy = "${file("policy.json")}"
+  # Must use the module relative path (path.module) - https://github.com/hashicorp/terraform/issues/5213
+  policy = "${file("${path.module}/policy-${local.env}.json")}"
 
   versioning {
     enabled = true

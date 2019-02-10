@@ -19,7 +19,7 @@
     },
     "instance_type": "t2.micro",
     "ssh_username": "ubuntu",
-    "ami_name": "saints-xctf-web-server"
+    "ami_name": "saints-xctf-web-server {{timestamp}}"
   }],
   "provisioners": [
     {
