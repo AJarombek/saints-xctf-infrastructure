@@ -68,7 +68,7 @@ resource "aws_security_group" "saints-xctf-database-security" {
 }
 
 resource "aws_db_instance" "saints-xctf-mysql-database" {
-  identifier = "saints-extf-mysql-database-${local.env}"
+  identifier = "saints-xctf-mysql-database-${local.env}"
   instance_class = "db.t2.micro"
   name = "saintsxctf"
   engine = "MySQL"
