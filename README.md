@@ -6,6 +6,12 @@ This repository holds application specific infrastructure for the [saintsxctf.co
 VPCs for SaintsXCTF.com are configured in the [global-aws-infrastructure](https://github.com/AJarombek/global-aws-infrastructure) 
 repository.
 
+### Infrastructure Diagram
+
+![AWS Model](aws-model.png)
+
+*Last Updated: Feb 10th, 2019*
+
 ### Directories
 
 | Directory Name    | Description                                                                 |
