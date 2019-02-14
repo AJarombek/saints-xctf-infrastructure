@@ -21,6 +21,10 @@ terraform {
   }
 }
 
+#-----------------------
+# Existing AWS Resources
+#-----------------------
+
 data "aws_subnet" "saints-xctf-public-subnet-1" {
   tags {
     Name = "SaintsXCTFcom VPC Public Subnet 1"
@@ -32,6 +36,24 @@ data "aws_vpc" "saints-xctf-vpc" {
     Name = "SaintsXCTFcom VPC"
   }
 }
+
+data "template_file" "jenkins-startup" {
+  template = "${file("bastion-setup.sh")}"
+}
+
+#--------------------------------------
+# Executed Before Resources are Created
+#--------------------------------------
+
+resource "null_resource" "bastion-key-gen" {
+  provisioner "local-exec" {
+    command = "bash bastion-key-gen.sh"
+  }
+}
+
+#------------------------------
+# New AWS Resources for Bastion
+#------------------------------
 
 resource "aws_instance" "bastion" {
   # Use Amazon Linux 2
@@ -48,6 +70,8 @@ resource "aws_instance" "bastion" {
     create_before_destroy = true
   }
 
+  user_data = "${data.template_file.jenkins-startup.rendered}"
+
   tags {
     Name = "Bastion Host"
   }
@@ -63,8 +87,8 @@ module "bastion-subnet-security-group" {
 
   # Optional arguments
   sg_rules = [
-    # Inbound traffic for SSH
     {
+      # Inbound traffic for SSH
       type = "ingress"
       from_port = 22
       to_port = 22
@@ -77,6 +101,22 @@ module "bastion-subnet-security-group" {
       from_port = -1
       to_port = -1
       protocol = "icmp"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for HTTP
+      type = "egress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for HTTP
+      type = "egress"
+      from_port = 443
+      to_port = 443
+      protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
     }
   ]

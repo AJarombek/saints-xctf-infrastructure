@@ -18,7 +18,7 @@ BastionKey="$(aws ec2 create-key-pair --key-name bastion-key --query "KeyMateria
 echo ${BastionKey}
 
 # Place the private key in a file called bastion-key.pem
-echo ${BastionKey} > ~/bastion-key.pem
+echo ${BastionKey} > ~/Documents/bastion-key.pem
 
 # Its recommended to change the private key permissions
-chmod 400 ~/bastion-key.pem
+chmod 400 ~/Documents/bastion-key.pem
