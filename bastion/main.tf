@@ -73,8 +73,10 @@ resource "aws_instance" "bastion" {
   user_data = "${data.template_file.jenkins-startup.rendered}"
 
   tags {
-    Name = "Bastion Host"
+    Name = "bastion-host"
   }
+
+  depends_on = ["null_resource.bastion-key-gen"]
 }
 
 module "bastion-subnet-security-group" {
@@ -116,6 +118,14 @@ module "bastion-subnet-security-group" {
       type = "egress"
       from_port = 443
       to_port = 443
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for MySQL
+      type = "egress"
+      from_port = 3306
+      to_port = 3306
       protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
     }

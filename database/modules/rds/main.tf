@@ -7,6 +7,7 @@
 locals {
   env = "${var.prod ? "prod" : "dev"}"
   subnet_number = "${var.prod ? 0 : 1}"
+  backups_retained_days = "${var.prod ? 3 : 0}"
 }
 
 #----------------------------------
@@ -19,9 +20,15 @@ data "aws_vpc" "saints-xctf-com-vpc" {
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-public-subnet" {
+data "aws_subnet" "saints-xctf-com-vpc-public-subnet-0" {
   tags {
-    Name = "SaintsXCTFcom VPC Public Subnet ${local.subnet_number}"
+    Name = "SaintsXCTFcom VPC Public Subnet 0"
+  }
+}
+
+data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
+  tags {
+    Name = "SaintsXCTFcom VPC Public Subnet 1"
   }
 }
 
@@ -58,7 +65,10 @@ resource "aws_security_group" "saints-xctf-database-security" {
     protocol = "tcp"
     from_port = 3306
     to_port = 3306
-    cidr_blocks = ["${data.aws_subnet.saints-xctf-com-vpc-public-subnet.cidr_block}"]
+    cidr_blocks = [
+      "${data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.cidr_block}",
+      "${data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.cidr_block}"
+    ]
     # security_groups = ["${data.aws_security_group.saints-xctf-website-security.id}"]
   }
 
@@ -70,22 +80,38 @@ resource "aws_security_group" "saints-xctf-database-security" {
 resource "aws_db_instance" "saints-xctf-mysql-database" {
   identifier = "saints-xctf-mysql-database-${local.env}"
   instance_class = "db.t2.micro"
-  name = "saintsxctf"
   engine = "MySQL"
+  engine_version = "5.7.19"
+
   allocated_storage = 5
-  backup_retention_period = 3
+  backup_retention_period = "${local.backups_retained_days}"
   storage_type = "gp2"
-  backup_window = "06:00-07:00"
+  storage_encrypted = false
+  backup_window = "07:00-08:00"
+
+  # When updating, wait for the maintenance window
+  apply_immediately = false
+  maintenance_window = "Mon:04:00-Mon:07:00"
+  final_snapshot_identifier = "saintsxctf-${local.env}"
+
+  name = "saintsxctf"
   username = "${var.username}"
   password = "${var.password}"
+  port = 3306
+
+  # Allow resources to access the DB instance via IAM policies instead of usernames/passwords
+  iam_database_authentication_enabled = true
+
   vpc_security_group_ids = ["${aws_security_group.saints-xctf-database-security.id}"]
   db_subnet_group_name = "${aws_db_subnet_group.saints-xctf-mysql-database-subnet.name}"
+  publicly_accessible = false
 
   # Enables HA for the database instance
   multi_az = true
 
   tags {
-    Name = "SaintsXCTFcom MySQL ${upper(local.env)} Database"
+    Name = "Saints-xctf-mysql-${upper(local.env)}-database"
+    Environment = "${upper(local.env)}"
   }
 }
 
