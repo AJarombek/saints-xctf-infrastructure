@@ -20,12 +20,26 @@
         state: installed
         force: yes
       with_items:
+        - git
         - apache2
         - curl
         - php
         - libapache2-mod-php
         - php-mcrypt
         - php-mysql
+
+    - name: Checkout Git Repository
+      become: yes
+      git:
+        repo: https://github.com/AJarombek/saints-xctf.git
+        version: master
+        dest: ~/git-repo
+
+    - name: Copy Repository to Apache Root Directory
+      become: yes
+      command: "{{item}}"
+      with_items:
+        - cp -R ~/git-repo/ /var/www/html/
 
     - name: Configure LAMP
       become: yes

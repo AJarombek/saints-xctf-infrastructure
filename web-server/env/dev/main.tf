@@ -93,7 +93,7 @@ module "launch-config" {
     }
   ]
 
-  launch-config-sg-rules = [
+  launch-config-sg-rules-cidr = [
     {
       # Inbound traffic from the internet
       type = "ingress"
@@ -101,7 +101,10 @@ module "launch-config" {
       to_port = 80
       protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
-    },
+    }
+  ]
+
+  launch-config-sg-rules-source = [
     {
       # Outbound traffic to the MySQL database
       type = "egress"
@@ -112,7 +115,7 @@ module "launch-config" {
     }
   ]
 
-  load-balancer-sg-rules = [
+  load-balancer-sg-rules-cidr = [
     {
       # Inbound traffic from the internet
       type = "ingress"
@@ -128,7 +131,10 @@ module "launch-config" {
       to_port = 0
       protocol = "-1"
       cidr_blocks = "${local.public_cidr}"
-    },
+    }
+  ]
+
+  load-balancer-sg-rules-source = [
     {
       # Outbound traffic to the MySQL database
       type = "egress"

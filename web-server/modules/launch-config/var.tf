@@ -35,14 +35,26 @@ variable "instance_port" {
   default = 8080
 }
 
-variable "launch-config-sg-rules" {
-  description = "A list of security group rules for the launch configuration"
+variable "launch-config-sg-rules-cidr" {
+  description = "A list of security group rules for the launch configuration (using CIDR blocks)"
   type = "list"
   default = []
 }
 
-variable "load-balancer-sg-rules" {
-  description = "A list of security group rules for the load balancer"
+variable "launch-config-sg-rules-source" {
+  description = "A list of security group rules for the launch configuration (using source Security Groups)"
+  type = "list"
+  default = []
+}
+
+variable "load-balancer-sg-rules-cidr" {
+  description = "A list of security group rules for the load balancer (using CIDR blocks)"
+  type = "list"
+  default = []
+}
+
+variable "load-balancer-sg-rules-source" {
+  description = "A list of security group rules for the load balancer (using source Security Groups)"
   type = "list"
   default = []
 }
