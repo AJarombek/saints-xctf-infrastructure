@@ -37,7 +37,7 @@ data "aws_ami" "saints-xctf-ami" {
 }
 
 data "template_file" "saints-xctf-startup" {
-  template = "${file("saints-xctf-startup.sh")}"
+  template = "${file("${path.module}/saints-xctf-startup.sh")}"
 }
 
 #----------------------------------------------------------
@@ -94,7 +94,7 @@ resource "aws_autoscaling_schedule" "saints-xctf-server-asg-schedule" {
 }
 
 resource "aws_lb" "saints-xctf-server-application-lb" {
-  name = "saints-xctf-${local.env}-server-application-lb"
+  name = "saints-xctf-${local.env}-server-lb"
   load_balancer_type = "application"
 
   subnets = ["${data.aws_subnet.saints-xctf-vpc-public-subnet.id}"]
@@ -151,14 +151,14 @@ resource "aws_security_group_rule" "saints-xctf-server-lc-security-group-rule" {
   count = "${length(var.launch-config-sg-rules)}"
 
   security_group_id = "${aws_security_group.saints-xctf-server-lc-security-group.id}"
-  type = "${lookup(element(var.launch-config-sg-rules, count.index), "type", "ingress")}"
+  type = "${lookup(var.launch-config-sg-rules[count.index], "type", "ingress")}"
 
-  from_port = "${lookup(element(var.launch-config-sg-rules, count.index), "from_port", 0)}"
-  to_port = "${lookup(element(var.launch-config-sg-rules, count.index), "to_port", 0)}"
-  protocol = "${lookup(element(var.launch-config-sg-rules, count.index), "protocol", "-1")}"
+  from_port = "${lookup(var.launch-config-sg-rules[count.index], "from_port", 0)}"
+  to_port = "${lookup(var.launch-config-sg-rules[count.index], "to_port", 0)}"
+  protocol = "${lookup(var.launch-config-sg-rules[count.index], "protocol", "-1")}"
 
-  cidr_blocks = ["${lookup(element(var.launch-config-sg-rules, count.index), "cidr_blocks", null)}"]
-  source_security_group_id = "${lookup(element(var.launch-config-sg-rules, count.index), "source_sg", null)}"
+  cidr_blocks = ["${lookup(var.launch-config-sg-rules[count.index], "cidr_blocks", "")}"]
+  source_security_group_id = "${lookup(var.launch-config-sg-rules[count.index], "source_sg", "")}"
 }
 
 resource "aws_security_group" "saints-xctf-server-elb-security-group" {
@@ -174,12 +174,12 @@ resource "aws_security_group_rule" "saints-xctf-server-elb-security-group-rule" 
   count = "${length(var.load-balancer-sg-rules)}"
 
   security_group_id = "${aws_security_group.saints-xctf-server-elb-security-group.id}"
-  type = "${lookup(element(var.load-balancer-sg-rules, count.index), "type", "ingress")}"
+  type = "${lookup(var.load-balancer-sg-rules[count.index], "type", "ingress")}"
 
-  from_port = "${lookup(element(var.load-balancer-sg-rules, count.index), "from_port", 0)}"
-  to_port = "${lookup(element(var.load-balancer-sg-rules, count.index), "to_port", 0)}"
-  protocol = "${lookup(element(var.load-balancer-sg-rules, count.index), "protocol", "-1")}"
+  from_port = "${lookup(var.load-balancer-sg-rules[count.index], "from_port", 0)}"
+  to_port = "${lookup(var.load-balancer-sg-rules[count.index], "to_port", 0)}"
+  protocol = "${lookup(var.load-balancer-sg-rules[count.index], "protocol", "-1")}"
 
-  cidr_blocks = ["${lookup(element(var.load-balancer-sg-rules, count.index), "cidr_blocks", null)}"]
-  source_security_group_id = "${lookup(element(var.load-balancer-sg-rules, count.index), "source_sg", null)}"
+  cidr_blocks = ["${lookup(var.load-balancer-sg-rules[count.index], "cidr_blocks", "")}"]
+  source_security_group_id = "${lookup(var.load-balancer-sg-rules[count.index], "source_sg", "")}"
 }

@@ -16,6 +16,8 @@ repository.
 
 | Directory Name    | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
-| `database`        | Contains infrastructure for the SaintsXCTF MySQL database                   |
-| `web-server`      | Contains infrastructure for the SaintsXCTF Web Server                       |
+| `database`        | Infrastructure for the SaintsXCTF MySQL database.                           |
+| `web-server`      | Infrastructure for the SaintsXCTF Web Server.                               |
+| `iam`             | IAM policies used in the SaintsXCTF VPC.                                    |
+| `bastion`         | Bastion host for connecting to resources in the private subnets.            |
 | `0x18`            | 24th                                                                        |

@@ -32,7 +32,7 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
 
   # Policy allows for resources in this AWS account to create and read objects
   # Must use the module relative path (path.module) - https://github.com/hashicorp/terraform/issues/5213
-  policy = "${file("${path.module}/policy-${local.env}.json")}"
+  policy = "${file("${path.module}/policies/policy-${local.env}.json")}"
 
   versioning {
     enabled = true

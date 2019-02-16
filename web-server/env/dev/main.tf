@@ -19,6 +19,9 @@ locals {
 
   # Port for load balancer to listen to on EC2 instances
   instance_port = 8080
+
+  # CIDR blocks for firewalls
+  public_cidr = "0.0.0.0/0"
 }
 
 provider "aws" {
@@ -97,7 +100,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = "${local.public_cidr}"
     },
     {
       # Outbound traffic to the MySQL database
@@ -116,7 +119,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = "${local.public_cidr}"
     },
     {
       # Outbound traffic for health checks
@@ -124,7 +127,7 @@ module "launch-config" {
       from_port = 0
       to_port = 0
       protocol = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = "${local.public_cidr}"
     },
     {
       # Outbound traffic to the MySQL database
