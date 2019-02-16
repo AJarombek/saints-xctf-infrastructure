@@ -8,3 +8,9 @@ variable "prod" {
   description = "If the environment of the launch configuration is production"
   default = false
 }
+
+variable "contents" {
+  description = "Objects to put into the S3 bucket"
+  type = "list"
+  default = []
+}

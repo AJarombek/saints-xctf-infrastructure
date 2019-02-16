@@ -7,6 +7,7 @@
 locals {
   # Environment
   prod = false
+  env = "${local.prod ? "prod" : "dev"}"
 
   # Autoscaling schedules
   max_size_on = 1
@@ -39,7 +40,7 @@ terraform {
 
 data "aws_security_group" "saints-xctf-database-sg" {
   tags {
-    Name = "saints-xctf-database-security-${local.prod ? "prod" : "dev"}"
+    Name = "saints-xctf-database-security-${local.env}"
   }
 }
 
@@ -142,6 +143,30 @@ module "launch-config" {
       to_port = 3306
       protocol = "tcp"
       source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
+    }
+  ]
+}
+
+module "s3" {
+  source = "../../modules/s3"
+  prod = "${local.prod}"
+
+  contents = [
+    {
+      key = "${local.env}/dev/date.js",
+      source = "contents/date.js"
+    },
+    {
+      key = "${local.env}/models/clientcred.php",
+      source = "contents/clientcred.php"
+    },
+    {
+      key = "${local.env}/api/cred.php",
+      source = "contents/cred.php"
+    },
+    {
+      key = "${local.env}/api/apicred.php",
+      source = "contents/apicred.php"
     }
   ]
 }

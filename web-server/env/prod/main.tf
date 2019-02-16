@@ -7,6 +7,7 @@
 locals {
   # Environment
   prod = true
+  env = "${local.prod ? "prod" : "dev"}"
 
   # Port for load balancer to listen to on EC2 instances
   instance_port = 8080
@@ -90,6 +91,30 @@ module "launch-config" {
       to_port = 3306
       protocol = "tcp"
       source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
+    }
+  ]
+}
+
+module "s3" {
+  source = "../../modules/s3"
+  prod = "${local.prod}"
+
+  contents = [
+    {
+      key = "${local.env}/dev/date.js",
+      source = "contents/date.js"
+    },
+    {
+      key = "${local.env}/models/clientcred.php",
+      source = "contents/clientcred.php"
+    },
+    {
+      key = "${local.env}/api/cred.php",
+      source = "contents/cred.php"
+    },
+    {
+      key = "${local.env}/api/apicred.php",
+      source = "contents/apicred.php"
     }
   ]
 }
