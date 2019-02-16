@@ -44,14 +44,6 @@ data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
   }
 }
 
-/*
-data "aws_security_group" "saints-xctf-website-security" {
-  tags {
-    Name = "SaintsXCTFcom ${upper(local.env)} Website Security"
-  }
-}
-*/
-
 #------------------------------------
 # SaintsXCTF MySQL Database Resources
 #------------------------------------
@@ -69,11 +61,10 @@ resource "aws_security_group" "saints-xctf-database-security" {
       "${data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.cidr_block}",
       "${data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.cidr_block}"
     ]
-    # security_groups = ["${data.aws_security_group.saints-xctf-website-security.id}"]
   }
 
   tags {
-    Name = "SaintsXCTFcom MySQL ${upper(local.env)} Database Security"
+    Name = "saints-xctf-database-security-${local.env}"
   }
 }
 
@@ -122,7 +113,7 @@ resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   ]
 
   tags {
-    Name = "SaintsXCTFcom MySQL ${upper(local.env)} Database Subnets"
+    Name = "saints-xctf-mysql-${upper(local.env)}-database-subnets"
   }
 }
 

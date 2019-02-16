@@ -39,7 +39,7 @@ terraform {
 
 data "aws_security_group" "saints-xctf-database-sg" {
   tags {
-    Name = "SaintsXCTFcom MySQL ${upper(local.prod ? "PROD" : "DEV")} Database Security"
+    Name = "saints-xctf-database-security-${local.prod ? "prod" : "dev"}"
   }
 }
 

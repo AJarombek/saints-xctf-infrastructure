@@ -41,6 +41,24 @@
       with_items:
         - cp -R ~/git-repo/ /var/www/html/
 
+    - name: Install AWS CLI
+      become: yes
+      command: "{{item}}"
+      ignore_errors: True
+      with_items:
+        - python --version
+        - curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+        - python get-pip.py
+        - pip --version
+        - pip install awscli
+        - aws --version
+
+    - name: Install Credential Files
+      become: yes
+      command: "{{item}}"
+      with_items:
+        - echo . # TODO
+
     - name: Configure LAMP
       become: yes
       command: "{{item}}"
