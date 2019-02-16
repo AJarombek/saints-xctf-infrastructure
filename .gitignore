@@ -3,5 +3,5 @@
 **/.terraform/*
 **/bastion-key.pem
 **/saints-xctf-backup.sql
-web-server/env/dev/contents/*
-web-server/env/prod/contents/*
+web-app/env/dev/contents/*
+web-app/env/prod/contents/*

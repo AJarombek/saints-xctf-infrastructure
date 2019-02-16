@@ -146,27 +146,3 @@ module "launch-config" {
     }
   ]
 }
-
-module "s3" {
-  source = "../../modules/s3"
-  prod = "${local.prod}"
-
-  contents = [
-    {
-      key = "${local.env}/dev/date.js",
-      source = "contents/date.js"
-    },
-    {
-      key = "${local.env}/models/clientcred.php",
-      source = "contents/clientcred.php"
-    },
-    {
-      key = "${local.env}/api/cred.php",
-      source = "contents/cred.php"
-    },
-    {
-      key = "${local.env}/api/apicred.php",
-      source = "contents/apicred.php"
-    }
-  ]
-}

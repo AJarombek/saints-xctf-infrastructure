@@ -47,7 +47,7 @@ resource "aws_s3_bucket_object" "bucket-objects" {
 
 resource "aws_s3_bucket_policy" "saints-xctf-credentials-policy" {
   bucket = "${aws_s3_bucket.saints-xctf-credentials.id}"
-  policy = "${file("saints-xctf-credentials-policy.json")}"
+  policy = "${file("${path.module}/policies/saints-xctf-credentials-policy-${local.env}.json")}"
 
   depends_on = ["aws_s3_bucket.saints-xctf-credentials", "aws_s3_bucket_object.bucket-objects"]
 }
