@@ -37,6 +37,10 @@ data "aws_vpc" "saints-xctf-vpc" {
   }
 }
 
+data "aws_iam_role" "rds-access-role" {
+  name = "rds-access-role"
+}
+
 data "template_file" "jenkins-startup" {
   template = "${file("bastion-setup.sh")}"
 }
@@ -65,6 +69,7 @@ resource "aws_instance" "bastion" {
 
   subnet_id = "${data.aws_subnet.saints-xctf-public-subnet-1.id}"
   security_groups = ["${module.bastion-subnet-security-group.security_group_id}"]
+  iam_instance_profile = "${aws_iam_instance_profile.bastion-instance-profile.name}"
 
   lifecycle {
     create_before_destroy = true
@@ -77,6 +82,11 @@ resource "aws_instance" "bastion" {
   }
 
   depends_on = ["null_resource.bastion-key-gen"]
+}
+
+resource "aws_iam_instance_profile" "bastion-instance-profile" {
+  name = "bastion-instance-profile"
+  role = "${data.aws_iam_role.rds-access-role.name}"
 }
 
 module "bastion-subnet-security-group" {

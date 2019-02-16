@@ -8,6 +8,22 @@ locals {
   env = "${var.prod ? "prod" : "dev"}"
 }
 
+#-------------------------------------
+# Executed After Resources are Created
+#-------------------------------------
+
+resource "null_resource" "bastion-key-gen" {
+  provisioner "local-exec" {
+    command = "bash initial-backup.sh dev"
+  }
+
+  depends_on = ["aws_s3_bucket.saints-xctf-db-backups"]
+}
+
+#-------------
+# S3 Resources
+#-------------
+
 resource "aws_s3_bucket" "saints-xctf-db-backups" {
   bucket = "saints-xctf-db-backups-${local.env}"
 

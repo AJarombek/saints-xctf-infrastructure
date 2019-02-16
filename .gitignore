@@ -2,3 +2,4 @@
 0x18/cred.sh
 **/.terraform/*
 **/bastion-key.pem
+**/saints-xctf-backup.sql
