@@ -90,7 +90,8 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   password = "${var.password}"
   port = 3306
 
-  # Allow resources to access the DB instance via IAM policies instead of usernames/passwords
+  # Allow resources to access the DB instance via IAM policies instead of usernames/passwords.
+  # IAM authentication is not available on small instance sizes.
   iam_database_authentication_enabled = true
 
   vpc_security_group_ids = ["${aws_security_group.saints-xctf-database-security.id}"]
@@ -101,7 +102,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   multi_az = true
 
   tags {
-    Name = "Saints-xctf-mysql-${upper(local.env)}-database"
+    Name = "Saints-xctf-mysql-${local.env}-database"
     Environment = "${upper(local.env)}"
   }
 }
@@ -113,7 +114,7 @@ resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   ]
 
   tags {
-    Name = "saints-xctf-mysql-${upper(local.env)}-database-subnets"
+    Name = "saints-xctf-mysql-${local.env}-database-subnets"
   }
 }
 

@@ -23,6 +23,7 @@ locals {
 
   # CIDR blocks for firewalls
   public_cidr = "0.0.0.0/0"
+  my_cidr = "69.124.72.192/32"
 }
 
 provider "aws" {
@@ -102,7 +103,15 @@ module "launch-config" {
       to_port = 80
       protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
-    }
+    },
+    {
+      # Connect to the instance from my IP
+      type = "ingress"
+      from_port = 22
+      to_port = 22
+      protocol = "tcp"
+      cidr_blocks = "${local.my_cidr}"
+    },
   ]
 
   launch-config-sg-rules-source = [
@@ -124,6 +133,14 @@ module "launch-config" {
       to_port = 80
       protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Connect to the instance from my IP
+      type = "ingress"
+      from_port = 22
+      to_port = 22
+      protocol = "tcp"
+      cidr_blocks = "${local.my_cidr}"
     },
     {
       # Outbound traffic for health checks

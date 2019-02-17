@@ -12,9 +12,9 @@ locals {
 # Executed After Resources are Created
 #-------------------------------------
 
-resource "null_resource" "bastion-key-gen" {
+resource "null_resource" "initial-backups" {
   provisioner "local-exec" {
-    command = "bash initial-backup.sh dev"
+    command = "bash ../../modules/s3/initial_backup.sh dev"
   }
 
   depends_on = ["aws_s3_bucket.saints-xctf-db-backups"]

@@ -11,4 +11,5 @@ ENV=$1
 aws --version
 
 # Put the local backup file onto S3
-aws s3api put-object --bucket saints-xctf-db-backups-${ENV} --key saints-xctf-backup.sql --body saints-xctf-backup.sql
+aws s3api put-object --bucket saints-xctf-db-backups-${ENV} --key saints-xctf-backup.sql --body \
+        ../../modules/s3/saints-xctf-backup.sql

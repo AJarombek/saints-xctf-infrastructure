@@ -9,8 +9,6 @@ IP_ADDRESS="$(hostname -I)"
 echo "Instance IP Address: ${IP_ADDRESS}"
 
 # Configure the Apache web server
-DOMAIN="saintsxctf${ENV}.jarombek.io"
-
 sudo echo "ServerName ${DOMAIN}" >> /etc/apache2/apache2.conf
 
 # Add the application files not in version control

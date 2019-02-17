@@ -47,6 +47,18 @@ data "template_file" "saints-xctf-startup" {
   vars {
     ENV = "${var.prod ? "" : "dev"}"
     IP_ADDRESS = ""
+    DOMAIN = "saintsxctf${var.prod ? "" : "dev"}.jarombek.io"
+  }
+}
+
+#--------------------------------------
+# Executed Before Resources are Created
+#--------------------------------------
+
+resource "null_resource" "bastion-key-gen" {
+  provisioner "local-exec" {
+    command = "bash ../../modules/launch-config/saintsxctf-key-gen.sh ${var.prod ?
+                  "saints-xctf-key" : "saints-xctf-dev-key"}"
   }
 }
 
@@ -59,12 +71,16 @@ resource "aws_launch_configuration" "saints-xctf-server-lc" {
   image_id = "${data.aws_ami.saints-xctf-ami.id}"
   instance_type = "t2.micro"
   security_groups = ["${aws_security_group.saints-xctf-server-lc-security-group.id}"]
+  associate_public_ip_address = true
+  key_name = "${var.prod ? "saints-xctf-key" : "saints-xctf-dev-key"}"
 
   user_data = "${data.template_file.saints-xctf-startup.rendered}"
 
   lifecycle {
     create_before_destroy = true
   }
+
+  depends_on = []
 }
 
 resource "aws_autoscaling_group" "saints-xctf-asg" {
@@ -75,7 +91,7 @@ resource "aws_autoscaling_group" "saints-xctf-asg" {
   min_size = "${var.min_size}"
   desired_capacity = "${var.desired_capacity}"
 
-  load_balancers = ["${aws_lb.saints-xctf-server-application-lb.id}"]
+  target_group_arns = ["${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"]
   health_check_type = "ELB"
   health_check_grace_period = 600
 
@@ -85,7 +101,7 @@ resource "aws_autoscaling_group" "saints-xctf-asg" {
 
   tag {
     key = "Name"
-    propagate_at_launch = false
+    propagate_at_launch = true
     value = "saints-xctf-server-${local.env}-asg"
   }
 }
@@ -147,7 +163,7 @@ resource "aws_lb_target_group" "saints-xctf-server-application-lb-target-group" 
   vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
 
   tags {
-    Name = "SaintsXCTFcom Server ${upper(local.env)} Application LB Target Group"
+    Name = "saints-xctf-${local.env}-application-lb-target-group"
   }
 }
 
@@ -157,6 +173,10 @@ resource "aws_security_group" "saints-xctf-server-lc-security-group" {
 
   lifecycle {
     create_before_destroy = true
+  }
+
+  tags {
+    Name = "saints-xctf-${local.env}-server-lc-security-group"
   }
 }
 
