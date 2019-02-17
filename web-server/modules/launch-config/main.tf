@@ -45,6 +45,7 @@ data "template_file" "saints-xctf-startup" {
   template = "${file("${path.module}/saints-xctf-startup.sh")}"
 
   vars {
+    ENV = "${var.prod ? "" : "dev"}"
     IP_ADDRESS = ""
   }
 }

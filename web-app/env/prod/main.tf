@@ -28,19 +28,19 @@ module "s3" {
 
   contents = [
     {
-      key = "${local.env}/date.js",
+      key = "date.js",
       source = "date.js"
     },
     {
-      key = "${local.env}/models/clientcred.php",
+      key = "models/clientcred.php",
       source = "clientcred.php"
     },
     {
-      key = "${local.env}/api/cred.php",
+      key = "api/cred.php",
       source = "cred.php"
     },
     {
-      key = "${local.env}/api/apicred.php",
+      key = "api/apicred.php",
       source = "apicred.php"
     }
   ]

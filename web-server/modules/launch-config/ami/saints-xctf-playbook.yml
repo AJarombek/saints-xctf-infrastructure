@@ -53,17 +53,10 @@
         - pip install awscli
         - aws --version
 
-    - name: Install Credential Files
-      become: yes
-      command: "{{item}}"
-      with_items:
-        - echo . # TODO
-
-    - name: Configure LAMP
-      become: yes
-      command: "{{item}}"
-      ignore_errors: True
-      with_items:
-        - echo "ServerName saintsxctf.com" >> /etc/apache2/apache2.conf
-        - apache2ctl configtest
-        - systemctl restart apache2
+    #- name: Configure LAMP
+    #  become: yes
+    #  command: "{{item}}"
+    #  ignore_errors: True
+    #  with_items:
+    #    - echo "ServerName saintsxctf.com" >> /etc/apache2/apache2.conf
+    #    - apache2ctl configtest
