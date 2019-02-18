@@ -41,6 +41,10 @@ data "aws_ami" "saints-xctf-ami" {
   owners = ["739088120071"]
 }
 
+data "aws_iam_role" "s3-access-role" {
+  name = "s3-access-role"
+}
+
 data "template_file" "saints-xctf-startup" {
   template = "${file("${path.module}/saints-xctf-startup.sh")}"
 
@@ -55,7 +59,7 @@ data "template_file" "saints-xctf-startup" {
 # Executed Before Resources are Created
 #--------------------------------------
 
-resource "null_resource" "bastion-key-gen" {
+resource "null_resource" "saints-xctf-key-gen" {
   provisioner "local-exec" {
     command = "bash ../../modules/launch-config/saintsxctf-key-gen.sh ${var.prod ?
                   "saints-xctf-key" : "saints-xctf-dev-key"}"
@@ -80,7 +84,7 @@ resource "aws_launch_configuration" "saints-xctf-server-lc" {
     create_before_destroy = true
   }
 
-  depends_on = []
+  depends_on = ["null_resource.saints-xctf-key-gen"]
 }
 
 resource "aws_autoscaling_group" "saints-xctf-asg" {
@@ -94,6 +98,14 @@ resource "aws_autoscaling_group" "saints-xctf-asg" {
   target_group_arns = ["${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"]
   health_check_type = "ELB"
   health_check_grace_period = 600
+
+  initial_lifecycle_hook {
+    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+    name = "provide-s3-access"
+    heartbeat_timeout = 2000
+    default_result = "CONTINUE"
+    role_arn = "${data.aws_iam_role.s3-access-role.arn}"
+  }
 
   lifecycle {
     create_before_destroy = true
@@ -128,6 +140,7 @@ resource "aws_lb" "saints-xctf-server-application-lb" {
     "${data.aws_subnet.saints-xctf-vpc-public-subnet-1.id}"
   ]
   security_groups = ["${aws_security_group.saints-xctf-server-lb-security-group.id}"]
+
 
   tags {
     Name = "saints-xctf-server-${local.env}-application-lb"

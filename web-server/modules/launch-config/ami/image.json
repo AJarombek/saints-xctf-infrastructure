@@ -27,6 +27,11 @@
       "script": "./saints-xctf-setup-image.sh"
     },
     {
+      "type": "file",
+      "source": "files/dir.conf",
+      "destination": "/var/tmp/dir.conf"
+    },
+    {
       "type": "ansible-local",
       "playbook_file": "./saints-xctf-playbook.yml"
     }

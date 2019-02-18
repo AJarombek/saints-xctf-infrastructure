@@ -24,19 +24,19 @@ terraform {
 data "aws_route53_zone" "jarombek-io-zone" {
   name = "jarombek.io."
 }
+/*
+data "aws_lb" "saints-xctf-prod-server-lb" {
+  name = "saints-xctf-prod-server-lb"
+}*/
 
-data "aws_lb" "saints-xctf-server-dev-application-lb" {
-  name = "saints-xctf-server-dev-application-lb"
-}
-
-data "aws_lb" "saints-xctf-server-prod-application-lb" {
-  name = "saints-xctf-server-prod-application-lb"
+data "aws_lb" "saints-xctf-dev-server-lb" {
+  name = "saints-xctf-dev-server-lb"
 }
 
 #------------------------------
 # New AWS Resources for Route53
 #------------------------------
-
+/*
 resource "aws_route53_record" "saintsxctf-com-a" {
   name = "saintsxctf.jarombek.io"
   type = "A"
@@ -47,7 +47,7 @@ resource "aws_route53_record" "saintsxctf-com-a" {
     name = "${data.aws_lb.saints-xctf-server-prod-application-lb.dns_name}"
     zone_id = "${data.aws_lb.saints-xctf-server-prod-application-lb.zone_id}"
   }
-}
+}*/
 
 resource "aws_route53_record" "dev-saintsxctf-com-a" {
   name = "saintsxctfdev.jarombek.io"
@@ -56,7 +56,7 @@ resource "aws_route53_record" "dev-saintsxctf-com-a" {
 
   alias {
     evaluate_target_health = true
-    name = "${data.aws_lb.saints-xctf-server-dev-application-lb.dns_name}"
-    zone_id = "${data.aws_lb.saints-xctf-server-dev-application-lb.zone_id}"
+    name = "${data.aws_lb.saints-xctf-dev-server-lb.dns_name}"
+    zone_id = "${data.aws_lb.saints-xctf-dev-server-lb.zone_id}"
   }
 }

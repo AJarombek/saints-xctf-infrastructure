@@ -39,7 +39,13 @@
       become: yes
       command: "{{item}}"
       with_items:
-        - cp -R ~/git-repo/ /var/www/html/
+        - cp -a ~/git-repo/. /var/www/html/
+
+    - name: Copy Local Files to Appropriate Directories
+      become: yes
+      command: "{{item}}"
+      with_items:
+        - cp /var/tmp/dir.conf /etc/apache2/mods-enabled/
 
     - name: Install AWS CLI
       become: yes
