@@ -70,6 +70,11 @@ resource "null_resource" "saints-xctf-key-gen" {
 # New AWS Resources for the SaintsXCTF Launch Configuration
 #----------------------------------------------------------
 
+resource "aws_iam_instance_profile" "saints-xctf-instance-profile" {
+  name = "saints-xctf-${local.env}--instance-profile"
+  role = "${data.aws_iam_role.s3-access-role.name}"
+}
+
 resource "aws_launch_configuration" "saints-xctf-server-lc" {
   name = "saints-xctf-server-${local.env}-lc"
   image_id = "${data.aws_ami.saints-xctf-ami.id}"
@@ -77,6 +82,7 @@ resource "aws_launch_configuration" "saints-xctf-server-lc" {
   security_groups = ["${aws_security_group.saints-xctf-server-lc-security-group.id}"]
   associate_public_ip_address = true
   key_name = "${var.prod ? "saints-xctf-key" : "saints-xctf-dev-key"}"
+  iam_instance_profile = "${aws_iam_instance_profile.saints-xctf-instance-profile.name}"
 
   user_data = "${data.template_file.saints-xctf-startup.rendered}"
 
@@ -98,14 +104,6 @@ resource "aws_autoscaling_group" "saints-xctf-asg" {
   target_group_arns = ["${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"]
   health_check_type = "ELB"
   health_check_grace_period = 600
-
-  initial_lifecycle_hook {
-    lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
-    name = "provide-s3-access"
-    heartbeat_timeout = 2000
-    default_result = "CONTINUE"
-    role_arn = "${data.aws_iam_role.s3-access-role.arn}"
-  }
 
   lifecycle {
     create_before_destroy = true

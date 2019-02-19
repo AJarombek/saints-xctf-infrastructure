@@ -112,6 +112,14 @@ module "launch-config" {
       protocol = "tcp"
       cidr_blocks = "${local.my_cidr}"
     },
+    {
+      # Outbound traffic for calling S3
+      type = "egress"
+      from_port = 443
+      to_port = 443
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
+    }
   ]
 
   launch-config-sg-rules-source = [
@@ -148,6 +156,14 @@ module "launch-config" {
       from_port = 0
       to_port = 0
       protocol = "-1"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for calling S3
+      type = "egress"
+      from_port = 443
+      to_port = 443
+      protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
     }
   ]
