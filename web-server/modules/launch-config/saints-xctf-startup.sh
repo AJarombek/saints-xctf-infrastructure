@@ -19,4 +19,6 @@ sudo aws s3api get-object --bucket saints-xctf-credentials-${ENV} --key \
 sudo apache2ctl configtest
 sudo systemctl restart apache2
 
+sudo echo "ENV=\"${ENV}\"" >> /etc/environment
+
 echo "[End] saints-xctf-startup.sh"
