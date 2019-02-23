@@ -19,6 +19,11 @@ sudo aws s3api get-object --bucket saints-xctf-credentials-${ENV} --key \
 # The SaintsXCTF application looks at this environment variable to determine which API URL to use
 sudo bash -c echo "\"ENV=\"${ENV}\"\" >> /etc/environment"
 
+# Execute a python script which alters the Apache config for the given environment
+cd /home/ubuntu
+sudo chmod +x apache-config.py
+sudo ./apache-config.py ${ENV}
+
 sudo apache2ctl configtest
 sudo systemctl restart apache2
 

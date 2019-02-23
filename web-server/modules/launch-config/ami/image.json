@@ -32,6 +32,11 @@
       "destination": "/var/tmp/dir.conf"
     },
     {
+      "type": "file",
+      "source": "files/apache-config.py",
+      "destination": "/home/ubuntu/apache-config.py"
+    },
+    {
       "type": "ansible-local",
       "playbook_file": "./saints-xctf-playbook.yml"
     }

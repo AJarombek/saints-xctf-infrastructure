@@ -13,4 +13,5 @@ tail /var/log/apache2/error.log -n 100
 
 # Execute PHP from the command line
 php -r 'echo getenv("ENV");'
-php -r '$db = new PDO("mysql:host=saints-xctf-mysql-database-dev.cmmi5k7ir20u.us-east-1.rds.amazonaws.com;dbname=saintsxctf;charset=utf8", "saintsxctfdev", "B0uN07w0");'
+
+php -r "\$db = new PDO(\"mysql:host=saints-xctf-mysql-database-dev.cmmi5k7ir20u.us-east-1.rds.amazonaws.com;dbname=saintsxctf;charset=utf8\", \"${Username}\", \"${Password}\");"
