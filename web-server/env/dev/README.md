@@ -14,3 +14,4 @@ terraform apply
 | Filename            | Description                                                                                  |
 |---------------------|----------------------------------------------------------------------------------------------|
 | `main.tf`           | Terraform module for the `DEV` web server.                                                   |
+| `use-cases.sh`      | Use cases when connecting to the web server EC2 instances via the private key.               |

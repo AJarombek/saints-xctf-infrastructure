@@ -50,6 +50,14 @@ module "launch-config" {
       to_port = 80
       protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for calling the API
+      type = "egress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
     }
   ]
 
@@ -79,6 +87,14 @@ module "launch-config" {
       from_port = 0
       to_port = 0
       protocol = "-1"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for calling the API
+      type = "egress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
     }
   ]

@@ -27,6 +27,7 @@
         - libapache2-mod-php
         - php-mcrypt
         - php-mysql
+        - php-curl
 
     - name: Checkout Git Repository
       become: yes

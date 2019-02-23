@@ -119,6 +119,14 @@ module "launch-config" {
       to_port = 443
       protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for calling the API
+      type = "egress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
     }
   ]
 
@@ -163,6 +171,14 @@ module "launch-config" {
       type = "egress"
       from_port = 443
       to_port = 443
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for calling the API
+      type = "egress"
+      from_port = 80
+      to_port = 80
       protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
     }

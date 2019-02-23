@@ -16,9 +16,10 @@ sudo aws s3api get-object --bucket saints-xctf-credentials-${ENV} --key api/apic
 sudo aws s3api get-object --bucket saints-xctf-credentials-${ENV} --key \
         models/clientcred.php /var/www/html/models/clientcred.php
 
+# The SaintsXCTF application looks at this environment variable to determine which API URL to use
+sudo bash -c echo "\"ENV=\"${ENV}\"\" >> /etc/environment"
+
 sudo apache2ctl configtest
 sudo systemctl restart apache2
-
-sudo echo "ENV=\"${ENV}\"" >> /etc/environment
 
 echo "[End] saints-xctf-startup.sh"
