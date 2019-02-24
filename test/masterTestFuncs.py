@@ -25,14 +25,14 @@ def testsuite(tests: list, title: str) -> bool:
         else:
             failure += 1
 
-    suitefailed = failure >= 1
+    suitepassed = failure < 1
 
-    if suitefailed:
-        print(f"\u274C Test Suite Success: {title} ({success} passed, {failure} failed)")
+    if suitepassed:
+        print(f"\u2713 Test Suite Success: {title} ({success} passed, {failure} failed)")
     else:
         print(f"\u274C Test Suite Failure: {title} ({success} passed, {failure} failed)")
 
-    return suitefailed
+    return suitepassed
 
 
 def test(func: Callable[[], Any], title: str) -> bool:

@@ -5,3 +5,4 @@
 **/saints-xctf-backup.sql
 web-app/env/dev/contents/*
 web-app/env/prod/contents/*
+**/__pycache__/*

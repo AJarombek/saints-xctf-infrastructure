@@ -30,6 +30,37 @@
         - php-curl
         - sendmail
 
+    - name: Install Certbot PreReq
+      become: yes
+      apt:
+        pkg: "{{item}}"
+        state: installed
+        force: yes
+      with_items:
+        - software-properties-common
+
+    - name: Add Certbot Repositories
+      become: yes
+      command: "{{item}}"
+      with_items:
+        - add-apt-repository universe
+        - add-apt-repository ppa:certbot/certbot
+
+    - name: Update APT Packages (for Certbot)
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install Certbot
+      become: yes
+      apt:
+        pkg: "{{item}}"
+        state: installed
+        force: yes
+      with_items:
+        - certbot
+        - python-certbot-apache
+
     - name: Checkout Git Repository
       become: yes
       git:

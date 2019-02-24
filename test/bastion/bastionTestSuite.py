@@ -3,11 +3,11 @@ Author: Andrew Jarombek
 Date: 2/23/2019
 """
 
-from .. import masterTestFuncs as Test
-from . import bastionTestFuncs as Func
+import masterTestFuncs as Test
+from bastion import bastionTestFuncs as Func
 
 tests = [
-    (Func.bastionec2running, "Bastion EC2 Instance Running")
+    lambda: Test.test(Func.bastionec2running, "Bastion EC2 Instance Running")
 ]
 
 
