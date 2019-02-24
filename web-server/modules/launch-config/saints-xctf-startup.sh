@@ -24,9 +24,6 @@ cd /home/ubuntu
 sudo chmod +x apache-config.py
 sudo ./apache-config.py ${ENV}
 
-# Set up HTTPS for Apache
-sudo certbot --apache
-
 # Make sure the Apache configuration changes are valid and restart the web server
 sudo apache2ctl configtest
 sudo systemctl restart apache2

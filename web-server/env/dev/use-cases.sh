@@ -11,6 +11,9 @@ sudo ssh -i "saints-xctf-dev-key.pem" ubuntu@${HOST_NAME}
 # Debug Apache Logs
 tail /var/log/apache2/error.log -n 100
 
+# Debug sendmail
+tail /var/log/mail.log -n 100
+
 # Execute PHP from the command line
 php -r 'echo getenv("ENV");'
 

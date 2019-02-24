@@ -49,7 +49,8 @@ data "template_file" "saints-xctf-startup" {
   template = "${file("${path.module}/saints-xctf-startup.sh")}"
 
   vars {
-    ENV = "${var.prod ? "" : "dev"}"
+    ENV = "${var.prod ? "prod" : "dev"}"
+    ENV_OPTIONAL = "${var.prod ? "" : "dev"}"
     IP_ADDRESS = ""
     DOMAIN = "saintsxctf${var.prod ? "" : "dev"}.jarombek.io"
   }
