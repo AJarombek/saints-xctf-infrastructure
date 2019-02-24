@@ -28,6 +28,7 @@
         - php-mcrypt
         - php-mysql
         - php-curl
+        - sendmail
 
     - name: Checkout Git Repository
       become: yes
