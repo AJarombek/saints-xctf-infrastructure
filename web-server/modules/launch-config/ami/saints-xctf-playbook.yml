@@ -79,6 +79,7 @@
       command: "{{item}}"
       with_items:
         - cp /var/tmp/dir.conf /etc/apache2/mods-enabled/
+        - cp /var/tmp/saintsxctf.com.conf /etc/apache2/sites-available/
 
     - name: Install AWS CLI
       become: yes

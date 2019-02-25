@@ -6,9 +6,6 @@
 
 echo "[Start] saints-xctf-startup.sh"
 
-# Configure the Apache web server
-sudo echo "ServerName ${DOMAIN}" >> /etc/apache2/apache2.conf
-
 # Add the application files not in version control
 sudo aws s3api get-object --bucket saints-xctf-credentials-${ENV} --key date.js /var/www/html/date.js
 sudo aws s3api get-object --bucket saints-xctf-credentials-${ENV} --key api/cred.php /var/www/html/api/cred.php
@@ -23,6 +20,10 @@ sudo bash -c echo "\"ENV=\"${ENV}\"\" >> /etc/environment"
 cd /home/ubuntu
 sudo chmod +x apache-config.py
 sudo ./apache-config.py ${ENV}
+
+# Enable the new SaintsXCTF config for Apache and disable the default config
+sudo a2ensite saintsxctf.com.conf
+sudo a2dissite 000-default.conf
 
 # Make sure the Apache configuration changes are valid and restart the web server
 sudo apache2ctl configtest

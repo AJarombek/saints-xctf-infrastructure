@@ -33,6 +33,11 @@
     },
     {
       "type": "file",
+      "source": "files/saintsxctf.com.conf",
+      "destination": "/var/tmp/saintsxctf.com.conf"
+    },
+    {
+      "type": "file",
       "source": "files/apache-config.py",
       "destination": "/home/ubuntu/apache-config.py"
     },

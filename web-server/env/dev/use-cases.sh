@@ -18,3 +18,7 @@ tail /var/log/mail.log -n 100
 php -r 'echo getenv("ENV");'
 
 php -r "\$db = new PDO(\"mysql:host=saints-xctf-mysql-database-dev.cmmi5k7ir20u.us-east-1.rds.amazonaws.com;dbname=saintsxctf;charset=utf8\", \"${Username}\", \"${Password}\");"
+
+# Debugging Apache Config
+sudo nano /etc/apache2/apache2.conf
+sudo nano /etc/apache2/sites-enabled/000-default.conf

@@ -22,4 +22,5 @@ repository.
 | `route53`         | Configures the DNS records for the application.                             |
 | `iam`             | IAM policies used in the SaintsXCTF VPC.                                    |
 | `bastion`         | Bastion host for connecting to resources in the private subnets.            |
+| `test`            | Test code for the AWS infrastructure.                                       |
 | `0x18`            | 24th                                                                        |
