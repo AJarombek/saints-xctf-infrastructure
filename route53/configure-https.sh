@@ -4,9 +4,6 @@
 # Author: Andrew Jarombek
 # Date: 2/24/2019
 
-cd ~
-sudo ssh -i "saints-xctf-dev-key.pem" ubuntu@${HOST_NAME}
-
 # Set up HTTPS for Apache
 sudo certbot -n --apache --agree-tos --email andrew@jarombek.com -d saintsxctf${ENV}.jarombek.io \
     -d www.saintsxctf${ENV}.jarombek.io

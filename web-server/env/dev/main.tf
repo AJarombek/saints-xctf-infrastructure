@@ -99,6 +99,14 @@ module "launch-config" {
     {
       # Inbound traffic from the internet
       type = "ingress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Inbound traffic from the internet
+      type = "ingress"
       from_port = 443
       to_port = 443
       protocol = "tcp"
@@ -150,6 +158,14 @@ module "launch-config" {
   ]
 
   load-balancer-sg-rules-cidr = [
+    {
+      # Inbound traffic from the internet
+      type = "ingress"
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
+    },
     {
       # Inbound traffic from the internet
       type = "ingress"

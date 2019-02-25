@@ -36,6 +36,15 @@ data "aws_instances" "saints-xctf-prod-instances" {
   }
 
   instance_state_names = ["running"]
+}
+
+data "template_file" "saints-xctf-https-config-prod" {
+  count = "${data.aws_instances.saints-xctf-prod-instances.count}"
+  template = "${file("configure-https.sh")}"
+
+  vars {
+    ENV = "prod"
+  }
 }*/
 
 data "aws_lb" "saints-xctf-dev-server-lb" {
@@ -43,21 +52,19 @@ data "aws_lb" "saints-xctf-dev-server-lb" {
 }
 
 data "aws_instances" "saints-xctf-dev-instances" {
-  filter {
-    name = "Name"
-    values = ["saints-xctf-server-dev-asg"]
+  instance_tags {
+    Name = "saints-xctf-server-dev-asg"
   }
 
   instance_state_names = ["running"]
 }
 
-data "template_file" "saints-xctf-https-config" {
+data "template_file" "saints-xctf-https-config-dev" {
   count = "${data.aws_instances.saints-xctf-dev-instances.count}"
   template = "${file("configure-https.sh")}"
 
   vars {
     ENV = "dev"
-    HOST_NAME = "${data.aws_instances.saints-xctf-dev-instances.*.public_ips[count.index]}"
   }
 }
 
@@ -87,6 +94,26 @@ resource "aws_route53_record" "www-saintsxctf-com-a" {
     name = "${data.aws_lb.saints-xctf-server-prod-application-lb.dns_name}"
     zone_id = "${data.aws_lb.saints-xctf-server-prod-application-lb.zone_id}"
   }
+}
+
+resource "null_resource" "prod-saintsxctf-com-https" {
+  count = "${data.aws_instances.saints-xctf-prod-instances.count}"
+
+  connection {
+    type = "ssh"
+    host = "${data.aws_instances.saints-xctf-prod-instances.public_ips[count.index]}"
+    user = "ubuntu"
+    port = 22
+    private_key = "${file("~/Documents/saints-xctf-prod-key.pem")}"
+    agent = true
+    timeout = "3m"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.saints-xctf-https-config-prod.rendered}"]
+  }
+
+  depends_on = ["aws_route53_record.saintsxctf-com-a", "aws_route53_record.www-saintsxctf-com-a"]
 }*/
 
 resource "aws_route53_record" "dev-saintsxctf-com-a" {
@@ -111,4 +138,24 @@ resource "aws_route53_record" "www-dev-saintsxctf-com-a" {
     name = "${data.aws_lb.saints-xctf-dev-server-lb.dns_name}"
     zone_id = "${data.aws_lb.saints-xctf-dev-server-lb.zone_id}"
   }
+}
+
+resource "null_resource" "dev-saintsxctf-com-https" {
+  count = "${data.aws_instances.saints-xctf-dev-instances.count}"
+
+  connection {
+    type = "ssh"
+    host = "${data.aws_instances.saints-xctf-dev-instances.public_ips[count.index]}"
+    user = "ubuntu"
+    port = 22
+    private_key = "${file("~/Documents/saints-xctf-dev-key.pem")}"
+    agent = true
+    timeout = "3m"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["${data.template_file.saints-xctf-https-config-dev.rendered}"]
+  }
+
+  depends_on = ["aws_route53_record.dev-saintsxctf-com-a", "aws_route53_record.www-dev-saintsxctf-com-a"]
 }

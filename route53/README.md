@@ -5,6 +5,7 @@ server `dev.saintsxctf.com` and a second for the production web server `saintsxc
 
 ### Files
 
-| Filename            | Description                                                                                  |
-|---------------------|----------------------------------------------------------------------------------------------|
-| `main.tf`           | The Terraform script for creating DNS records in Route53.                                    |
+| Filename             | Description                                                                                  |
+|----------------------|----------------------------------------------------------------------------------------------|
+| `main.tf`            | The Terraform script for creating DNS records in Route53.                                    |
+| `configure-https.sh` | Bash script which configures HTTPS for a domain after the corresponding A record is created. |
