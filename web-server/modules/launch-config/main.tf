@@ -6,6 +6,7 @@
 
 locals {
   env = "${var.prod ? "prod" : "dev"}"
+  env_optional = "${var.prod ? "" : "dev"}"
 }
 
 #-----------------------
@@ -43,6 +44,11 @@ data "aws_ami" "saints-xctf-ami" {
 
 data "aws_iam_role" "s3-access-role" {
   name = "s3-access-role"
+}
+
+data "aws_route53_zone" "saints-xctf-zone" {
+  name = "jarombek.io."
+  private_zone = false
 }
 
 data "template_file" "saints-xctf-startup" {
@@ -145,8 +151,8 @@ resource "aws_lb" "saints-xctf-server-application-lb" {
     Name = "saints-xctf-server-${local.env}-application-lb"
   }
 }
-
-resource "aws_lb_listener" "saints-xctf-server-application-lb-listener" {
+/*
+resource "aws_lb_listener" "saints-xctf-server-lb-listener-http" {
   load_balancer_arn = "${aws_lb.saints-xctf-server-application-lb.arn}"
   port = 80
   protocol = "HTTP"
@@ -155,6 +161,45 @@ resource "aws_lb_listener" "saints-xctf-server-application-lb-listener" {
     target_group_arn = "${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"
     type = "forward"
   }
+}*/
+
+resource "aws_lb_listener" "saints-xctf-server-lb-listener-https" {
+  load_balancer_arn = "${aws_lb.saints-xctf-server-application-lb.arn}"
+  port = 443
+  protocol = "HTTPS"
+
+  certificate_arn = "${aws_acm_certificate_validation.saints-xctf-cert-validation.certificate_arn}"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"
+    type = "forward"
+  }
+}
+
+resource "aws_acm_certificate" "saints-xctf-acm-certificate" {
+  domain_name = "*.jarombek.io"
+  validation_method = "DNS"
+
+  tags {
+    Environment = "${local.env}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "saints-xctf-cert-validation-record" {
+  name = "${aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options.0.resource_record_name}"
+  type = "${aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options.0.resource_record_type}"
+  zone_id = "${data.aws_route53_zone.saints-xctf-zone.id}"
+  records = ["${aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options.0.resource_record_value}"]
+  ttl = 60
+}
+
+resource "aws_acm_certificate_validation" "saints-xctf-cert-validation" {
+  certificate_arn = "${aws_acm_certificate.saints-xctf-acm-certificate.arn}"
+  validation_record_fqdns = ["${aws_route53_record.saints-xctf-cert-validation-record.fqdn}"]
 }
 
 resource "aws_lb_target_group" "saints-xctf-server-application-lb-target-group" {
@@ -165,13 +210,13 @@ resource "aws_lb_target_group" "saints-xctf-server-application-lb-target-group" 
     timeout = 5
     healthy_threshold = 3
     unhealthy_threshold = 2
-    protocol = "HTTP"
+    protocol = "HTTPS"
     path = "/"
     matcher = "200-299"
   }
 
-  port = 80
-  protocol = "HTTP"
+  port = 443
+  protocol = "HTTPS"
   vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
 
   tags {
