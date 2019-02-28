@@ -7,6 +7,7 @@
 locals {
   env = "${var.prod ? "prod" : "dev"}"
   env_optional = "${var.prod ? "" : "dev"}"
+  domain_cert = "${var.prod ? "*.jarombek.io" : "*.jarombek.io"}"
 }
 
 #-----------------------
@@ -46,9 +47,9 @@ data "aws_iam_role" "s3-access-role" {
   name = "s3-access-role"
 }
 
-data "aws_route53_zone" "saints-xctf-zone" {
-  name = "jarombek.io."
-  private_zone = false
+data "aws_acm_certificate" "saints-xctf-certificate" {
+  domain = "${local.domain_cert}"
+  statuses = ["ISSUED"]
 }
 
 data "template_file" "saints-xctf-startup" {
@@ -108,7 +109,11 @@ resource "aws_autoscaling_group" "saints-xctf-asg" {
   min_size = "${var.min_size}"
   desired_capacity = "${var.desired_capacity}"
 
-  target_group_arns = ["${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"]
+  target_group_arns = [
+    "${aws_lb_target_group.saints-xctf-server-lb-target-group.arn}",
+    "${aws_lb_target_group.saints-xctf-server-lb-target-group-http.arn}"
+  ]
+
   health_check_type = "ELB"
   health_check_grace_period = 600
 
@@ -144,66 +149,16 @@ resource "aws_lb" "saints-xctf-server-application-lb" {
     "${data.aws_subnet.saints-xctf-vpc-public-subnet-0.id}",
     "${data.aws_subnet.saints-xctf-vpc-public-subnet-1.id}"
   ]
-  security_groups = ["${aws_security_group.saints-xctf-server-lb-security-group.id}"]
 
+  security_groups = ["${aws_security_group.saints-xctf-server-lb-security-group.id}"]
 
   tags {
     Name = "saints-xctf-server-${local.env}-application-lb"
   }
 }
-/*
-resource "aws_lb_listener" "saints-xctf-server-lb-listener-http" {
-  load_balancer_arn = "${aws_lb.saints-xctf-server-application-lb.arn}"
-  port = 80
-  protocol = "HTTP"
 
-  default_action {
-    target_group_arn = "${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"
-    type = "forward"
-  }
-}*/
-
-resource "aws_lb_listener" "saints-xctf-server-lb-listener-https" {
-  load_balancer_arn = "${aws_lb.saints-xctf-server-application-lb.arn}"
-  port = 443
-  protocol = "HTTPS"
-
-  certificate_arn = "${aws_acm_certificate_validation.saints-xctf-cert-validation.certificate_arn}"
-
-  default_action {
-    target_group_arn = "${aws_lb_target_group.saints-xctf-server-application-lb-target-group.arn}"
-    type = "forward"
-  }
-}
-
-resource "aws_acm_certificate" "saints-xctf-acm-certificate" {
-  domain_name = "*.jarombek.io"
-  validation_method = "DNS"
-
-  tags {
-    Environment = "${local.env}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_route53_record" "saints-xctf-cert-validation-record" {
-  name = "${aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options.0.resource_record_name}"
-  type = "${aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options.0.resource_record_type}"
-  zone_id = "${data.aws_route53_zone.saints-xctf-zone.id}"
-  records = ["${aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options.0.resource_record_value}"]
-  ttl = 60
-}
-
-resource "aws_acm_certificate_validation" "saints-xctf-cert-validation" {
-  certificate_arn = "${aws_acm_certificate.saints-xctf-acm-certificate.arn}"
-  validation_record_fqdns = ["${aws_route53_record.saints-xctf-cert-validation-record.fqdn}"]
-}
-
-resource "aws_lb_target_group" "saints-xctf-server-application-lb-target-group" {
-  name = "saints-xctf-server-lb-target"
+resource "aws_lb_target_group" "saints-xctf-server-lb-target-group" {
+  name = "saints-xctf-lb-target"
 
   health_check {
     interval = 10
@@ -220,7 +175,53 @@ resource "aws_lb_target_group" "saints-xctf-server-application-lb-target-group" 
   vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
 
   tags {
-    Name = "saints-xctf-${local.env}-application-lb-target-group"
+    Name = "saints-xctf-${local.env}-lb-target-group"
+  }
+}
+
+resource "aws_lb_listener" "saints-xctf-server-lb-listener-https" {
+  load_balancer_arn = "${aws_lb.saints-xctf-server-application-lb.arn}"
+  port = 443
+  protocol = "HTTPS"
+
+  certificate_arn = "${data.aws_acm_certificate.saints-xctf-certificate.arn}"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.saints-xctf-server-lb-target-group.arn}"
+    type = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "saints-xctf-server-lb-target-group-http" {
+  name = "saints-xctf-lb-target-http"
+
+  health_check {
+    interval = 10
+    timeout = 5
+    healthy_threshold = 3
+    unhealthy_threshold = 2
+    protocol = "HTTP"
+    path = "/"
+    matcher = "200-299"
+  }
+
+  port = 80
+  protocol = "HTTP"
+  vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
+
+  tags {
+    Name = "saints-xctf-${local.env}-lb-target-group-http"
+  }
+}
+
+resource "aws_lb_listener" "saints-xctf-server-lb-listener-http" {
+  load_balancer_arn = "${aws_lb.saints-xctf-server-application-lb.arn}"
+  port = 80
+  protocol = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.saints-xctf-server-lb-target-group-http.arn}"
+    type = "forward"
   }
 }
 

@@ -19,6 +19,7 @@ repository.
 | `database`        | Infrastructure for the SaintsXCTF MySQL database.                           |
 | `web-server`      | Infrastructure for the SaintsXCTF Web Server.                               |
 | `web-app`         | Setup for the websites application code.                                    |
+| `acm`             | HTTPS Certificates for the application load balancer.                       |
 | `route53`         | Configures the DNS records for the application.                             |
 | `iam`             | IAM policies used in the SaintsXCTF VPC.                                    |
 | `bastion`         | Bastion host for connecting to resources in the private subnets.            |
