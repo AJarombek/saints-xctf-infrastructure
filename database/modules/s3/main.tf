@@ -14,7 +14,7 @@ locals {
 
 resource "null_resource" "initial-backups" {
   provisioner "local-exec" {
-    command = "bash ../../modules/s3/initial_backup.sh dev"
+    command = "bash ../../modules/s3/initial_backup.sh ${local.env}"
   }
 
   depends_on = ["aws_s3_bucket.saints-xctf-db-backups"]

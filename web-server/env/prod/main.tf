@@ -14,6 +14,7 @@ locals {
 
   # CIDR blocks for firewalls
   public_cidr = "0.0.0.0/0"
+  my_cidr = "69.124.72.192/32"
 }
 
 provider "aws" {
@@ -54,6 +55,22 @@ module "launch-config" {
     {
       # Inbound traffic from the internet
       type = "ingress"
+      from_port = 443
+      to_port = 443
+      protocol = "tcp"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Connect to the instance from my IP
+      type = "ingress"
+      from_port = 22
+      to_port = 22
+      protocol = "tcp"
+      cidr_blocks = "${local.my_cidr}"
+    },
+    {
+      # Outbound traffic for calling S3
+      type = "egress"
       from_port = 443
       to_port = 443
       protocol = "tcp"
@@ -106,11 +123,27 @@ module "launch-config" {
       cidr_blocks = "${local.public_cidr}"
     },
     {
+      # Connect to the instance from my IP
+      type = "ingress"
+      from_port = 22
+      to_port = 22
+      protocol = "tcp"
+      cidr_blocks = "${local.my_cidr}"
+    },
+    {
       # Outbound traffic for health checks
       type = "egress"
       from_port = 0
       to_port = 0
       protocol = "-1"
+      cidr_blocks = "${local.public_cidr}"
+    },
+    {
+      # Outbound traffic for calling S3
+      type = "egress"
+      from_port = 443
+      to_port = 443
+      protocol = "tcp"
       cidr_blocks = "${local.public_cidr}"
     },
     {
@@ -141,11 +174,4 @@ module "launch-config" {
       source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
     }
   ]
-}
-
-module "route53" {
-  source = "../../modules/route53"
-  prod = "${local.prod}"
-  lb_dns_name = "${module.launch-config.load-balancer-dns-name}"
-  lb_zone_id = "${module.launch-config.load-balancer-zone-id}"
 }

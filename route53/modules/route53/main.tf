@@ -6,6 +6,8 @@
 
 locals {
   env = "${var.prod ? "prod" : "dev"}"
+  env_opt = "${var.prod ? "" : "dev"}"
+  env_key = "${var.prod ? "saints-xctf-key.pem" : "saints-xctf-dev-key.pem"}"
   env_record = "${var.prod ? "saintsxctf.jarombek.io" : "saintsxctfdev.jarombek.io"}"
 }
 
@@ -17,11 +19,12 @@ data "aws_route53_zone" "jarombek-io-zone" {
   name = "jarombek.io."
 }
 
+data "aws_lb" "saints-xctf-dev-server-lb" {
+  name = "saints-xctf-${local.env}-server-lb"
+}
+
 data "aws_autoscaling_group" "saints-xctf-asg" {
   name = "saints-xctf-server-${local.env}-asg"
-
-  # This is kinda a hack - https://github.com/hashicorp/terraform/issues/16380#issuecomment-356247591
-  depends_on = ["data.aws_route53_zone.jarombek-io-zone"]
 }
 
 data "aws_instances" "saints-xctf-instances" {
@@ -30,8 +33,6 @@ data "aws_instances" "saints-xctf-instances" {
   }
 
   instance_state_names = ["running"]
-
-  depends_on = ["data.aws_autoscaling_group.saints-xctf-asg"]
 }
 
 data "template_file" "saints-xctf-https-config" {
@@ -39,7 +40,7 @@ data "template_file" "saints-xctf-https-config" {
   template = "${file("${path.module}/configure-https.sh")}"
 
   vars {
-    ENV = "${local.env}"
+    ENV = "${local.env_opt}"
   }
 }
 
@@ -54,8 +55,8 @@ resource "aws_route53_record" "saintsxctf-com-a" {
 
   alias {
     evaluate_target_health = true
-    name = "${var.lb_dns_name}"
-    zone_id = "${var.lb_zone_id}"
+    name = "${data.aws_lb.saints-xctf-dev-server-lb.dns_name}"
+    zone_id = "${data.aws_lb.saints-xctf-dev-server-lb.zone_id}"
   }
 }
 
@@ -66,12 +67,12 @@ resource "aws_route53_record" "www-saintsxctf-com-a" {
 
   alias {
     evaluate_target_health = true
-    name = "${var.lb_dns_name}"
-    zone_id = "${var.lb_zone_id}"
+    name = "${data.aws_lb.saints-xctf-dev-server-lb.dns_name}"
+    zone_id = "${data.aws_lb.saints-xctf-dev-server-lb.zone_id}"
   }
 }
 
-resource "null_resource" "dev-saintsxctf-com-https" {
+resource "null_resource" "saintsxctf-com-https" {
   count = "${data.aws_instances.saints-xctf-instances.count}"
 
   connection {
@@ -79,7 +80,7 @@ resource "null_resource" "dev-saintsxctf-com-https" {
     host = "${data.aws_instances.saints-xctf-instances.public_ips[count.index]}"
     user = "ubuntu"
     port = 22
-    private_key = "${file("~/Documents/saints-xctf-dev-key.pem")}"
+    private_key = "${file("~/Documents/${local.env_key}")}"
     agent = true
     timeout = "3m"
   }
