@@ -142,3 +142,8 @@ module "launch-config" {
     }
   ]
 }
+
+module "route53" {
+  source = "../../modules/route53"
+  prod = "${local.prod}"
+}

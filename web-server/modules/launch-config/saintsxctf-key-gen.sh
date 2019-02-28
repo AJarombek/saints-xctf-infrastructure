@@ -10,7 +10,7 @@
 # Date: 2/17/2019
 
 # The key to generate is determined by a command line argument.  First validate the argument...
-[ -z "$1" ] && ( echo "Argument 1 (Required): 'Key Name' not specified." && exit 1 )
+[[ -z "$1" ]] && ( echo "Argument 1 (Required): 'Key Name' not specified." && exit 1 )
 
 # ... then collect it
 KEY_NAME=$1

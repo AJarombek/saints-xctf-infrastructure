@@ -57,9 +57,12 @@ data "template_file" "saints-xctf-startup" {
 
   vars {
     ENV = "${var.prod ? "prod" : "dev"}"
-    ENV_OPTIONAL = "${var.prod ? "" : "dev"}"
-    IP_ADDRESS = ""
-    DOMAIN = "saintsxctf${var.prod ? "" : "dev"}.jarombek.io"
+    DOMAIN = "jarombek.io."
+    SUBDOMAIN = "${var.prod ? "saintsxctf.jarombek.io." : "saintsxctfdev.jarombek.io."}"
+
+    # We still have to declare variables here that are assigned values in the script
+    SaintsXCTFRecord = ""
+    HostedZoneId = ""
   }
 }
 
@@ -102,6 +105,7 @@ resource "aws_launch_configuration" "saints-xctf-server-lc" {
 }
 
 resource "aws_autoscaling_group" "saints-xctf-asg" {
+  name = "saints-xctf-server-${local.env}-asg"
   launch_configuration = "${aws_launch_configuration.saints-xctf-server-lc.id}"
   vpc_zone_identifier = ["${data.aws_subnet.saints-xctf-vpc-public-subnet-0.id}"]
 

@@ -25,6 +25,24 @@ sudo ./apache-config.py ${ENV}
 sudo a2ensite saintsxctf.com.conf
 sudo a2dissite 000-default.conf
 
+sudo apache2ctl configtest
+sudo systemctl restart apache2
+
+# Find the DNS record for the SaintsXCTF application
+HostedZoneId="$(aws route53 list-hosted-zones-by-name --dns-name ${DOMAIN} --query "HostedZones[0].Id")"
+
+SaintsXCTFRecord="$(aws route53 list-resource-record-sets --hosted-zone-id /hostedzone/Z27198R4O4VUH4 \
+     --query "ResourceRecordSets[?Name == '${SUBDOMAIN}'].Name" --output text)"
+
+# If the DNS record already exists, proceed with setting up certbot
+if [[ -z "${SaintsXCTFRecord}" ]]
+then
+    echo "DNS not ready for Certbot!"
+else
+    echo "Configuring Certbot..."
+    sudo certbot -n --apache --agree-tos --email andrew@jarombek.com -d saintsxctf${ENV}.jarombek.io --redirect
+fi
+
 # Make sure the Apache configuration changes are valid and restart the web server
 sudo apache2ctl configtest
 sudo systemctl restart apache2
