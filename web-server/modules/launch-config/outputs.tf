@@ -4,10 +4,10 @@
  * Date: 2/28/2019
  */
 
-output "load-balancer" {
-  value = "${aws_lb.saints-xctf-server-application-lb.id}"
+output "load-balancer-zone-id" {
+  value = "${aws_lb.saints-xctf-server-application-lb.zone_id}"
 }
 
-output "instances" {
-  value = "${aws_autoscaling_group.saints-xctf-asg.}"
+output "load-balancer-dns-name" {
+  value = "${aws_lb.saints-xctf-server-application-lb.dns_name}"
 }

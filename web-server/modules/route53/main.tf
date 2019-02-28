@@ -17,17 +17,11 @@ data "aws_route53_zone" "jarombek-io-zone" {
   name = "jarombek.io."
 }
 
-data "aws_lb" "saints-xctf-server-lb" {
-  name = "saints-xctf-${local.env}-server-lb"
-
-  # This is kinda a hack - https://github.com/hashicorp/terraform/issues/16380#issuecomment-356247591
-  depends_on = ["data.aws_route53_zone.jarombek-io-zone"]
-}
-
 data "aws_autoscaling_group" "saints-xctf-asg" {
   name = "saints-xctf-server-${local.env}-asg"
 
-  depends_on = ["data.aws_lb.saints-xctf-server-lb"]
+  # This is kinda a hack - https://github.com/hashicorp/terraform/issues/16380#issuecomment-356247591
+  depends_on = ["data.aws_route53_zone.jarombek-io-zone"]
 }
 
 data "aws_instances" "saints-xctf-instances" {
@@ -60,8 +54,8 @@ resource "aws_route53_record" "saintsxctf-com-a" {
 
   alias {
     evaluate_target_health = true
-    name = "${data.aws_lb.saints-xctf-server-lb.dns_name}"
-    zone_id = "${data.aws_lb.saints-xctf-server-lb.zone_id}"
+    name = "${var.lb_dns_name}"
+    zone_id = "${var.lb_zone_id}"
   }
 }
 
@@ -72,8 +66,8 @@ resource "aws_route53_record" "www-saintsxctf-com-a" {
 
   alias {
     evaluate_target_health = true
-    name = "${data.aws_lb.saints-xctf-server-lb.dns_name}"
-    zone_id = "${data.aws_lb.saints-xctf-server-lb.zone_id}"
+    name = "${var.lb_dns_name}"
+    zone_id = "${var.lb_zone_id}"
   }
 }
 

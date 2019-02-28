@@ -9,7 +9,7 @@ provider "aws" {
 }
 
 terraform {
-  backend "route53" {
+  backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
     key = "saints-xctf-infrastructure/route53"

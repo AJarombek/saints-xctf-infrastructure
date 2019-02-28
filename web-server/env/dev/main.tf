@@ -231,4 +231,6 @@ module "launch-config" {
 module "route53" {
   source = "../../modules/route53"
   prod = "${local.prod}"
+  lb_dns_name = "${module.launch-config.load-balancer-dns-name}"
+  lb_zone_id = "${module.launch-config.load-balancer-zone-id}"
 }
