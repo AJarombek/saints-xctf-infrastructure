@@ -6,17 +6,16 @@
 
 locals {
   env = "${var.prod ? "prod" : "dev"}"
-  env_opt = "${var.prod ? "" : "dev"}"
   env_key = "${var.prod ? "saints-xctf-key.pem" : "saints-xctf-dev-key.pem"}"
-  env_record = "${var.prod ? "saintsxctf.jarombek.io" : "saintsxctfdev.jarombek.io"}"
+  env_record = "${var.prod ? "saintsxctf.com" : "dev.saintsxctf.com"}"
 }
 
 #-----------------------
 # Existing AWS Resources
 #-----------------------
 
-data "aws_route53_zone" "jarombek-io-zone" {
-  name = "jarombek.io."
+data "aws_route53_zone" "saintsxctf-com-zone" {
+  name = "saintsxctf.com."
 }
 
 data "aws_lb" "saints-xctf-dev-server-lb" {
@@ -40,7 +39,7 @@ data "template_file" "saints-xctf-https-config" {
   template = "${file("${path.module}/configure-https.sh")}"
 
   vars {
-    ENV = "${local.env_opt}"
+    URL = "${var.prod ? "saintsxctf.com" : "dev.saintsxctf.com"}"
   }
 }
 
@@ -51,7 +50,7 @@ data "template_file" "saints-xctf-https-config" {
 resource "aws_route53_record" "saintsxctf-com-a" {
   name = "${local.env_record}"
   type = "A"
-  zone_id = "${data.aws_route53_zone.jarombek-io-zone.zone_id}"
+  zone_id = "${data.aws_route53_zone.saintsxctf-com-zone.zone_id}"
 
   alias {
     evaluate_target_health = true
@@ -63,7 +62,7 @@ resource "aws_route53_record" "saintsxctf-com-a" {
 resource "aws_route53_record" "www-saintsxctf-com-a" {
   name = "www.${local.env_record}"
   type = "A"
-  zone_id = "${data.aws_route53_zone.jarombek-io-zone.zone_id}"
+  zone_id = "${data.aws_route53_zone.saintsxctf-com-zone.zone_id}"
 
   alias {
     evaluate_target_health = true

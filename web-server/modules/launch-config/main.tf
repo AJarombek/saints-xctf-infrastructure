@@ -6,8 +6,7 @@
 
 locals {
   env = "${var.prod ? "prod" : "dev"}"
-  env_optional = "${var.prod ? "" : "dev"}"
-  domain_cert = "${var.prod ? "*.jarombek.io" : "*.jarombek.io"}"
+  domain_cert = "${var.prod ? "saintsxctf.com" : "*.saintsxctf.com"}"
 }
 
 #-----------------------
@@ -52,13 +51,19 @@ data "aws_acm_certificate" "saints-xctf-certificate" {
   statuses = ["ISSUED"]
 }
 
+data "aws_acm_certificate" "saints-xctf-wildcard-certificate" {
+  domain = "*.${local.domain_cert}"
+  statuses = ["ISSUED"]
+}
+
 data "template_file" "saints-xctf-startup" {
   template = "${file("${path.module}/saints-xctf-startup.sh")}"
 
   vars {
     ENV = "${var.prod ? "prod" : "dev"}"
-    DOMAIN = "jarombek.io."
-    SUBDOMAIN = "${var.prod ? "saintsxctf.jarombek.io." : "saintsxctfdev.jarombek.io."}"
+    DOMAIN = "saintsxctf.com."
+    SUBDOMAIN = "${var.prod ? "saintsxctf.com." : "dev.saintsxctf.com."}"
+    URL = "${var.prod ? "saintsxctf.com" : "dev.saintsxctf.com"}"
 
     # We still have to declare variables here that are assigned values in the script
     SaintsXCTFRecord = ""
@@ -82,7 +87,7 @@ resource "null_resource" "saints-xctf-key-gen" {
 #----------------------------------------------------------
 
 resource "aws_iam_instance_profile" "saints-xctf-instance-profile" {
-  name = "saints-xctf-${local.env}--instance-profile"
+  name = "saints-xctf-${local.env}-instance-profile"
   role = "${data.aws_iam_role.s3-access-role.name}"
 }
 
@@ -194,6 +199,11 @@ resource "aws_lb_listener" "saints-xctf-server-lb-listener-https" {
     target_group_arn = "${aws_lb_target_group.saints-xctf-server-lb-target-group.arn}"
     type = "forward"
   }
+}
+
+resource "aws_lb_listener_certificate" "saints-xctf-server-lb-listener-wc-cert" {
+  listener_arn    = "${aws_lb_listener.saints-xctf-server-lb-listener-https.arn}"
+  certificate_arn = "${data.aws_acm_certificate.saints-xctf-wildcard-certificate.arn}"
 }
 
 resource "aws_lb_target_group" "saints-xctf-server-lb-target-group-http" {

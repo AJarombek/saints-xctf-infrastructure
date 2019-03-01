@@ -19,8 +19,8 @@ with open('/etc/apache2/sites-available/saintsxctf.com.conf', 'r+') as fp:
 
     # Also alter the server URLs if the environment is dev
     if env == 'dev':
-        contents[2] = "    ServerName saintsxctfdev.jarombek.com\n"
-        contents[3] = "    ServerAlias www.saintsxctfdev.jarombek.com\n"
+        contents[2] = "    ServerName dev.saintsxctf.com\n"
+        contents[3] = "    ServerAlias www.dev.saintsxctf.com\n"
 
     contents.insert(1, "    SetEnv ENV " + env + "\n")
     fp.seek(0)

@@ -22,7 +22,7 @@ terraform {
 #-----------------------
 
 data "aws_route53_zone" "saints-xctf-zone" {
-  name = "jarombek.io."
+  name = "saintsxctf.com."
   private_zone = false
 }
 
@@ -30,8 +30,12 @@ data "aws_route53_zone" "saints-xctf-zone" {
 # New AWS Resources for ACM
 #--------------------------
 
-resource "aws_acm_certificate" "saints-xctf-dev-acm-certificate" {
-  domain_name = "*.jarombek.io"
+#--------------------------------
+# Protects '*.dev.saintsxctf.com'
+#--------------------------------
+
+resource "aws_acm_certificate" "saints-xctf-dev-wildcard-acm-certificate" {
+  domain_name = "*.dev.saintsxctf.com"
   validation_method = "DNS"
 
   tags {
@@ -43,19 +47,53 @@ resource "aws_acm_certificate" "saints-xctf-dev-acm-certificate" {
   }
 }
 
-resource "aws_route53_record" "saints-xctf-dev-cert-validation-record" {
-  name = "${aws_acm_certificate.saints-xctf-dev-acm-certificate.domain_validation_options.0.resource_record_name}"
-  type = "${aws_acm_certificate.saints-xctf-dev-acm-certificate.domain_validation_options.0.resource_record_type}"
+resource "aws_route53_record" "saints-xctf-dev-wc-cert-validation-record" {
+  name = "${aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options.0.resource_record_name}"
+  type = "${aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options.0.resource_record_type}"
   zone_id = "${data.aws_route53_zone.saints-xctf-zone.id}"
-  records = ["${aws_acm_certificate.saints-xctf-dev-acm-certificate.domain_validation_options.0.resource_record_value}"]
+  records = ["${aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options.0.resource_record_value}"]
   ttl = 60
 }
 
-resource "aws_acm_certificate_validation" "saints-xctf-dev-cert-validation" {
-  certificate_arn = "${aws_acm_certificate.saints-xctf-dev-acm-certificate.arn}"
-  validation_record_fqdns = ["${aws_route53_record.saints-xctf-dev-cert-validation-record.fqdn}"]
+resource "aws_acm_certificate_validation" "saints-xctf-dev-wc-cert-validation" {
+  certificate_arn = "${aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.arn}"
+  validation_record_fqdns = ["${aws_route53_record.saints-xctf-dev-wc-cert-validation-record.fqdn}"]
 }
-/*
+
+#----------------------------
+# Protects '*.saintsxctf.com'
+#----------------------------
+
+resource "aws_acm_certificate" "saints-xctf-wildcard-acm-certificate" {
+  domain_name = "*.saintsxctf.com"
+  validation_method = "DNS"
+
+  tags {
+    Environment = "dev"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "saints-xctf-wc-cert-validation-record" {
+  name = "${aws_acm_certificate.saints-xctf-wildcard-acm-certificate.domain_validation_options.0.resource_record_name}"
+  type = "${aws_acm_certificate.saints-xctf-wildcard-acm-certificate.domain_validation_options.0.resource_record_type}"
+  zone_id = "${data.aws_route53_zone.saints-xctf-zone.id}"
+  records = ["${aws_acm_certificate.saints-xctf-wildcard-acm-certificate.domain_validation_options.0.resource_record_value}"]
+  ttl = 60
+}
+
+resource "aws_acm_certificate_validation" "saints-xctf-wc-cert-validation" {
+  certificate_arn = "${aws_acm_certificate.saints-xctf-wildcard-acm-certificate.arn}"
+  validation_record_fqdns = ["${aws_route53_record.saints-xctf-wc-cert-validation-record.fqdn}"]
+}
+
+#--------------------------
+# Protects 'saintsxctf.com'
+#--------------------------
+
 resource "aws_acm_certificate" "saints-xctf-acm-certificate" {
   domain_name = "saintsxctf.com"
   validation_method = "DNS"
@@ -80,4 +118,4 @@ resource "aws_route53_record" "saints-xctf-cert-validation-record" {
 resource "aws_acm_certificate_validation" "saints-xctf-cert-validation" {
   certificate_arn = "${aws_acm_certificate.saints-xctf-acm-certificate.arn}"
   validation_record_fqdns = ["${aws_route53_record.saints-xctf-cert-validation-record.fqdn}"]
-}*/
+}

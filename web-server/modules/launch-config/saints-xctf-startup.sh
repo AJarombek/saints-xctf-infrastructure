@@ -40,7 +40,7 @@ then
     echo "DNS not ready for Certbot!"
 else
     echo "Configuring Certbot..."
-    sudo certbot -n --apache --agree-tos --email andrew@jarombek.com -d saintsxctf${ENV}.jarombek.io --redirect
+    sudo certbot -n --apache --agree-tos --email andrew@jarombek.com -d ${URL} --redirect
 fi
 
 # Make sure the Apache configuration changes are valid and restart the web server

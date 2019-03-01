@@ -12,7 +12,7 @@ terraform {
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/route53"
+    key = "saints-xctf-infrastructure/route53/env/all"
     region = "us-east-1"
   }
 }

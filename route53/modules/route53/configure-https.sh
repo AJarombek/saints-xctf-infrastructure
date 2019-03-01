@@ -5,7 +5,7 @@
 # Date: 2/24/2019
 
 # Set up HTTPS for Apache
-sudo certbot -n --apache --agree-tos --email andrew@jarombek.com -d saintsxctf${ENV}.jarombek.io --redirect
+sudo certbot -n --apache --agree-tos --email andrew@jarombek.com -d ${URL} --redirect
 
 # Make sure the Apache configuration changes are valid and restart the web server
 sudo apache2ctl configtest
