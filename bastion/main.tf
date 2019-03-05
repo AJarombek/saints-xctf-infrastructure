@@ -6,6 +6,7 @@
 
 locals {
   public_cidr = "0.0.0.0/0"
+  my_cidr = "69.124.72.192/32"
 }
 
 provider "aws" {
@@ -41,7 +42,7 @@ data "aws_iam_role" "rds-access-role" {
   name = "rds-access-role"
 }
 
-data "template_file" "jenkins-startup" {
+data "template_file" "bastion-startup" {
   template = "${file("bastion-setup.sh")}"
 }
 
@@ -59,6 +60,7 @@ resource "null_resource" "bastion-key-gen" {
 # New AWS Resources for Bastion
 #------------------------------
 
+/* EC2 instance for the bastion host.  It runs Amazon Linux 2 and can be accessed with bastion-key */
 resource "aws_instance" "bastion" {
   # Use Amazon Linux 2
   ami = "ami-035be7bafff33b6b6"
@@ -75,7 +77,7 @@ resource "aws_instance" "bastion" {
     create_before_destroy = true
   }
 
-  user_data = "${data.template_file.jenkins-startup.rendered}"
+  user_data = "${data.template_file.bastion-startup.rendered}"
 
   tags {
     Name = "bastion-host"
@@ -84,11 +86,13 @@ resource "aws_instance" "bastion" {
   depends_on = ["null_resource.bastion-key-gen"]
 }
 
+/* The instance profile assigns the RDS access IAM role to the bastion EC2 instance */
 resource "aws_iam_instance_profile" "bastion-instance-profile" {
   name = "bastion-instance-profile"
   role = "${data.aws_iam_role.rds-access-role.name}"
 }
 
+/* Security group rules for the Bastion EC2 instance.  Most important is SSH access for the AWS admin */
 module "bastion-subnet-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group"
 
@@ -105,7 +109,7 @@ module "bastion-subnet-security-group" {
       from_port = 22
       to_port = 22
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = "${local.my_cidr}"
     },
     {
       # Inbound traffic for ping

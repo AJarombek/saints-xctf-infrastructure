@@ -1,4 +1,5 @@
 """
+Functions which represent Unit tests for the Bastion host infrastructure
 Author: Andrew Jarombek
 Date: 2/23/2019
 """
@@ -88,7 +89,7 @@ def bastion_security_group() -> bool:
     Test that the Bastion host has the expected security group
     :return: True if the Bastion EC2 has the bastion-security security group, False otherwise
     """
-    pass
+    instances = get_bastion_ec2()
+    security_group = instances[0].security_groups[0]
+    return security_group.get('GroupName') == "bastion-security"
 
-
-print(bastion_rds_access())

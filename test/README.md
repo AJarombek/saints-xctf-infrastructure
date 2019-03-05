@@ -7,7 +7,7 @@ be run independently or all at once.
 To run all test suites at once, execute the following command from this directory:
 
 ```
-./masterTestSuite.py
+python3 masterTestSuite.py
 ```
 
 To run a single test suite, navigate to the suite's directory and execute the file following the regular expression  
@@ -17,6 +17,7 @@ To run a single test suite, navigate to the suite's directory and execute the fi
 
 | Filename             | Description                                                                                  |
 |----------------------|----------------------------------------------------------------------------------------------|
+| `acm/`               | Test suite for the Amazon HTTPS certificates.                                                |
 | `bastion/`           | Test suite for the Bastion host.                                                             |
 | `masterTestFuncs.py` | Functions used to help create a test suite environment.                                      |
 | `masterTestSuite.py` | Invokes all the test suites.                                                                 |

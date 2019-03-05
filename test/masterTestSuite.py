@@ -6,10 +6,12 @@ Date: 2/23/2019
 
 import masterTestFuncs as Test
 from bastion import bastionTestSuite as Bastion
+from acm import acmTestSuite as ACM
 
 # List of all the test suites
 tests = [
-    Bastion.bastiontestsuite
+    Bastion.bastion_test_suite,
+    ACM.acm_test_suite
 ]
 
 # Create and execute a master test suite
