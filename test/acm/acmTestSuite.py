@@ -8,7 +8,9 @@ import masterTestFuncs as Test
 from acm import acmTestFuncs as Func
 
 tests = [
-    lambda: Test.test(Func.acm_dev_wildcard_cert_exists, "ACM Dev Wildcard Certificate Exists")
+    lambda: Test.test(Func.acm_dev_wildcard_cert_issued, "ACM SaintsXCTF Dev Wildcard Certificate Issued"),
+    lambda: Test.test(Func.acm_wildcard_cert_issued, "ACM SaintsXCTF Wildcard Certificate Issued"),
+    lambda: Test.test(Func.acm_cert_issued, "ACM SaintsXCTF Certificate Issued")
 ]
 
 
