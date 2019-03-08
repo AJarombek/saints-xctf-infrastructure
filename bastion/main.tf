@@ -94,7 +94,7 @@ resource "aws_iam_instance_profile" "bastion-instance-profile" {
 
 /* Security group rules for the Bastion EC2 instance.  Most important is SSH access for the AWS admin */
 module "bastion-subnet-security-group" {
-  source = "github.com/ajarombek/terraform-modules//security-group"
+  source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.0"
 
   # Mandatory arguments
   name = "bastion-security"

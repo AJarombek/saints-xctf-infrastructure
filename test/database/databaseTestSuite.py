@@ -9,7 +9,9 @@ from database import databaseTestFuncs as Func
 
 tests = [
     lambda: Test.test(Func.rds_prod_running, "Prod MySQL RDS Instance Running"),
-    lambda: Test.test(Func.rds_dev_running, "Dev MySQL RDS Instance Running")
+    lambda: Test.test(Func.rds_dev_running, "Dev MySQL RDS Instance Running"),
+    lambda: Test.test(Func.rds_prod_engine_as_expected, "Prod MySQL RDS Instance Using Proper MySQL Version"),
+    lambda: Test.test(Func.rds_dev_engine_as_expected, "Dev MySQL RDS Instance Using Proper MySQL Version")
 ]
 
 
