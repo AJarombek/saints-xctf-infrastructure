@@ -20,6 +20,9 @@ To run a single test suite, navigate to the suite's directory and execute the fi
 | `acm/`               | Test suite for the Amazon HTTPS certificates.                                                |
 | `bastion/`           | Test suite for the Bastion host.                                                             |
 | `database/`          | Test suite for the applications MySQL databases.                                             |
+| `iam/`               | Test suite for IAM roles and policies.                                                       |
+| `route53/`           | Test suite for the applications Route53 DNS service.                                         |
+| `webapp/`            | Test suite for the web application module.                                                   |
 | `masterTestFuncs.py` | Functions used to help create a test suite environment.                                      |
 | `masterTestSuite.py` | Invokes all the test suites.                                                                 |
 | `setup.sh`           | Bash script to setup the environment for a test suite.                                       |

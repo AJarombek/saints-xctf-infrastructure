@@ -12,7 +12,7 @@ tests = [
 ]
 
 
-def database_test_suite() -> bool:
+def iam_test_suite() -> bool:
     """
     Execute all the tests related to the IAM roles and policies
     :return: True if the tests succeed, False otherwise
