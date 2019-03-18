@@ -8,7 +8,10 @@ import masterTestFuncs as Test
 from iam import iamTestFuncs as Func
 
 tests = [
-    lambda: Test.test(Func.test_iam, "")
+    lambda: Test.test(Func.rds_access_role_exists, ""),
+    lambda: Test.test(Func.s3_access_role_exists, ""),
+    lambda: Test.test(Func.rds_access_policy_attached, ""),
+    lambda: Test.test(Func.s3_access_policy_attached, "")
 ]
 
 
