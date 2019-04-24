@@ -135,6 +135,12 @@ resource "aws_autoscaling_group" "saints-xctf-asg" {
     propagate_at_launch = true
     value = "saints-xctf-server-${local.env}-asg"
   }
+
+  tag {
+    key = "Application"
+    propagate_at_launch = true
+    value = "saints-xctf"
+  }
 }
 
 resource "aws_autoscaling_schedule" "saints-xctf-server-asg-schedule" {
@@ -163,6 +169,7 @@ resource "aws_lb" "saints-xctf-server-application-lb" {
 
   tags {
     Name = "saints-xctf-server-${local.env}-application-lb"
+    Application = "saints-xctf"
   }
 }
 
@@ -185,6 +192,7 @@ resource "aws_lb_target_group" "saints-xctf-server-lb-target-group" {
 
   tags {
     Name = "saints-xctf-${local.env}-lb-target-group"
+    Application = "saints-xctf"
   }
 }
 
@@ -225,6 +233,7 @@ resource "aws_lb_target_group" "saints-xctf-server-lb-target-group-http" {
 
   tags {
     Name = "saints-xctf-${local.env}-lb-target-group-http"
+    Application = "saints-xctf"
   }
 }
 
@@ -249,6 +258,7 @@ resource "aws_security_group" "saints-xctf-server-lc-security-group" {
 
   tags {
     Name = "saints-xctf-${local.env}-server-lc-security-group"
+    Application = "saints-xctf"
   }
 }
 

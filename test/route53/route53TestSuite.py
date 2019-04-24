@@ -8,7 +8,10 @@ import masterTestFuncs as Test
 from route53 import route53TestFuncs as Func
 
 tests = [
-    lambda: Test.test(Func.test_route53, "")
+    lambda: Test.test(Func.saintsxctf_zone_exists, "Check if the saintsxctf.com Hosted Zone Exists in Route53"),
+    lambda: Test.test(Func.saintsxctf_zone_public, "Check if the saintsxctf.com Hosted Zone is Public"),
+    lambda: Test.test(Func.saintsxctf_a_record_exists, "Check if the saintsxctf.com 'A' record exists"),
+    lambda: Test.test(Func.www_saintsxctf_a_record_exists, "Check if the www.saintsxctf.com 'A' record exists")
 ]
 
 

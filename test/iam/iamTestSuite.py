@@ -8,10 +8,10 @@ import masterTestFuncs as Test
 from iam import iamTestFuncs as Func
 
 tests = [
-    lambda: Test.test(Func.rds_access_role_exists, ""),
-    lambda: Test.test(Func.s3_access_role_exists, ""),
-    lambda: Test.test(Func.rds_access_policy_attached, ""),
-    lambda: Test.test(Func.s3_access_policy_attached, "")
+    lambda: Test.test(Func.rds_access_role_exists, "IAM RDS Access Role Exists"),
+    lambda: Test.test(Func.s3_access_role_exists, "IAM S3 Access Role Exists"),
+    lambda: Test.test(Func.rds_access_policy_attached, "IAM RDS Access Role Has Policy Attached"),
+    lambda: Test.test(Func.s3_access_policy_attached, "IAM S3 Access Role Has Policy Attached")
 ]
 
 

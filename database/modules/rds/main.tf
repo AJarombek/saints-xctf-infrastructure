@@ -65,6 +65,7 @@ resource "aws_security_group" "saints-xctf-database-security" {
 
   tags {
     Name = "saints-xctf-database-security-${local.env}"
+    Application = "saints-xctf"
   }
 }
 
@@ -104,6 +105,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   tags {
     Name = "Saints-xctf-mysql-${local.env}-database"
     Environment = "${upper(local.env)}"
+    Application = "saints-xctf"
   }
 }
 
@@ -115,6 +117,7 @@ resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
 
   tags {
     Name = "saints-xctf-mysql-${local.env}-database-subnets"
+    Application = "saints-xctf"
   }
 }
 

@@ -80,7 +80,8 @@ resource "aws_instance" "bastion" {
   user_data = "${data.template_file.bastion-startup.rendered}"
 
   tags {
-    Name = "bastion-host"
+    Name = "saints-xctf-bastion-host"
+    Application = "saints-xctf"
   }
 
   depends_on = ["null_resource.bastion-key-gen"]
@@ -97,7 +98,7 @@ module "bastion-subnet-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.0"
 
   # Mandatory arguments
-  name = "bastion-security"
+  name = "saints-xctf-bastion-security"
   tag_name = "Bastion Security Group"
   vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
 

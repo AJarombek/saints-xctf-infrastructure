@@ -48,5 +48,6 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
 
   tags {
     Name = "SaintsXCTF Database Backups Bucket"
+    Application = "saints-xctf"
   }
 }

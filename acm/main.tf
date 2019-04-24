@@ -40,6 +40,7 @@ resource "aws_acm_certificate" "saints-xctf-dev-wildcard-acm-certificate" {
 
   tags {
     Environment = "dev"
+    Application = "saints-xctf"
   }
 
   lifecycle {
@@ -70,6 +71,7 @@ resource "aws_acm_certificate" "saints-xctf-wildcard-acm-certificate" {
 
   tags {
     Environment = "dev"
+    Application = "saints-xctf"
   }
 
   lifecycle {
@@ -100,6 +102,7 @@ resource "aws_acm_certificate" "saints-xctf-acm-certificate" {
 
   tags {
     Environment = "prod"
+    Application = "saints-xctf"
   }
 
   lifecycle {
