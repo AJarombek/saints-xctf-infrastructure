@@ -8,6 +8,10 @@ import boto3
 
 route53 = boto3.client('route53')
 
+"""
+Tests for all environments
+"""
+
 
 def saintsxctf_zone_exists() -> bool:
     """
@@ -32,14 +36,7 @@ def saintsxctf_a_record_exists() -> bool:
     Determine if the 'A' record exists for 'saintsxctf.com.' in Route53
     :return: True if it exists, False otherwise
     """
-    hosted_zone_id = get_hosted_zone_id('saintsxctf.com.')
-    record_sets = route53.list_resource_record_sets(
-        HostedZoneId=hosted_zone_id,
-        StartRecordName='saintsxctf.com.',
-        StartRecordType='A',
-        MaxItems='1'
-    )
-    a_record = record_sets.get('ResourceRecordSets')[0]
+    a_record = get_record('saintsxctf.com.', 'saintsxctf.com.', 'A')
     return a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'A'
 
 
@@ -48,15 +45,31 @@ def www_saintsxctf_a_record_exists() -> bool:
     Determine if the 'A' record exists for 'www.saintsxctf.com.' in Route53
     :return: True if it exists, False otherwise
     """
-    hosted_zone_id = get_hosted_zone_id('saintsxctf.com.')
+    a_record = get_record('saintsxctf.com.', 'www.saintsxctf.com.', 'A')
+    return a_record.get('Name') == 'www.saintsxctf.com.' and a_record.get('Type') == 'A'
+
+
+"""
+Helper functions to use for retrieving Route53 information
+"""
+
+
+def get_record(zone_name: str, record_name: str, record_type: str) -> dict:
+    """
+    Helper method which gets Route53 record information.
+    :param zone_name: the DNS name of a Hosted Zone the record exists in
+    :param record_name: the name of the Route53 record to retrieve information about
+    :param record_type: the type of the Route53 record to retrieve information about
+    :return: A dictionary containing information about the Route53 record
+    """
+    hosted_zone_id = get_hosted_zone_id(zone_name)
     record_sets = route53.list_resource_record_sets(
         HostedZoneId=hosted_zone_id,
-        StartRecordName='www.saintsxctf.com.',
-        StartRecordType='A',
+        StartRecordName=record_name,
+        StartRecordType=record_type,
         MaxItems='1'
     )
-    a_record = record_sets.get('ResourceRecordSets')[0]
-    return a_record.get('Name') == 'www.saintsxctf.com.' and a_record.get('Type') == 'A'
+    return record_sets.get('ResourceRecordSets')[0]
 
 
 def get_hosted_zone_id(name: str) -> str:

@@ -1,5 +1,5 @@
 .idea/*
-0x18/cred.sh
+secret/cred.sh
 **/.terraform/*
 **/bastion-key.pem
 **/saints-xctf-backup.sql
