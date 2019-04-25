@@ -8,6 +8,28 @@ import boto3
 
 ec2 = boto3.resource('ec2')
 
+"""
+Tests for all environments
+"""
 
-def test_webserver() -> dict:
+
+def ami_exists() -> dict:
+    pass
+
+
+"""
+Tests for the production environment
+"""
+
+
+def prod_instance_profile_exists() -> dict:
+    pass
+
+
+"""
+Tests for the development environment
+"""
+
+
+def dev_instance_profile_exists() -> dict:
     pass

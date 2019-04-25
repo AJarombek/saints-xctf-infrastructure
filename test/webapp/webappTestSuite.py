@@ -14,18 +14,18 @@ try:
 except KeyError:
     prod_env = False
 
-tests = [
-    lambda: Test.test(Func.prod_creds_s3_bucket_exists, "")
-]
+tests = []
 
 if prod_env:
     prod_tests = [
-        lambda: Test.test(Func.prod_creds_s3_bucket_exists, "")
+        lambda: Test.test(Func.prod_s3_bucket_exists, "Determine if the Production S3 Bucket Exists"),
+        lambda: Test.test(Func.prod_s3_bucket_objects_correct, "Validate the Production S3 Buckets Contents")
     ]
     tests += prod_tests
 else:
     dev_tests = [
-        lambda: Test.test(Func.dev_creds_s3_bucket_exists, "")
+        lambda: Test.test(Func.dev_s3_bucket_exists, "Determine if the Development S3 Bucket Exists"),
+        lambda: Test.test(Func.dev_s3_bucket_objects_correct, "Validate the Development S3 Buckets Contents")
     ]
     tests += dev_tests
 
