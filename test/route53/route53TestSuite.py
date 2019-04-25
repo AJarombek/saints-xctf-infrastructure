@@ -16,17 +16,21 @@ except KeyError:
 
 tests = [
     lambda: Test.test(Func.saintsxctf_zone_exists, "Check if the saintsxctf.com Hosted Zone Exists in Route53"),
-    lambda: Test.test(Func.saintsxctf_zone_public, "Check if the saintsxctf.com Hosted Zone is Public")
+    lambda: Test.test(Func.saintsxctf_zone_public, "Check if the saintsxctf.com Hosted Zone is Public"),
+    lambda: Test.test(Func.saintsxctf_ns_record_exists, "The saintsxctf.com 'NS' record exists")
 ]
 
 if prod_env:
     prod_tests = [
-        lambda: Test.test(Func.saintsxctf_a_record_exists, "Check if the saintsxctf.com 'A' record exists"),
-        lambda: Test.test(Func.www_saintsxctf_a_record_exists, "Check if the www.saintsxctf.com 'A' record exists")
+        lambda: Test.test(Func.saintsxctf_a_record_exists, "The saintsxctf.com 'A' record exists"),
+        lambda: Test.test(Func.www_saintsxctf_a_record_exists, "The www.saintsxctf.com 'A' record exists")
     ]
     tests += prod_tests
 else:
-    dev_tests = []
+    dev_tests = [
+        lambda: Test.test(Func.dev_saintsxctf_a_record_exists, "The dev.saintsxctf.com 'A' record exists"),
+        lambda: Test.test(Func.www_dev_saintsxctf_a_record_exists, "The www.dev.saintsxctf.com 'A' record exists")
+    ]
     tests += dev_tests
 
 

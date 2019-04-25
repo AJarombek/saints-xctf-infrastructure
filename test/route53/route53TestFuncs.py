@@ -31,6 +31,20 @@ def saintsxctf_zone_public() -> bool:
     return zones[0].get('Config').get('PrivateZone') is False
 
 
+def saintsxctf_ns_record_exists() -> bool:
+    """
+    Determine if the 'NS' record exists for 'saintsxctf.com.' in Route53
+    :return: True if it exists, False otherwise
+    """
+    a_record = get_record('saintsxctf.com.', 'saintsxctf.com.', 'NS')
+    return a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'NS'
+
+
+"""
+Tests for the production environment
+"""
+
+
 def saintsxctf_a_record_exists() -> bool:
     """
     Determine if the 'A' record exists for 'saintsxctf.com.' in Route53
@@ -47,6 +61,29 @@ def www_saintsxctf_a_record_exists() -> bool:
     """
     a_record = get_record('saintsxctf.com.', 'www.saintsxctf.com.', 'A')
     return a_record.get('Name') == 'www.saintsxctf.com.' and a_record.get('Type') == 'A'
+
+
+"""
+Tests for the development environment
+"""
+
+
+def dev_saintsxctf_a_record_exists() -> bool:
+    """
+    Determine if the 'A' record exists for 'dev.saintsxctf.com.' in Route53
+    :return: True if it exists, False otherwise
+    """
+    a_record = get_record('saintsxctf.com.', 'dev.saintsxctf.com.', 'A')
+    return a_record.get('Name') == 'dev.saintsxctf.com.' and a_record.get('Type') == 'A'
+
+
+def www_dev_saintsxctf_a_record_exists() -> bool:
+    """
+    Determine if the 'A' record exists for 'www.dev.saintsxctf.com.' in Route53
+    :return: True if it exists, False otherwise
+    """
+    a_record = get_record('saintsxctf.com.', 'www.dev.saintsxctf.com.', 'A')
+    return a_record.get('Name') == 'www.dev.saintsxctf.com.' and a_record.get('Type') == 'A'
 
 
 """
