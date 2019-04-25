@@ -23,6 +23,10 @@ def prod_s3_bucket_exists() -> bool:
 
 
 def prod_s3_bucket_objects_correct() -> bool:
+    """
+    Test if the S3 bucket for prod contains the proper objects
+    :return: True if the objects are as expected, False otherwise
+    """
     contents = s3.list_objects(Bucket='saints-xctf-credentials-dev').get('Contents')
     return all([
         len(contents) == 4,
@@ -48,6 +52,10 @@ def dev_s3_bucket_exists() -> bool:
 
 
 def dev_s3_bucket_objects_correct() -> bool:
+    """
+    Test if the S3 bucket for dev contains the proper objects
+    :return: True if the objects are as expected, False otherwise
+    """
     contents = s3.list_objects(Bucket='saints-xctf-credentials-prod').get('Contents')
     return all([
         len(contents) == 4,

@@ -50,6 +50,7 @@ data "template_file" "bastion-startup" {
 # Executed Before Resources are Created
 #--------------------------------------
 
+/* Generate a SSH key used to connect to the Bastion host from my local machine */
 resource "null_resource" "bastion-key-gen" {
   provisioner "local-exec" {
     command = "bash bastion-key-gen.sh"

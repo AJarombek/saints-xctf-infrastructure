@@ -15,17 +15,21 @@ except KeyError:
     prod_env = False
 
 tests = [
-    lambda: Test.test(Func.test_webserver, "")
+    lambda: Test.test(Func.ami_exists, "Confirm one or more AMIs Exist for SaintsXCTF")
 ]
 
 if prod_env:
     prod_tests = [
-        lambda: Test.test(Func.prod_s3_bucket_exists, "")
+        lambda: Test.test(Func.prod_instance_running, "Confirm that the Production EC2 Instance is Running"),
+        lambda: Test.test(Func.prod_instance_not_overscaled, "Ensure there are an Expected Number of Instances"),
+        lambda: Test.test(Func.prod_instance_profile_exists, "Ensure the EC2 Instance has an Instance Profile")
     ]
     tests += prod_tests
 else:
     dev_tests = [
-        lambda: Test.test(Func.dev_s3_bucket_exists, "")
+        lambda: Test.test(Func.dev_instance_running, "Confirm that the Development EC2 Instance is Running"),
+        lambda: Test.test(Func.dev_instance_not_overscaled, "Ensure there are an Expected Number of Instances"),
+        lambda: Test.test(Func.dev_instance_profile_exists, "Ensure the EC2 Instance has an Instance Profile")
     ]
     tests += dev_tests
 
