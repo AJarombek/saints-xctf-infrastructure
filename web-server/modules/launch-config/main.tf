@@ -75,6 +75,7 @@ data "template_file" "saints-xctf-startup" {
 # Executed Before Resources are Created
 #--------------------------------------
 
+/* Before creating any AWS resources, create an SSH key used to connect to the web server */
 resource "null_resource" "saints-xctf-key-gen" {
   provisioner "local-exec" {
     command = "bash ../../modules/launch-config/saintsxctf-key-gen.sh ${var.prod ?
@@ -86,6 +87,7 @@ resource "null_resource" "saints-xctf-key-gen" {
 # New AWS Resources for the SaintsXCTF Launch Configuration
 #----------------------------------------------------------
 
+/* This instance profile gives the web server access to S3 fo secret files */
 resource "aws_iam_instance_profile" "saints-xctf-instance-profile" {
   name = "saints-xctf-${local.env}-instance-profile"
   role = "${data.aws_iam_role.s3-access-role.name}"

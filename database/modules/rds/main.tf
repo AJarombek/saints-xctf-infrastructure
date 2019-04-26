@@ -48,6 +48,7 @@ data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
 # SaintsXCTF MySQL Database Resources
 #------------------------------------
 
+/* The MySQL security group allows incoming traffic on the database port (3306) from the public subnets */
 resource "aws_security_group" "saints-xctf-database-security" {
   name = "saints-xctf-database-security-${local.env}"
   description = "Allow incoming traffic to the MySQL port"
@@ -109,6 +110,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   }
 }
 
+/* The subnets to use for a highly available database */
 resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   subnet_ids = [
     "${data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.id}",
@@ -121,6 +123,7 @@ resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   }
 }
 
+/* An alarm is set up in case the database is running out of storage space.  This will signal an upgrade is needed. */
 resource "aws_cloudwatch_metric_alarm" "saints-xctf-mysql-database-storage-low-alarm" {
   alarm_name = "saints-xctf-mysql-${var.prod ? "prod" : "dev"}-database-storage-low-alarm"
   alarm_description = "Monitors if the SaintsXCTF MySQL Database is running low on storage in ${upper(local.env)}"
