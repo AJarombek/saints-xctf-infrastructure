@@ -9,6 +9,7 @@ import boto3
 ec2 = boto3.client('ec2')
 sts = boto3.client('sts')
 iam = boto3.client('iam')
+autoscaling = boto3.client('autoscaling')
 
 """
 Tests for all environments
@@ -63,7 +64,35 @@ def prod_instance_profile_exists() -> bool:
 
 
 def prod_launch_config_valid() -> bool:
-    pass
+    """
+    Ensure that the Launch Configuration for a SaintsXCTF web server in production is valid
+    :return: True if its valid, False otherwise
+    """
+    instance = get_ec2('saints-xctf-server-prod-asg')[0]
+    security_group = instance.security_groups[0]
+
+    lcs = autoscaling.describe_launch_configurations(
+        LaunchConfigurationNames=['saints-xctf-server-prod-lc'],
+        MaxRecords=1
+    )
+
+    launch_config = lcs.get('LaunchConfigurations')[0]
+
+    return all([
+        launch_config.get('InstanceType') == 't2.micro',
+        launch_config.get('KeyName') == 'saints-xctf-key',
+        len(launch_config.get('SecurityGroups')) == 1,
+        launch_config.get('SecurityGroups')[0] == security_group.get('GroupId'),
+        launch_config.get('IamInstanceProfile') == 'saints-xctf-prod-instance-profile'
+    ])
+
+
+def prod_autoscaling_group_valid() -> bool:
+    """
+    Ensure that the AutoScaling Group for a SaintsXCTF web server in production is valid
+    :return: True if its valid, False otherwise
+    """
+    return validate_autoscaling_group(is_prod=True)
 
 
 """
@@ -95,6 +124,38 @@ def dev_instance_profile_exists() -> bool:
     :return: True if the instance profile exists, False otherwise
     """
     return validate_instance_profile('s3-access-role', is_prod=False)
+
+
+def dev_launch_config_valid() -> bool:
+    """
+    Ensure that the Launch Configuration for a SaintsXCTF web server in development is valid
+    :return: True if its valid, False otherwise
+    """
+    instance = get_ec2('saints-xctf-server-dev-asg')[0]
+    security_group = instance.security_groups[0]
+
+    lcs = autoscaling.describe_launch_configurations(
+        LaunchConfigurationNames=['saints-xctf-server-dev-lc'],
+        MaxRecords=1
+    )
+
+    launch_config = lcs.get('LaunchConfigurations')[0]
+
+    return all([
+        launch_config.get('InstanceType') == 't2.micro',
+        launch_config.get('KeyName') == 'saints-xctf-key',
+        len(launch_config.get('SecurityGroups')) == 1,
+        launch_config.get('SecurityGroups')[0] == security_group.get('GroupId'),
+        launch_config.get('IamInstanceProfile') == 'saints-xctf-dev-instance-profile'
+    ])
+
+
+def dev_autoscaling_group_valid() -> bool:
+    """
+    Ensure that the AutoScaling Group for a SaintsXCTF web server in development is valid
+    :return: True if its valid, False otherwise
+    """
+    return validate_autoscaling_group(is_prod=False)
 
 
 """
@@ -152,4 +213,33 @@ def validate_instance_profile(role_name: str, is_prod: bool = True):
         role_arn == instance_profile.get('Roles')[0].get('Arn')
     ])
 
-print(prod_instance_profile_exists())
+
+def validate_autoscaling_group(is_prod: bool = True) -> bool:
+    """
+    Ensure that the AutoScaling Group for a SaintsXCTF web server in a given environment is valid
+    :param is_prod: Whether the EC2 instance is in production environment or not
+    :return: True if its valid, False otherwise
+    """
+    if is_prod:
+        env = "prod"
+    else:
+        env = "dev"
+
+    asgs = autoscaling.describe_auto_scaling_groups(
+        AutoScalingGroupNames=[f'saints-xctf-server-{env}-asg'],
+        MaxRecords=1
+    )
+
+    asg = asgs.get('AutoScalingGroups')[0]
+
+    return all([
+        asg.get('LaunchConfigurationName') == f'saints-xctf-server-{env}-lc',
+        asg.get('MinSize') == 1,
+        asg.get('MaxSize') == 1,
+        asg.get('DesiredCapacity') == 1,
+        len(asg.get('Instances')) == 1,
+        asg.get('Instances')[0].get('LifecycleState') == 'InService',
+        asg.get('Instances')[0].get('HealthStatus') == 'Healthy'
+    ])
+
+print(prod_autoscaling_group_valid())
