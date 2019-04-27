@@ -300,6 +300,11 @@ resource "aws_security_group" "saints-xctf-server-lb-security-group" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tags {
+    Name = "saints-xctf-${local.env}-server-elb-security-group"
+    Application = "saints-xctf"
+  }
 }
 
 resource "aws_security_group_rule" "saints-xctf-server-lb-security-group-rule-cidr" {

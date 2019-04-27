@@ -138,12 +138,18 @@ def prod_load_balancer_sg_valid():
     Ensure that the security group attached to the load balancer is as expected
     :return: True if its as expected, False otherwise
     """
-    response = ec2.describe_security_groups(GroupNames=['saints-xctf-prod-server-elb-security-group'])
+    response = ec2.describe_security_groups(Filters=[
+        {
+            'Name': 'group-name',
+            'Values': ['saints-xctf-prod-server-elb-security-group']
+        }
+    ])
+
     security_group = response.get('SecurityGroups')[0]
 
     return all([
         security_group.get('GroupName') == 'saints-xctf-prod-server-elb-security-group',
-        validate_launch_config_sg_rules(security_group.get('IpPermissions'), security_group.get('IpPermissionsEgress'))
+        validate_load_balancer_sg_rules(security_group.get('IpPermissions'), security_group.get('IpPermissionsEgress'))
     ])
 
 
@@ -378,12 +384,71 @@ def validate_load_balancer(is_prod: bool = True) -> bool:
 
 
 def validate_load_balancer_sg_rules(ingress: list, egress: list, is_prod: bool = True) -> bool:
+    """
+    Ensure that the load balancers security group rules are as expected in a given environment
+    :param ingress: Ingress rules for the security group
+    :param egress: Egress rules for the security group
+    :param is_prod: Whether the load balancer is in production environment or not
+    :return: True if the security group rules exist as expected, False otherwise
+    """
     if is_prod:
         env = "prod"
     else:
         env = "dev"
 
-    response = ec2.describe_security_groups(GroupNames=[f'saints-xctf-database-security-{env}'])
+    response = ec2.describe_security_groups(Filters=[
+        {
+            'Name': 'group-name',
+            'Values': [f'saints-xctf-database-security-{env}']
+        }
+    ])
+
+    database_sg = response.get('SecurityGroups')[0]
+
+    ingress_80 = validate_sg_rule_cidr(ingress[0], 'tcp', 80, 80, '0.0.0.0/0')
+    ingress_22 = validate_sg_rule_cidr(ingress[1], 'tcp', 22, 22, '69.124.72.192/32')
+    ingress_443 = validate_sg_rule_cidr(ingress[2], 'tcp', 443, 443, '0.0.0.0/0')
+
+    egress_80 = validate_sg_rule_cidr(egress[0], 'tcp', 80, 80, '0.0.0.0/0')
+    egress_neg1 = validate_sg_rule_cidr(egress[1], '-1', 0, 0, '0.0.0.0/0')
+    egress_25 = validate_sg_rule_cidr(egress[2], 'tcp', 25, 25, '0.0.0.0/0')
+    egress_3306 = validate_sg_rule_source(egress[3], 'tcp', 3306, 3306, database_sg.get('GroupId'))
+    egress_443 = validate_sg_rule_cidr(egress[4], 'tcp', 443, 443, '0.0.0.0/0')
+
+    return all([
+        len(ingress) == 3,
+        ingress_80,
+        ingress_443,
+        ingress_22,
+        len(egress) == 4,
+        egress_80,
+        egress_25,
+        egress_neg1,
+        egress_3306,
+        egress_443
+    ])
+
+
+def validate_launch_config_sg_rules(ingress: list, egress: list, is_prod: bool = True) -> bool:
+    """
+    Ensure that the launch configurations security group rules are as expected in a given environment
+    :param ingress: Ingress rules for the security group
+    :param egress: Egress rules for the security group
+    :param is_prod: Whether the launch configuration is in production environment or not
+    :return: True if the security group rules exist as expected, False otherwise
+    """
+    if is_prod:
+        env = "prod"
+    else:
+        env = "dev"
+
+    response = ec2.describe_security_groups(Filters=[
+        {
+            'Name': 'group-name',
+            'Values': [f'saints-xctf-database-security-{env}']
+        }
+    ])
+
     database_sg = response.get('SecurityGroups')[0]
 
     ingress_80 = validate_sg_rule_cidr(ingress[0], 'tcp', 80, 80, '0.0.0.0/0')
@@ -400,26 +465,11 @@ def validate_load_balancer_sg_rules(ingress: list, egress: list, is_prod: bool =
         ingress_80,
         ingress_443,
         ingress_22,
-        len(egress) == 4,
+        len(egress) == 5,
         egress_80,
         egress_25,
         egress_3306,
         egress_443
-    ])
-
-
-def validate_launch_config_sg_rules(ingress: list, egress: list, is_prod: bool = True) -> bool:
-    if is_prod:
-        env = "prod"
-    else:
-        env = "dev"
-
-    response = ec2.describe_security_groups(GroupNames=[f'saints-xctf-database-security-{env}'])
-    database_sg = response.get('SecurityGroups')[0]
-
-    return all([
-        len(ingress) == 3,
-        len(egress) == 5
     ])
 
 
@@ -434,10 +484,20 @@ def validate_sg_rule_cidr(rule: dict, protocol: str, from_port: int, to_port: in
     :param cidr: The ingress or egress CIDR block
     :return: True if the security group rule exists as expected, False otherwise
     """
+    if from_port == 0:
+        from_port_valid = 'FromPort' not in rule.keys()
+    else:
+        from_port_valid = rule.get('FromPort') == from_port
+
+    if to_port == 0:
+        to_port_valid = 'ToPort' not in rule.keys()
+    else:
+        to_port_valid = rule.get('ToPort') == to_port
+
     return all([
         rule.get('IpProtocol') == protocol,
-        rule.get('FromPort') == from_port,
-        rule.get('ToPort') == to_port,
+        from_port_valid,
+        to_port_valid,
         rule.get('IpRanges')[0].get('CidrIp') == cidr
     ])
 
@@ -461,4 +521,4 @@ def validate_sg_rule_source(rule: dict, protocol: str, from_port: int, to_port: 
     ])
 
 
-print(prod_launch_config_sg_valid())
+print(prod_load_balancer_sg_valid())
