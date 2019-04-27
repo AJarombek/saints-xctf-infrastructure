@@ -87,6 +87,25 @@ def prod_launch_config_valid() -> bool:
     ])
 
 
+def prod_launch_config_sg_valid():
+    """
+    Ensure that the security group attached to the launch configuration is as expected
+    :return: True if its as expected, False otherwise
+    """
+    lcs = autoscaling.describe_launch_configurations(
+        LaunchConfigurationNames=['saints-xctf-server-prod-lc'],
+        MaxRecords=1
+    )
+
+    launch_config = lcs.get('LaunchConfigurations')[0]
+    security_group_id = launch_config.get('SecurityGroups')[0]
+
+    security_group = ec2.describe_security_groups(GroupIds=[security_group_id]).get('SecurityGroups')[0]
+    return all([
+        security_group.get('GroupName') == 'saints-xctf-prod-server-lc-security-group'
+    ])
+
+
 def prod_autoscaling_group_valid() -> bool:
     """
     Ensure that the AutoScaling Group for a SaintsXCTF web server in production is valid
@@ -102,6 +121,22 @@ def prod_autoscaling_schedules_unset() -> bool:
     """
     schedules = autoscaling.describe_scheduled_actions(AutoScalingGroupName='saints-xctf-server-prod-asg')
     return len(schedules.get('ScheduledUpdateGroupActions')) == 0
+
+
+def prod_load_balancer_running():
+    """
+    Prove that the application load balancer in production is running
+    :return: True if its running, False otherwise
+    """
+    return validate_load_balancer(is_prod=True)
+
+
+def prod_load_balancer_sg_valid():
+    """
+    Ensure that the security group attached to the load balancer is as expected
+    :return: True if its as expected, False otherwise
+    """
+    pass
 
 
 """
@@ -186,6 +221,14 @@ def dev_autoscaling_schedules_set() -> bool:
         validate_autoscaling_schedule('saints-xctf-server-offline-weekend', recurrence='30 3 * * 0,1',
                                       max_size=0, min_size=0, desired_size=0)
     ])
+
+
+def dev_load_balancer_running():
+    """
+    Prove that the application load balancer in development is running
+    :return: True if its running, False otherwise
+    """
+    return validate_load_balancer(is_prod=False)
 
 
 """
@@ -300,4 +343,38 @@ def validate_autoscaling_schedule(name: str, recurrence: str = '', max_size: int
     ])
 
 
-print(prod_autoscaling_schedules_unset())
+def validate_load_balancer(is_prod: bool = True) -> bool:
+    """
+    Prove that an application load balancer is running by checking its target groups
+    :param is_prod: Whether the load balancer is in production environment or not
+    :return: True if its running, False otherwise
+    """
+    if is_prod:
+        env = "prod"
+    else:
+        env = "dev"
+
+    response = autoscaling.describe_load_balancer_target_groups(
+        AutoScalingGroupName=f'saints-xctf-server-{env}-asg'
+    )
+
+    load_balancers = response.get('LoadBalancerTargetGroups')
+
+    return all([
+        len(load_balancers) == 2,
+        load_balancers[0].get('State') == 'InService',
+        'targetgroup/saints-xctf-lb-target-http' in load_balancers[0].get('LoadBalancerTargetGroupARN'),
+        load_balancers[1].get('State') == 'InService',
+        'targetgroup/saints-xctf-lb-target' in load_balancers[1].get('LoadBalancerTargetGroupARN'),
+    ])
+
+
+def validate_load_balancer_sg_rules():
+    pass
+
+
+def validate_launch_config_sg_rules():
+    pass
+
+
+print(prod_launch_config_sg_valid())
