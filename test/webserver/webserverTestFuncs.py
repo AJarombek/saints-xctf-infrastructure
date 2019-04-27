@@ -101,8 +101,10 @@ def prod_launch_config_sg_valid():
     security_group_id = launch_config.get('SecurityGroups')[0]
 
     security_group = ec2.describe_security_groups(GroupIds=[security_group_id]).get('SecurityGroups')[0]
+
     return all([
-        security_group.get('GroupName') == 'saints-xctf-prod-server-lc-security-group'
+        security_group.get('GroupName') == 'saints-xctf-prod-server-lc-security-group',
+        validate_launch_config_sg_rules(security_group.get('IpPermissions'), security_group.get('IpPermissionsEgress'))
     ])
 
 
@@ -136,7 +138,13 @@ def prod_load_balancer_sg_valid():
     Ensure that the security group attached to the load balancer is as expected
     :return: True if its as expected, False otherwise
     """
-    pass
+    response = ec2.describe_security_groups(GroupNames=['saints-xctf-prod-server-elb-security-group'])
+    security_group = response.get('SecurityGroups')[0]
+
+    return all([
+        security_group.get('GroupName') == 'saints-xctf-prod-server-elb-security-group',
+        validate_launch_config_sg_rules(security_group.get('IpPermissions'), security_group.get('IpPermissionsEgress'))
+    ])
 
 
 """
@@ -369,12 +377,88 @@ def validate_load_balancer(is_prod: bool = True) -> bool:
     ])
 
 
-def validate_load_balancer_sg_rules():
-    pass
+def validate_load_balancer_sg_rules(ingress: list, egress: list, is_prod: bool = True) -> bool:
+    if is_prod:
+        env = "prod"
+    else:
+        env = "dev"
+
+    response = ec2.describe_security_groups(GroupNames=[f'saints-xctf-database-security-{env}'])
+    database_sg = response.get('SecurityGroups')[0]
+
+    ingress_80 = validate_sg_rule_cidr(ingress[0], 'tcp', 80, 80, '0.0.0.0/0')
+    ingress_443 = validate_sg_rule_cidr(ingress[2], 'tcp', 443, 443, '0.0.0.0/0')
+    ingress_22 = validate_sg_rule_cidr(ingress[1], 'tcp', 22, 22, '69.124.72.192/32')
+
+    egress_80 = validate_sg_rule_cidr(egress[0], 'tcp', 80, 80, '0.0.0.0/0')
+    egress_25 = validate_sg_rule_cidr(egress[1], 'tcp', 25, 25, '0.0.0.0/0')
+    egress_3306 = validate_sg_rule_source(egress[2], 'tcp', 3306, 3306, database_sg.get('GroupId'))
+    egress_443 = validate_sg_rule_cidr(egress[3], 'tcp', 443, 443, '0.0.0.0/0')
+
+    return all([
+        len(ingress) == 3,
+        ingress_80,
+        ingress_443,
+        ingress_22,
+        len(egress) == 4,
+        egress_80,
+        egress_25,
+        egress_3306,
+        egress_443
+    ])
 
 
-def validate_launch_config_sg_rules():
-    pass
+def validate_launch_config_sg_rules(ingress: list, egress: list, is_prod: bool = True) -> bool:
+    if is_prod:
+        env = "prod"
+    else:
+        env = "dev"
+
+    response = ec2.describe_security_groups(GroupNames=[f'saints-xctf-database-security-{env}'])
+    database_sg = response.get('SecurityGroups')[0]
+
+    return all([
+        len(ingress) == 3,
+        len(egress) == 5
+    ])
+
+
+def validate_sg_rule_cidr(rule: dict, protocol: str, from_port: int, to_port: int, cidr: str) -> bool:
+    """
+    Determine if a security group rule which opens connections
+    from (ingress) or to (egress) a CIDR block exists as expected.
+    :param rule: A dictionary containing security group rule information
+    :param protocol: Which protocol the rule enables connections for
+    :param from_port: Which source port the rule enables connections for
+    :param to_port: Which destination port the rule enables connections for
+    :param cidr: The ingress or egress CIDR block
+    :return: True if the security group rule exists as expected, False otherwise
+    """
+    return all([
+        rule.get('IpProtocol') == protocol,
+        rule.get('FromPort') == from_port,
+        rule.get('ToPort') == to_port,
+        rule.get('IpRanges')[0].get('CidrIp') == cidr
+    ])
+
+
+def validate_sg_rule_source(rule: dict, protocol: str, from_port: int, to_port: int, source_sg: str) -> bool:
+    """
+    Determine if a security group rule which opens connections
+    from a different source security group exists as expected.
+    :param rule: A dictionary containing security group rule information
+    :param protocol: Which protocol the rule enables connections for
+    :param from_port: Which source port the rule enables connections for
+    :param to_port: Which destination port the rule enables connections for
+    :param source_sg: The destination security group identifier
+    :return: True if the security group rule exists as expected, False otherwise
+    """
+    return all([
+        rule.get('IpProtocol') == protocol,
+        rule.get('FromPort') == from_port,
+        rule.get('ToPort') == to_port,
+        rule.get('UserIdGroupPairs')[0].get('GroupId') == source_sg
+    ])
 
 
 print(prod_launch_config_sg_valid())
