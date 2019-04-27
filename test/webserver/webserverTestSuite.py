@@ -24,7 +24,8 @@ if prod_env:
         lambda: Test.test(Func.prod_instance_not_overscaled, "Ensure there are an Expected Number of Instances"),
         lambda: Test.test(Func.prod_instance_profile_exists, "Ensure the EC2 Instance has an Instance Profile"),
         lambda: Test.test(Func.prod_launch_config_valid, "Validate the EC2 Launch Configuration"),
-        lambda: Test.test(Func.prod_autoscaling_group_valid, "Validate the EC2 AutoScaling Group")
+        lambda: Test.test(Func.prod_autoscaling_group_valid, "Validate the EC2 AutoScaling Group"),
+        lambda: Test.test(Func.prod_autoscaling_schedules_unset, "Ensure the EC2 AutoScaling Group has no Schedules")
     ]
     tests += prod_tests
 else:
@@ -33,7 +34,8 @@ else:
         lambda: Test.test(Func.dev_instance_not_overscaled, "Ensure there are an Expected Number of Instances"),
         lambda: Test.test(Func.dev_instance_profile_exists, "Ensure the EC2 Instance has an Instance Profile"),
         lambda: Test.test(Func.dev_launch_config_valid, "Validate the EC2 Launch Configuration"),
-        lambda: Test.test(Func.dev_autoscaling_group_valid, "Validate the EC2 AutoScaling Group")
+        lambda: Test.test(Func.dev_autoscaling_group_valid, "Validate the EC2 AutoScaling Group"),
+        lambda: Test.test(Func.dev_autoscaling_schedules_set, "Ensure the EC2 AutoScaling Group has Schedules")
     ]
     tests += dev_tests
 

@@ -95,6 +95,15 @@ def prod_autoscaling_group_valid() -> bool:
     return validate_autoscaling_group(is_prod=True)
 
 
+def prod_autoscaling_schedules_unset() -> bool:
+    """
+    Make sure there are no autoscaling schedules in production (the ASG should always be up)
+    :return: True if there are no schedules, False otherwise
+    """
+    schedules = autoscaling.describe_scheduled_actions(AutoScalingGroupName='saints-xctf-server-prod-asg')
+    return len(schedules.get('ScheduledUpdateGroupActions')) == 0
+
+
 """
 Tests for the development environment
 """
@@ -156,6 +165,27 @@ def dev_autoscaling_group_valid() -> bool:
     :return: True if its valid, False otherwise
     """
     return validate_autoscaling_group(is_prod=False)
+
+
+def dev_autoscaling_schedules_set() -> bool:
+    """
+    Make sure there are the expected autoscaling schedules in development (the ASG should be down in non-work hours)
+    :return: True if there are the expected schedules, False otherwise
+    """
+    return all([
+        validate_autoscaling_schedule('saints-xctf-server-online-weekday-morning', recurrence='30 11 * * 1-5',
+                                      max_size=1, min_size=1, desired_size=1),
+        validate_autoscaling_schedule('saints-xctf-server-offline-weekday-morning', recurrence='30 13 * * 1-5',
+                                      max_size=0, min_size=0, desired_size=0),
+        validate_autoscaling_schedule('saints-xctf-server-online-weekday-afternoon', recurrence='30 22 * * 1-5',
+                                      max_size=1, min_size=1, desired_size=1),
+        validate_autoscaling_schedule('saints-xctf-server-offline-weekday-night', recurrence='30 3 * * 2-6',
+                                      max_size=0, min_size=0, desired_size=0),
+        validate_autoscaling_schedule('saints-xctf-server-online-weekend', recurrence='30 11 * * 0,6',
+                                      max_size=1, min_size=1, desired_size=1),
+        validate_autoscaling_schedule('saints-xctf-server-offline-weekend', recurrence='30 3 * * 0,1',
+                                      max_size=0, min_size=0, desired_size=0)
+    ])
 
 
 """
@@ -242,4 +272,32 @@ def validate_autoscaling_group(is_prod: bool = True) -> bool:
         asg.get('Instances')[0].get('HealthStatus') == 'Healthy'
     ])
 
-print(prod_autoscaling_group_valid())
+
+def validate_autoscaling_schedule(name: str, recurrence: str = '', max_size: int = 0,
+                                  min_size: int = 0, desired_size: int = 0) -> bool:
+    """
+    Make sure an autoscaling schedule exists as expected
+    :param name: The name of the autoscaling schedule
+    :param recurrence: When this schedule recurs
+    :param max_size: maximum number of instances in the asg
+    :param min_size: minimum number of instances in the asg
+    :param desired_size: desired number of instances in the asg
+    :return: True if the schedule exists as expected, False otherwise
+    """
+    response = autoscaling.describe_scheduled_actions(
+        AutoScalingGroupName='saints-xctf-server-prod-asg',
+        ScheduledActionNames=[name],
+        MaxRecords=1
+    )
+
+    schedule = response.get('ScheduledUpdateGroupActions')[0]
+
+    return all([
+        schedule.get('Recurrence') == recurrence,
+        schedule.get('MinSize') == min_size,
+        schedule.get('MaxSize') == max_size,
+        schedule.get('Recurrence') == desired_size
+    ])
+
+
+print(prod_autoscaling_schedules_unset())
