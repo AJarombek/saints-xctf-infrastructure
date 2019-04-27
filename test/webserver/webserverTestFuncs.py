@@ -208,6 +208,27 @@ def dev_launch_config_valid() -> bool:
     ])
 
 
+def dev_launch_config_sg_valid():
+    """
+    Ensure that the security group attached to the launch configuration is as expected
+    :return: True if its as expected, False otherwise
+    """
+    lcs = autoscaling.describe_launch_configurations(
+        LaunchConfigurationNames=['saints-xctf-server-dev-lc'],
+        MaxRecords=1
+    )
+
+    launch_config = lcs.get('LaunchConfigurations')[0]
+    security_group_id = launch_config.get('SecurityGroups')[0]
+
+    security_group = ec2.describe_security_groups(GroupIds=[security_group_id]).get('SecurityGroups')[0]
+
+    return all([
+        security_group.get('GroupName') == 'saints-xctf-dev-server-lc-security-group',
+        validate_launch_config_sg_rules(security_group.get('IpPermissions'), security_group.get('IpPermissionsEgress'))
+    ])
+
+
 def dev_autoscaling_group_valid() -> bool:
     """
     Ensure that the AutoScaling Group for a SaintsXCTF web server in development is valid
@@ -243,6 +264,26 @@ def dev_load_balancer_running():
     :return: True if its running, False otherwise
     """
     return validate_load_balancer(is_prod=False)
+
+
+def dev_load_balancer_sg_valid():
+    """
+    Ensure that the security group attached to the load balancer is as expected
+    :return: True if its as expected, False otherwise
+    """
+    response = ec2.describe_security_groups(Filters=[
+        {
+            'Name': 'group-name',
+            'Values': ['saints-xctf-dev-server-elb-security-group']
+        }
+    ])
+
+    security_group = response.get('SecurityGroups')[0]
+
+    return all([
+        security_group.get('GroupName') == 'saints-xctf-dev-server-elb-security-group',
+        validate_load_balancer_sg_rules(security_group.get('IpPermissions'), security_group.get('IpPermissionsEgress'))
+    ])
 
 
 """
@@ -420,7 +461,7 @@ def validate_load_balancer_sg_rules(ingress: list, egress: list, is_prod: bool =
         ingress_80,
         ingress_443,
         ingress_22,
-        len(egress) == 4,
+        len(egress) == 5,
         egress_80,
         egress_25,
         egress_neg1,
@@ -465,7 +506,7 @@ def validate_launch_config_sg_rules(ingress: list, egress: list, is_prod: bool =
         ingress_80,
         ingress_443,
         ingress_22,
-        len(egress) == 5,
+        len(egress) == 4,
         egress_80,
         egress_25,
         egress_3306,
@@ -521,4 +562,4 @@ def validate_sg_rule_source(rule: dict, protocol: str, from_port: int, to_port: 
     ])
 
 
-print(prod_load_balancer_sg_valid())
+print(prod_launch_config_sg_valid())

@@ -12,7 +12,7 @@ from webapp import webappTestFuncs as Func
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
 except KeyError:
-    prod_env = False
+    prod_env = True
 
 tests = []
 

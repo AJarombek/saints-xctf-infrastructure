@@ -12,7 +12,7 @@ from route53 import route53TestFuncs as Func
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
 except KeyError:
-    prod_env = False
+    prod_env = True
 
 tests = [
     lambda: Test.test(Func.saintsxctf_zone_exists, "Check if the saintsxctf.com Hosted Zone Exists in Route53"),

@@ -15,7 +15,7 @@ s3 = boto3.client('s3')
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
 except KeyError:
-    prod_env = False
+    prod_env = True
 
 """
 Generic functions to use for any RDS instance

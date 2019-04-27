@@ -44,6 +44,10 @@ def bastion_vpc() -> bool:
     :return: True if the VPC is as expected, False otherwise
     """
     instances = get_bastion_ec2()
+
+    if len(instances) == 0:
+        return False
+
     vpc = instances[0].vpc
     vpc_tag = vpc.tags[0]
 
@@ -56,6 +60,10 @@ def bastion_subnet() -> bool:
     :return: True if the subnet is the SaintsXCTFcom Public VPC 1, False otherwise
     """
     instances = get_bastion_ec2()
+
+    if len(instances) == 0:
+        return False
+
     subnet = instances[0].subnet
     subnet_tag = subnet.tags[0]
 
@@ -70,6 +78,10 @@ def bastion_rds_access() -> bool:
 
     # First get the instance profile resource name from the Bastion host
     instances = get_bastion_ec2()
+
+    if len(instances) == 0:
+        return False
+
     instance_profile_arn = instances[0].iam_instance_profile.get('Arn')
 
     # Second get the instance profile from IAM
@@ -90,6 +102,10 @@ def bastion_security_group() -> bool:
     :return: True if the Bastion EC2 has the bastion-security security group, False otherwise
     """
     instances = get_bastion_ec2()
+
+    if len(instances) == 0:
+        return False
+
     security_group = instances[0].security_groups[0]
     return security_group.get('GroupName') == "bastion-security"
 
