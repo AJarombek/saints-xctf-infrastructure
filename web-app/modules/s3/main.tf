@@ -5,7 +5,7 @@
  */
 
 locals {
-  env = "${var.prod ? "prod" : "dev"}"
+  env = var.prod ? "prod" : "dev"
 }
 
 #---------------------------
@@ -21,7 +21,7 @@ resource "aws_s3_bucket" "saints-xctf-credentials" {
     allowed_headers = ["*"]
   }
 
-  tags {
+  tags = {
     Name = "saints-xctf-credentials-${local.env}"
   }
 }
@@ -31,14 +31,14 @@ resource "aws_s3_bucket" "saints-xctf-credentials" {
 #--------------------------------------
 
 resource "aws_s3_bucket_object" "bucket-objects" {
-  count = "${length(var.contents)}"
+  count = length(var.contents)
 
-  bucket = "${aws_s3_bucket.saints-xctf-credentials.id}"
-  key = "${lookup(var.contents[count.index], "key", "")}"
+  bucket = aws_s3_bucket.saints-xctf-credentials.id
+  key = lookup(var.contents[count.index], "key", "")
   source = "contents/${lookup(var.contents[count.index], "source", "")}"
-  etag = "${md5(file("contents/${lookup(var.contents[count.index], "source", "")}"))}"
+  etag = md5(file("contents/${lookup(var.contents[count.index], "source", "")}"))
 
-  depends_on = ["aws_s3_bucket.saints-xctf-credentials"]
+  depends_on = [aws_s3_bucket.saints-xctf-credentials]
 }
 
 #-------------------------------
@@ -46,8 +46,8 @@ resource "aws_s3_bucket_object" "bucket-objects" {
 #-------------------------------
 
 resource "aws_s3_bucket_policy" "saints-xctf-credentials-policy" {
-  bucket = "${aws_s3_bucket.saints-xctf-credentials.id}"
-  policy = "${file("${path.module}/policies/saints-xctf-credentials-policy-${local.env}.json")}"
+  bucket = aws_s3_bucket.saints-xctf-credentials.id
+  policy = file("${path.module}/policies/saints-xctf-credentials-policy-${local.env}.json")
 
-  depends_on = ["aws_s3_bucket.saints-xctf-credentials", "aws_s3_bucket_object.bucket-objects"]
+  depends_on = [aws_s3_bucket.saints-xctf-credentials, aws_s3_bucket_object.bucket-objects]
 }

@@ -7,7 +7,7 @@
 locals {
   # Environment
   prod = true
-  env = "${local.prod ? "prod" : "dev"}"
+  env = local.prod ? "prod" : "dev"
 
   # Port for load balancer to listen to on EC2 instances
   instance_port = 8080
@@ -31,15 +31,15 @@ terraform {
 }
 
 data "aws_security_group" "saints-xctf-database-sg" {
-  tags {
+  tags = {
     Name = "saints-xctf-database-security-${local.prod ? "prod" : "dev"}"
   }
 }
 
 module "launch-config" {
   source = "../../modules/launch-config"
-  prod = "${local.prod}"
-  instance_port = "${local.instance_port}"
+  prod = local.prod
+  instance_port = local.instance_port
 
   autoscaling_schedules = []
 
@@ -50,7 +50,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Inbound traffic from the internet
@@ -58,7 +58,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Connect to the instance from my IP
@@ -66,7 +66,7 @@ module "launch-config" {
       from_port = 22
       to_port = 22
       protocol = "tcp"
-      cidr_blocks = "${local.my_cidr}"
+      cidr_blocks = local.my_cidr
     },
     {
       # Outbound traffic for calling S3
@@ -74,7 +74,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for calling the API
@@ -82,7 +82,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for SendMail
@@ -90,7 +90,7 @@ module "launch-config" {
       from_port = 25
       to_port = 25
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     }
   ]
 
@@ -101,7 +101,7 @@ module "launch-config" {
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
-      source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
+      source_sg = data.aws_security_group.saints-xctf-database-sg.id
     }
   ]
 
@@ -112,7 +112,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Inbound traffic from the internet
@@ -120,7 +120,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Connect to the instance from my IP
@@ -128,7 +128,7 @@ module "launch-config" {
       from_port = 22
       to_port = 22
       protocol = "tcp"
-      cidr_blocks = "${local.my_cidr}"
+      cidr_blocks = local.my_cidr
     },
     {
       # Outbound traffic for health checks
@@ -136,7 +136,7 @@ module "launch-config" {
       from_port = 0
       to_port = 0
       protocol = "-1"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for calling S3
@@ -144,7 +144,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for calling the API
@@ -152,7 +152,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for SendMail
@@ -160,7 +160,7 @@ module "launch-config" {
       from_port = 25
       to_port = 25
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     }
   ]
 
@@ -171,7 +171,7 @@ module "launch-config" {
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
-      source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
+      source_sg = data.aws_security_group.saints-xctf-database-sg.id
     }
   ]
 }

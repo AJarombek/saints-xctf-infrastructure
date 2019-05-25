@@ -5,7 +5,7 @@
  */
 
 locals {
-  env = "${var.prod ? "prod" : "dev"}"
+  env = var.prod ? "prod" : "dev"
 }
 
 #-------------
@@ -21,7 +21,7 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
 
   # Policy allows for resources in this AWS account to create and read objects
   # Must use the module relative path (path.module) - https://github.com/hashicorp/terraform/issues/5213
-  policy = "${file("${path.module}/policies/policy-${local.env}.json")}"
+  policy = file("${path.module}/policies/policy-${local.env}.json")
 
   versioning {
     enabled = true
@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
     }
   }
 
-  tags {
+  tags = {
     Name = "SaintsXCTF Database Backups Bucket"
     Application = "saints-xctf"
   }
@@ -50,5 +50,5 @@ resource "null_resource" "initial-backups" {
     command = "bash ../../modules/s3/initial_backup.sh ${local.env}"
   }
 
-  depends_on = ["aws_s3_bucket.saints-xctf-db-backups"]
+  depends_on = [aws_s3_bucket.saints-xctf-db-backups]
 }

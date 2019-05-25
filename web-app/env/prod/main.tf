@@ -6,7 +6,7 @@
 
 locals {
   prod = true
-  env = "${local.prod ? "prod" : "dev"}"
+  env = local.prod ? "prod" : "dev"
 }
 
 provider "aws" {
@@ -14,6 +14,8 @@ provider "aws" {
 }
 
 terraform {
+  required_version = ">= 0.12"
+
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
@@ -24,7 +26,7 @@ terraform {
 
 module "s3" {
   source = "../../modules/s3"
-  prod = "${local.prod}"
+  prod = local.prod
 
   contents = [
     {

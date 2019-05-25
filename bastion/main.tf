@@ -14,6 +14,8 @@ provider "aws" {
 }
 
 terraform {
+  required_version = ">= 0.12"
+
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
@@ -27,13 +29,13 @@ terraform {
 #-----------------------
 
 data "aws_subnet" "saints-xctf-public-subnet-1" {
-  tags {
+  tags = {
     Name = "SaintsXCTFcom VPC Public Subnet 1"
   }
 }
 
 data "aws_vpc" "saints-xctf-vpc" {
-  tags {
+  tags = {
     Name = "SaintsXCTFcom VPC"
   }
 }
@@ -43,7 +45,7 @@ data "aws_iam_role" "rds-access-role" {
 }
 
 data "template_file" "bastion-startup" {
-  template = "${file("bastion-setup.sh")}"
+  template = file("bastion-setup.sh")
 }
 
 #--------------------------------------
@@ -70,28 +72,28 @@ resource "aws_instance" "bastion" {
   key_name = "bastion-key"
   associate_public_ip_address = true
 
-  subnet_id = "${data.aws_subnet.saints-xctf-public-subnet-1.id}"
-  security_groups = ["${module.bastion-subnet-security-group.security_group_id}"]
-  iam_instance_profile = "${aws_iam_instance_profile.bastion-instance-profile.name}"
+  subnet_id = data.aws_subnet.saints-xctf-public-subnet-1.id
+  security_groups = [module.bastion-subnet-security-group.security_group_id]
+  iam_instance_profile = aws_iam_instance_profile.bastion-instance-profile.name
 
   lifecycle {
     create_before_destroy = true
   }
 
-  user_data = "${data.template_file.bastion-startup.rendered}"
+  user_data = data.template_file.bastion-startup.rendered
 
-  tags {
+  tags = {
     Name = "saints-xctf-bastion-host"
     Application = "saints-xctf"
   }
 
-  depends_on = ["null_resource.bastion-key-gen"]
+  depends_on = [null_resource.bastion-key-gen]
 }
 
 /* The instance profile assigns the RDS access IAM role to the bastion EC2 instance */
 resource "aws_iam_instance_profile" "bastion-instance-profile" {
   name = "bastion-instance-profile"
-  role = "${data.aws_iam_role.rds-access-role.name}"
+  role = data.aws_iam_role.rds-access-role.name
 }
 
 /* Security group rules for the Bastion EC2 instance.  Most important is SSH access for the AWS admin */
@@ -101,7 +103,7 @@ module "bastion-subnet-security-group" {
   # Mandatory arguments
   name = "saints-xctf-bastion-security"
   tag_name = "Bastion Security Group"
-  vpc_id = "${data.aws_vpc.saints-xctf-vpc.id}"
+  vpc_id = data.aws_vpc.saints-xctf-vpc.id
 
   # Optional arguments
   sg_rules = [
@@ -111,7 +113,7 @@ module "bastion-subnet-security-group" {
       from_port = 22
       to_port = 22
       protocol = "tcp"
-      cidr_blocks = "${local.my_cidr}"
+      cidr_blocks = local.my_cidr
     },
     {
       # Inbound traffic for ping
@@ -119,7 +121,7 @@ module "bastion-subnet-security-group" {
       from_port = -1
       to_port = -1
       protocol = "icmp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for HTTP
@@ -127,7 +129,7 @@ module "bastion-subnet-security-group" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for HTTP
@@ -135,7 +137,7 @@ module "bastion-subnet-security-group" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for MySQL
@@ -143,8 +145,8 @@ module "bastion-subnet-security-group" {
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
-    }
+      cidr_blocks = local.public_cidr
+    },
   ]
 
   description = "Allow SSH connections"

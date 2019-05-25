@@ -9,6 +9,8 @@ provider "aws" {
 }
 
 terraform {
+  required_version = ">= 0.12"
+
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
@@ -24,23 +26,23 @@ terraform {
 resource "aws_iam_role" "rds-access-role" {
   name = "rds-access-role"
   path = "/saintsxctf/"
-  assume_role_policy = "${file("policies/assume-role-policy.json")}"
+  assume_role_policy = file("policies/assume-role-policy.json")
 }
 
 resource "aws_iam_role_policy_attachment" "rds-access-role-policy" {
-  policy_arn = "${aws_iam_policy.rds-access-policy.arn}"
-  role = "${aws_iam_role.rds-access-role.name}"
+  policy_arn = aws_iam_policy.rds-access-policy.arn
+  role = aws_iam_role.rds-access-role.name
 }
 
 resource "aws_iam_role" "s3-access-role" {
   name = "s3-access-role"
   path = "/saintsxctf/"
-  assume_role_policy = "${file("policies/assume-role-policy.json")}"
+  assume_role_policy = file("policies/assume-role-policy.json")
 }
 
 resource "aws_iam_role_policy_attachment" "s3-access-role-policy" {
-  policy_arn = "${aws_iam_policy.s3-access-policy.arn}"
-  role = "${aws_iam_role.s3-access-role.name}"
+  policy_arn = aws_iam_policy.s3-access-policy.arn
+  role = aws_iam_role.s3-access-role.name
 }
 
 # ------------
@@ -50,11 +52,11 @@ resource "aws_iam_role_policy_attachment" "s3-access-role-policy" {
 resource "aws_iam_policy" "rds-access-policy" {
   name = "rds-access-policy"
   path = "/saintsxctf/"
-  policy = "${file("policies/rds-access-policy.json")}"
+  policy = file("policies/rds-access-policy.json")
 }
 
 resource "aws_iam_policy" "s3-access-policy" {
   name = "s3-access-policy"
   path = "/saintsxctf/"
-  policy = "${file("policies/s3-access-policy.json")}"
+  policy = file("policies/s3-access-policy.json")
 }

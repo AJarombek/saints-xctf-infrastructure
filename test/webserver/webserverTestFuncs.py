@@ -560,6 +560,3 @@ def validate_sg_rule_source(rule: dict, protocol: str, from_port: int, to_port: 
         rule.get('ToPort') == to_port,
         rule.get('UserIdGroupPairs')[0].get('GroupId') == source_sg
     ])
-
-
-print(prod_launch_config_sg_valid())

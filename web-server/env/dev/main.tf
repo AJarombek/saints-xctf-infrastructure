@@ -7,7 +7,7 @@
 locals {
   # Environment
   prod = false
-  env = "${local.prod ? "prod" : "dev"}"
+  env = local.prod ? "prod" : "dev"
 
   # Autoscaling schedules
   max_size_on = 1
@@ -31,6 +31,8 @@ provider "aws" {
 }
 
 terraform {
+  required_version = ">= 0.12"
+
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
@@ -40,57 +42,57 @@ terraform {
 }
 
 data "aws_security_group" "saints-xctf-database-sg" {
-  tags {
+  tags = {
     Name = "saints-xctf-database-security-${local.env}"
   }
 }
 
 module "launch-config" {
   source = "../../modules/launch-config"
-  prod = "${local.prod}"
-  instance_port = "${local.instance_port}"
+  prod = local.prod
+  instance_port = local.instance_port
 
   autoscaling_schedules = [
     {
       name = "saints-xctf-server-online-weekday-morning"
-      max_size = "${local.max_size_on}"
-      min_size = "${local.min_size_on}"
-      desired_capacity = "${local.desired_capacity_on}"
+      max_size = local.max_size_on
+      min_size = local.min_size_on
+      desired_capacity = local.desired_capacity_on
       recurrence = "30 11 * * 1-5"
     },
     {
       name = "saints-xctf-server-offline-weekday-morning"
-      max_size = "${local.max_size_off}"
-      min_size = "${local.min_size_off}"
-      desired_capacity = "${local.desired_capacity_off}"
+      max_size = local.max_size_off
+      min_size = local.min_size_off
+      desired_capacity = local.desired_capacity_off
       recurrence = "30 13 * * 1-5"
     },
     {
       name = "saints-xctf-server-online-weekday-afternoon"
-      max_size = "${local.max_size_on}"
-      min_size = "${local.min_size_on}"
-      desired_capacity = "${local.desired_capacity_on}"
+      max_size = local.max_size_on
+      min_size = local.min_size_on
+      desired_capacity = local.desired_capacity_on
       recurrence = "30 22 * * 1-5"
     },
     {
       name = "saints-xctf-server-offline-weekday-night"
-      max_size = "${local.max_size_off}"
-      min_size = "${local.min_size_off}"
-      desired_capacity = "${local.desired_capacity_off}"
+      max_size = local.max_size_off
+      min_size = local.min_size_off
+      desired_capacity = local.desired_capacity_off
       recurrence = "30 3 * * 2-6"
     },
     {
       name = "saints-xctf-server-online-weekend"
-      max_size = "${local.max_size_on}"
-      min_size = "${local.min_size_on}"
-      desired_capacity = "${local.desired_capacity_on}"
+      max_size = local.max_size_on
+      min_size = local.min_size_on
+      desired_capacity = local.desired_capacity_on
       recurrence = "30 11 * * 0,6"
     },
     {
       name = "saints-xctf-server-offline-weekend"
-      max_size = "${local.max_size_off}"
-      min_size = "${local.min_size_off}"
-      desired_capacity = "${local.desired_capacity_off}"
+      max_size = local.max_size_off
+      min_size = local.min_size_off
+      desired_capacity = local.desired_capacity_off
       recurrence = "30 3 * * 0,1"
     }
   ]
@@ -102,7 +104,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Inbound traffic from the internet
@@ -110,7 +112,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Connect to the instance from my IP
@@ -118,7 +120,7 @@ module "launch-config" {
       from_port = 22
       to_port = 22
       protocol = "tcp"
-      cidr_blocks = "${local.my_cidr}"
+      cidr_blocks = local.my_cidr
     },
     {
       # Outbound traffic for calling S3
@@ -126,7 +128,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for calling the API
@@ -134,7 +136,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for SendMail
@@ -142,7 +144,7 @@ module "launch-config" {
       from_port = 25
       to_port = 25
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     }
   ]
 
@@ -153,7 +155,7 @@ module "launch-config" {
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
-      source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
+      source_sg = data.aws_security_group.saints-xctf-database-sg.id
     }
   ]
 
@@ -164,7 +166,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Inbound traffic from the internet
@@ -172,7 +174,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Connect to the instance from my IP
@@ -180,7 +182,7 @@ module "launch-config" {
       from_port = 22
       to_port = 22
       protocol = "tcp"
-      cidr_blocks = "${local.my_cidr}"
+      cidr_blocks = local.my_cidr
     },
     {
       # Outbound traffic for health checks
@@ -188,7 +190,7 @@ module "launch-config" {
       from_port = 0
       to_port = 0
       protocol = "-1"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for calling S3
@@ -196,7 +198,7 @@ module "launch-config" {
       from_port = 443
       to_port = 443
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for calling the API
@@ -204,7 +206,7 @@ module "launch-config" {
       from_port = 80
       to_port = 80
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for SendMail
@@ -212,7 +214,7 @@ module "launch-config" {
       from_port = 25
       to_port = 25
       protocol = "tcp"
-      cidr_blocks = "${local.public_cidr}"
+      cidr_blocks = local.public_cidr
     }
   ]
 
@@ -223,7 +225,7 @@ module "launch-config" {
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
-      source_sg = "${data.aws_security_group.saints-xctf-database-sg.id}"
+      source_sg = data.aws_security_group.saints-xctf-database-sg.id
     }
   ]
 }

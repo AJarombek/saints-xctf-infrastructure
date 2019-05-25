@@ -5,9 +5,9 @@
  */
 
 locals {
-  env = "${var.prod ? "prod" : "dev"}"
-  subnet_number = "${var.prod ? 0 : 1}"
-  backups_retained_days = "${var.prod ? 3 : 0}"
+  env = var.prod ? "prod" : "dev"
+  subnet_number = var.prod ? 0 : 1
+  backups_retained_days = var.prod ? 3 : 0
 }
 
 #----------------------------------
@@ -15,32 +15,32 @@ locals {
 #----------------------------------
 
 data "aws_vpc" "saints-xctf-com-vpc" {
-  tags {
-    Name = "SaintsXCTFcom VPC"
+  tags = {
+    Name = "saints-xctf-com-vpc"
   }
 }
 
 data "aws_subnet" "saints-xctf-com-vpc-public-subnet-0" {
-  tags {
-    Name = "SaintsXCTFcom VPC Public Subnet 0"
+  tags = {
+    Name = "saints-xctf-com-lisag-public-subnet"
   }
 }
 
 data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
-  tags {
-    Name = "SaintsXCTFcom VPC Public Subnet 1"
+  tags = {
+    Name = "saints-xctf-com-megank-public-subnet"
   }
 }
 
 data "aws_subnet" "saints-xctf-com-vpc-private-subnet-0" {
-  tags {
-    Name = "SaintsXCTFcom VPC Private Subnet 0"
+  tags = {
+    Name = "saints-xctf-com-cassiah-private-subnet"
   }
 }
 
 data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
-  tags {
-    Name = "SaintsXCTFcom VPC Private Subnet 1"
+  tags = {
+    Name = "saints-xctf-com-carolined-private-subnet"
   }
 }
 
@@ -52,19 +52,19 @@ data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
 resource "aws_security_group" "saints-xctf-database-security" {
   name = "saints-xctf-database-security-${local.env}"
   description = "Allow incoming traffic to the MySQL port"
-  vpc_id = "${data.aws_vpc.saints-xctf-com-vpc.id}"
+  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
 
   ingress {
     protocol = "tcp"
     from_port = 3306
     to_port = 3306
     cidr_blocks = [
-      "${data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.cidr_block}",
-      "${data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.cidr_block}"
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.cidr_block,
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.cidr_block
     ]
   }
 
-  tags {
+  tags = {
     Name = "saints-xctf-database-security-${local.env}"
     Application = "saints-xctf"
   }
@@ -88,24 +88,24 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   final_snapshot_identifier = "saintsxctf-${local.env}"
 
   name = "saintsxctf"
-  username = "${var.username}"
-  password = "${var.password}"
+  username = var.username
+  password = var.password
   port = 3306
 
   # Allow resources to access the DB instance via IAM policies instead of usernames/passwords.
   # IAM authentication is not available on small instance sizes.
   iam_database_authentication_enabled = true
 
-  vpc_security_group_ids = ["${aws_security_group.saints-xctf-database-security.id}"]
-  db_subnet_group_name = "${aws_db_subnet_group.saints-xctf-mysql-database-subnet.name}"
+  vpc_security_group_ids = [aws_security_group.saints-xctf-database-security.id]
+  db_subnet_group_name = aws_db_subnet_group.saints-xctf-mysql-database-subnet.name
   publicly_accessible = false
 
   # Enables HA for the database instance
   multi_az = true
 
-  tags {
-    Name = "Saints-xctf-mysql-${local.env}-database"
-    Environment = "${upper(local.env)}"
+  tags = {
+    Name = "saints-xctf-mysql-${local.env}-database"
+    Environment = upper(local.env)
     Application = "saints-xctf"
   }
 }
@@ -113,11 +113,11 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
 /* The subnets to use for a highly available database */
 resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   subnet_ids = [
-    "${data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.id}",
-    "${data.aws_subnet.saints-xctf-com-vpc-private-subnet-1.id}"
+    data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.id,
+    data.aws_subnet.saints-xctf-com-vpc-private-subnet-1.id
   ]
 
-  tags {
+  tags = {
     Name = "saints-xctf-mysql-${local.env}-database-subnets"
     Application = "saints-xctf"
   }
@@ -142,7 +142,7 @@ resource "aws_cloudwatch_metric_alarm" "saints-xctf-mysql-database-storage-low-a
   # The value that trips the alarm
   threshold = 20
 
-  dimensions {
-    DBInstanceIdentifier = "${aws_db_instance.saints-xctf-mysql-database.id}"
+  dimensions = {
+    DBInstanceIdentifier = aws_db_instance.saints-xctf-mysql-database.id
   }
 }

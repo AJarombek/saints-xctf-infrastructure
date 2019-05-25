@@ -11,6 +11,6 @@ variable "prod" {
 
 variable "contents" {
   description = "Objects to put into the S3 bucket"
-  type = "list"
+  type = list
   default = []
 }

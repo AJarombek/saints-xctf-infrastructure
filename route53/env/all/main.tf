@@ -9,6 +9,8 @@ provider "aws" {
 }
 
 terraform {
+  required_version = ">= 0.12"
+
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
@@ -28,13 +30,13 @@ resource "aws_route53_zone" "saintsxctf" {
 resource "aws_route53_record" "saintsxctf-ns" {
   name = "saintsxctf.com."
   type = "NS"
-  zone_id = "${aws_route53_zone.saintsxctf.zone_id}"
+  zone_id = aws_route53_zone.saintsxctf.zone_id
   ttl = 172800
 
   records = [
-    "${aws_route53_zone.saintsxctf.name_servers.0}",
-    "${aws_route53_zone.saintsxctf.name_servers.1}",
-    "${aws_route53_zone.saintsxctf.name_servers.2}",
-    "${aws_route53_zone.saintsxctf.name_servers.3}"
+    aws_route53_zone.saintsxctf.name_servers.0,
+    aws_route53_zone.saintsxctf.name_servers.1,
+    aws_route53_zone.saintsxctf.name_servers.2,
+    aws_route53_zone.saintsxctf.name_servers.3
   ]
 }
