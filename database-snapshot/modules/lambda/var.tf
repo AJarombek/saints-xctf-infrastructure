@@ -8,3 +8,13 @@ variable "prod" {
   description = "If the environment that rds instance lives in is production"
   default = true
 }
+
+variable "secrets" {
+  description = "Secrets for the RDS instance to place in AWS Secret Manager.  Never use the default value beyond POC"
+  default = {
+    username = "andy"
+    password = "password"
+  }
+
+  type = map
+}
