@@ -30,13 +30,13 @@ terraform {
 
 data "aws_subnet" "saints-xctf-public-subnet-1" {
   tags = {
-    Name = "SaintsXCTFcom VPC Public Subnet 1"
+    Name = "saints-xctf-com-lisag-public-subnet"
   }
 }
 
 data "aws_vpc" "saints-xctf-vpc" {
   tags = {
-    Name = "SaintsXCTFcom VPC"
+    Name = "saints-xctf-com-vpc"
   }
 }
 
@@ -73,7 +73,7 @@ resource "aws_instance" "bastion" {
   associate_public_ip_address = true
 
   subnet_id = data.aws_subnet.saints-xctf-public-subnet-1.id
-  security_groups = [module.bastion-subnet-security-group.security_group_id]
+  security_groups = [module.bastion-subnet-security-group.security_group_id[0]]
   iam_instance_profile = aws_iam_instance_profile.bastion-instance-profile.name
 
   lifecycle {
@@ -98,11 +98,11 @@ resource "aws_iam_instance_profile" "bastion-instance-profile" {
 
 /* Security group rules for the Bastion EC2 instance.  Most important is SSH access for the AWS admin */
 module "bastion-subnet-security-group" {
-  source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.0"
+  source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
   name = "saints-xctf-bastion-security"
-  tag_name = "Bastion Security Group"
+  tag_name = "saints-xctf-bastion-security-group"
   vpc_id = data.aws_vpc.saints-xctf-vpc.id
 
   # Optional arguments
@@ -149,5 +149,5 @@ module "bastion-subnet-security-group" {
     },
   ]
 
-  description = "Allow SSH connections"
+  description = "SaintsXCTF Bastion Security Group"
 }

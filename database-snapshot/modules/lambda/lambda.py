@@ -10,7 +10,13 @@ import json
 import subprocess
 
 
-def take_snapshot(event, context):
+def create_backup(event, context):
+    """
+    Create a backup of an RDS MySQL database and store it on S3
+    :param event: provides information about the triggering of the function
+    :param context: provides information about the execution environment
+    :return: True when successful
+    """
 
     try:
         env = os.environ['ENV']
@@ -25,6 +31,8 @@ def take_snapshot(event, context):
     username = secret_dict.get("username")
     password = secret_dict.get("password")
 
-    subprocess.call("backup.sh", shell=True)
+    host = None  # TODO
+
+    subprocess.check_call(["backup.sh", env, host, username, password], shell=True)
 
     return True
