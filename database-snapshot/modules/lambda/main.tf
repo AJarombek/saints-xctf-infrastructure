@@ -18,26 +18,6 @@ data "archive_file" "lambda" {
   type = "zip"
 }
 
-#-----------------------------------
-# SaintsXCTF MySQL Secrets Resources
-#-----------------------------------
-
-resource "aws_secretsmanager_secret" "saints-xctf-rds-secret" {
-  name = "saints-xctf-rds-${local.env}-secret"
-  description = "SaintsXCTF MySQL RDS Login Credentials for the ${upper(local.env)} Environment"
-
-  tags {
-    Name = "saints-xctf-rds-${local.env}-secret"
-    Environment = upper(local.env)
-    Application = "saints-xctf"
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "saints-xctf-rds-secret-version" {
-  secret_id = aws_secretsmanager_secret.saints-xctf-rds-secret.id
-  secret_string = jsonencode(var.secrets)
-}
-
 #--------------------------------------------------
 # SaintsXCTF MySQL Backup Lambda Function Resources
 #--------------------------------------------------
