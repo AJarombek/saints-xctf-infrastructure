@@ -13,8 +13,8 @@ locals {
 #-------------------
 
 data "archive_file" "lambda" {
-  source_file = "lambda.py"
-  output_path = "dist/lambda-${local.env}.zip"
+  source_file = "${path.module}/func"
+  output_path = "${path.module}/dist/lambda-${local.env}.zip"
   type = "zip"
 }
 

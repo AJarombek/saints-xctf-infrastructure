@@ -31,7 +31,10 @@ def create_backup(event, context):
     username = secret_dict.get("username")
     password = secret_dict.get("password")
 
-    host = None  # TODO
+    rds = boto3.client('rds')
+    rds_instances = rds.describe_db_instances(DBInstanceIdentifier=f'saints-xctf-mysql-database-{env}')
+    instance = rds_instances.get('DBInstances')[0]
+    host = instance.get('Endpoint').get('Address')
 
     subprocess.check_call(["backup.sh", env, host, username, password], shell=True)
 

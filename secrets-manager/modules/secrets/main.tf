@@ -16,7 +16,7 @@ resource "aws_secretsmanager_secret" "saints-xctf-rds-secret" {
   name = "saints-xctf-rds-${local.env}-secret"
   description = "SaintsXCTF MySQL RDS Login Credentials for the ${upper(local.env)} Environment"
 
-  tags {
+  tags = {
     Name = "saints-xctf-rds-${local.env}-secret"
     Environment = upper(local.env)
     Application = "saints-xctf"
