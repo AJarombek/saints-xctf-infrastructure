@@ -13,9 +13,21 @@ locals {
 #-------------------
 
 data "archive_file" "lambda" {
-  source_file = "${path.module}/func"
+  source_dir = "${path.module}/func"
   output_path = "${path.module}/dist/lambda-${local.env}.zip"
   type = "zip"
+
+  depends_on = [null_resource.zip-lambda]
+}
+
+#--------------------------------------
+# Executed Before Resources are Created
+#--------------------------------------
+
+resource "null_resource" "zip-lambda" {
+  provisioner "local-exec" {
+    command = "bash ${path.module}/zip-lambda.sh"
+  }
 }
 
 #--------------------------------------------------
@@ -23,12 +35,12 @@ data "archive_file" "lambda" {
 #--------------------------------------------------
 
 resource "aws_lambda_function" "rds-backup-lambda-function" {
-  function_name = "${upper(local.env)}SaintsXCTFbackup"
-  filename = "lambda-${local.env}.zip"
-  handler = "lambda.take_backup"
+  function_name = "SaintsXCTFMySQLBackup${upper(local.env)}"
+  filename = "${path.module}/dist/lambda-${local.env}.zip"
+  handler = "lambda.create_backup"
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.7"
-  source_code_hash = base64sha256(file(data.archive_file.lambda.output_path))
+  # source_code_hash = filebase64sha256(data.archive_file.lambda.output_path)
 
   environment {
     variables = {
@@ -43,6 +55,13 @@ resource "aws_lambda_function" "rds-backup-lambda-function" {
   }
 }
 
+resource "aws_lambda_alias" "rds-backup-lambda-alias" {
+  name = "SaintsXCTFMySQLBackupAlias${upper(local.env)}"
+  description = "AWS Lambda function which creates MySQL database backups"
+  function_name = aws_lambda_function.rds-backup-lambda-function.function_name
+  function_version = "$LATEST"
+}
+
 resource "aws_iam_role" "lambda-role" {
   name = "saints-xctf-rds-backup-lambda-role"
   assume_role_policy = file("${path.module}/role.json")
@@ -52,6 +71,17 @@ resource "aws_iam_role" "lambda-role" {
     Environment = "all"
     Application = "saints-xctf"
   }
+}
+
+resource "aws_iam_policy" "lambda-secrets-manager-policy" {
+  name = "lambda-secrets-manager-policy"
+  path = "/saintsxctf/"
+  policy = file("${path.module}/secrets-manager-policy.json")
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {
+  policy_arn = aws_iam_policy.lambda-secrets-manager-policy.arn
+  role = aws_iam_role.lambda-role.name
 }
 
 resource "aws_cloudwatch_event_rule" "lambda-function-schedule-rule" {
