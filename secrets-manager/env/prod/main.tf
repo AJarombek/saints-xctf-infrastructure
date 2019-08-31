@@ -22,4 +22,5 @@ terraform {
 module "lambda" {
   source = "../../modules/secrets"
   prod = true
+  rds_secrets = var.rds_secrets
 }

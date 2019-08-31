@@ -10,5 +10,9 @@ HOST=$2
 USERNAME=$3
 PASSWORD=$4
 
-./mysqldump --host ${HOST} --opt -u ${USERNAME} -p ${PASSWORD} saintsxctf > backup.sql
-aws s3 cp backup.sql s3://saints-xctf-db-backups-${ENV}/backup.sql
+cp ./mysqldump /tmp/mysqldump
+chmod 755 /tmp/mysqldump
+
+export MYSQL_PWD=\'${PASSWORD}\'
+/tmp/mysqldump --host ${HOST} --user ${USERNAME} --max_allowed_packet=1G --single-transaction --quick \
+    --lock-tables=false --routines saintsxctf > /tmp/backup.sql

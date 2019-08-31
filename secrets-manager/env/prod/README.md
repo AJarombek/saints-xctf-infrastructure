@@ -19,3 +19,4 @@ terraform destroy -auto-approve
 | Filename            | Description                                                                                  |
 |---------------------|----------------------------------------------------------------------------------------------|
 | `main.tf`           | Terraform module for the `PROD` secret credentials.                                          |
+| `var.tf`            | Input variables for the `PROD` database secrets.                                             |

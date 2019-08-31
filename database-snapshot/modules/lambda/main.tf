@@ -40,7 +40,7 @@ resource "aws_lambda_function" "rds-backup-lambda-function" {
   handler = "lambda.create_backup"
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.7"
-  # source_code_hash = filebase64sha256(data.archive_file.lambda.output_path)
+  timeout = 360
 
   environment {
     variables = {

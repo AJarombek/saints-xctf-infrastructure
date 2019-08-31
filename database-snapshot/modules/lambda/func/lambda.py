@@ -18,6 +18,8 @@ def create_backup(event, context):
     :return: True when successful
     """
 
+    os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
+
     try:
         env = os.environ['ENV']
     except KeyError:
@@ -36,6 +38,11 @@ def create_backup(event, context):
     instance = rds_instances.get('DBInstances')[0]
     host = instance.get('Endpoint').get('Address')
 
-    subprocess.check_call(["backup.sh", env, host, username, password], shell=True)
+    subprocess.check_call(["cp ./backup.sh /tmp/backup.sh && chmod 755 /tmp/backup.sh"], shell=True)
+
+    subprocess.check_call(["/tmp/backup.sh", env, host, username, password])
+
+    s3 = boto3.resource("s3")
+    s3.meta.client.upload_file('/tmp/backup.sql', f'saints-xctf-db-backups-{env}', 'backup.sql')
 
     return True
