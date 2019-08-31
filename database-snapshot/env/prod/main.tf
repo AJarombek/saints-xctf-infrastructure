@@ -21,5 +21,5 @@ terraform {
 
 module "lambda" {
   source = "../../modules/lambda"
-  prod = false
+  prod = true
 }
