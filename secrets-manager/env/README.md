@@ -9,3 +9,7 @@ resides in `dev` and the code to configure *PROD* resides in `prod`.
 |-------------------|-----------------------------------------------------------------------------|
 | `dev`             | Code to configure secret credentials for RDS in the *DEV* environment.      |
 | `prod`            | Code to configure secret credentials for RDS in the *PROD* environment.     |
+
+### Resources
+
+1) [Terraform CLI Variable of Type Map](https://learn.hashicorp.com/terraform/getting-started/variables.html#assigning-maps)

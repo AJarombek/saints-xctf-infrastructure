@@ -19,6 +19,7 @@ def create_backup(event, context):
     :return: True when successful
     """
 
+    # Set the path to the executable scripts in the AWS Lambda environment.
     os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
 
     try:
@@ -39,11 +40,16 @@ def create_backup(event, context):
     username = secret_dict.get("username")
     password = secret_dict.get("password")
 
+    # To execute the bash script on AWS Lambda, change its pemissions and move it into the /tmp/ directory.
+    # Source: https://stackoverflow.com/a/48196444
     subprocess.check_call(["cp ./backup.sh /tmp/backup.sh && chmod 755 /tmp/backup.sh"], shell=True)
 
     subprocess.check_call(["/tmp/backup.sh", env, host, username, password])
 
+    # By default, S3 resolves buckets using the internet.  To use the VPC endpoint instead, use the 'path' addressing
+    # style config.  Source: https://stackoverflow.com/a/44478894
     s3 = boto3.resource('s3', 'us-east-1', config=botocore.config.Config(s3={'addressing_style':'path'}))
+
     s3.meta.client.upload_file('/tmp/backup.sql', f'saints-xctf-db-backups-{env}', 'backup.sql')
 
     return True

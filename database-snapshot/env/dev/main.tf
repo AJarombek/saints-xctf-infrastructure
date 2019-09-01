@@ -20,7 +20,7 @@ terraform {
 }
 
 module "nat-gateway" {
-  source = "../../modules/nat-gateway"
+  source = "../../modules/vpc-endpoints"
 }
 
 module "lambda" {

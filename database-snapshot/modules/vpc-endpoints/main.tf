@@ -30,48 +30,10 @@ data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-private-subnet-0" {
-  tags = {
-    Name = "saints-xctf-com-cassiah-private-subnet"
-  }
-}
-
-data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
-  tags = {
-    Name = "saints-xctf-com-carolined-private-subnet"
-  }
-}
-
 data "aws_route_table" "saints-xctf-com-route-table-public" {
   tags = {
     Name = "saints-xctf-com-vpc-public-subnet-rt"
   }
-}
-
-#-------------------------
-# SaintsXCTF VPC Resources
-#-------------------------
-
-resource "aws_route_table" "saintsxctf-vpc-routing-table-private" {
-  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-  }
-
-  tags = {
-    Name = "saints-xctf-com-vpc-private-subnet-rt"
-  }
-}
-
-resource "aws_route_table_association" "saintsxctf-vpc-routing-table-private-association-0" {
-  route_table_id = aws_route_table.saintsxctf-vpc-routing-table-private.id
-  subnet_id = data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.id
-}
-
-resource "aws_route_table_association" "saintsxctf-vpc-routing-table-private-association-1" {
-  route_table_id = aws_route_table.saintsxctf-vpc-routing-table-private.id
-  subnet_id = data.aws_subnet.saints-xctf-com-vpc-private-subnet-1.id
 }
 
 #----------------------------------
@@ -98,7 +60,6 @@ resource "aws_vpc_endpoint" "saints-xctf-s3-vpc-endpoint" {
   vpc_endpoint_type = "Gateway"
 
   route_table_ids = [
-    aws_route_table.saintsxctf-vpc-routing-table-private.id,
     data.aws_route_table.saints-xctf-com-route-table-public.id
   ]
 }
