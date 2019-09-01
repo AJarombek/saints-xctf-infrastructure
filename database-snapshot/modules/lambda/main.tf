@@ -31,18 +31,6 @@ data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-private-subnet-0" {
-  tags = {
-    Name = "saints-xctf-com-cassiah-private-subnet"
-  }
-}
-
-data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
-  tags = {
-    Name = "saints-xctf-com-carolined-private-subnet"
-  }
-}
-
 data "aws_db_instance" "saints-xctf-mysql-database" {
   db_instance_identifier = "saints-xctf-mysql-database-${local.env}"
 }
@@ -75,12 +63,12 @@ resource "aws_lambda_function" "rds-backup-lambda-function" {
   handler = "lambda.create_backup"
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.7"
-  timeout = 240
+  timeout = 15
 
   environment {
     variables = {
       ENV = local.env
-      DB_HOST = data.aws_db_instance.saints-xctf-mysql-database.endpoint
+      DB_HOST = data.aws_db_instance.saints-xctf-mysql-database.address
     }
   }
 

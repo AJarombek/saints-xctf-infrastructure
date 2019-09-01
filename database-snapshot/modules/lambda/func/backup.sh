@@ -13,6 +13,6 @@ PASSWORD=$4
 cp ./mysqldump /tmp/mysqldump
 chmod 755 /tmp/mysqldump
 
-export MYSQL_PWD=\'${PASSWORD}\'
-/tmp/mysqldump --host ${HOST} --user ${USERNAME} --max_allowed_packet=1G --single-transaction --quick \
+export MYSQL_PWD="${PASSWORD}"
+/tmp/mysqldump -v --host ${HOST} --user ${USERNAME} --max_allowed_packet=1G --single-transaction --quick \
     --lock-tables=false --routines saintsxctf > /tmp/backup.sql

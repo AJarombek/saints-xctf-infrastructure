@@ -19,6 +19,10 @@ terraform {
   }
 }
 
+module "nat-gateway" {
+  source = "../../modules/nat-gateway"
+}
+
 module "lambda" {
   source = "../../modules/lambda"
   prod = true

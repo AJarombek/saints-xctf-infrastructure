@@ -6,6 +6,7 @@ Date: 6/8/2019
 
 import os
 import boto3
+import botocore.config
 import json
 import subprocess
 
@@ -42,7 +43,7 @@ def create_backup(event, context):
 
     subprocess.check_call(["/tmp/backup.sh", env, host, username, password])
 
-    s3 = boto3.resource("s3")
+    s3 = boto3.resource('s3', 'us-east-1', config=botocore.config.Config(s3={'addressing_style':'path'}))
     s3.meta.client.upload_file('/tmp/backup.sql', f'saints-xctf-db-backups-{env}', 'backup.sql')
 
     return True
