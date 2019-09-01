@@ -31,6 +31,22 @@ data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
   }
 }
 
+data "aws_subnet" "saints-xctf-com-vpc-private-subnet-0" {
+  tags = {
+    Name = "saints-xctf-com-cassiah-private-subnet"
+  }
+}
+
+data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
+  tags = {
+    Name = "saints-xctf-com-carolined-private-subnet"
+  }
+}
+
+data "aws_db_instance" "saints-xctf-mysql-database" {
+  db_instance_identifier = "saints-xctf-mysql-database-${local.env}"
+}
+
 data "archive_file" "lambda" {
   source_dir = "${path.module}/func"
   output_path = "${path.module}/dist/lambda-${local.env}.zip"
@@ -64,11 +80,12 @@ resource "aws_lambda_function" "rds-backup-lambda-function" {
   environment {
     variables = {
       ENV = local.env
+      DB_HOST = data.aws_db_instance.saints-xctf-mysql-database.endpoint
     }
   }
 
   vpc_config {
-    security_group_ids = [module.bastion-subnet-security-group.security_group_id[0]]
+    security_group_ids = [module.lambda-rds-backup-security-group.security_group_id[0]]
     subnet_ids = [
       data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
       data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
@@ -129,7 +146,7 @@ resource "aws_cloudwatch_event_target" "lambda-function-schedule-target" {
   rule = aws_cloudwatch_event_rule.lambda-function-schedule-rule.name
 }
 
-module "bastion-subnet-security-group" {
+module "lambda-rds-backup-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
@@ -157,5 +174,5 @@ module "bastion-subnet-security-group" {
     }
   ]
 
-  description = "SaintsXCTF Bastion Security Group"
+  description = "SaintsXCTF RDS Backup Lambda Function Security Group"
 }

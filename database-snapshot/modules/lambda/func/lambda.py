@@ -25,6 +25,11 @@ def create_backup(event, context):
     except KeyError:
         env = "prod"
 
+    try:
+        host = os.environ['DB_HOST']
+    except KeyError:
+        host = ""
+
     secretsmanager = boto3.client('secretsmanager')
     response = secretsmanager.get_secret_value(SecretId=f'saints-xctf-rds-{env}-secret')
     secret_string = response.get("SecretString")
@@ -32,11 +37,6 @@ def create_backup(event, context):
 
     username = secret_dict.get("username")
     password = secret_dict.get("password")
-
-    rds = boto3.client('rds')
-    rds_instances = rds.describe_db_instances(DBInstanceIdentifier=f'saints-xctf-mysql-database-{env}')
-    instance = rds_instances.get('DBInstances')[0]
-    host = instance.get('Endpoint').get('Address')
 
     subprocess.check_call(["cp ./backup.sh /tmp/backup.sh && chmod 755 /tmp/backup.sh"], shell=True)
 
