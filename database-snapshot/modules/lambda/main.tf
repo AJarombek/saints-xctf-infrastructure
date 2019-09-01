@@ -6,11 +6,30 @@
 
 locals {
   env = var.prod ? "prod" : "dev"
+  public_cidr = "0.0.0.0/0"
 }
 
 #-------------------
 # Existing Resources
 #-------------------
+
+data "aws_vpc" "saints-xctf-com-vpc" {
+  tags = {
+    Name = "saints-xctf-com-vpc"
+  }
+}
+
+data "aws_subnet" "saints-xctf-com-vpc-public-subnet-0" {
+  tags = {
+    Name = "saints-xctf-com-lisag-public-subnet"
+  }
+}
+
+data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
+  tags = {
+    Name = "saints-xctf-com-megank-public-subnet"
+  }
+}
 
 data "archive_file" "lambda" {
   source_dir = "${path.module}/func"
@@ -40,12 +59,20 @@ resource "aws_lambda_function" "rds-backup-lambda-function" {
   handler = "lambda.create_backup"
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.7"
-  timeout = 360
+  timeout = 240
 
   environment {
     variables = {
       ENV = local.env
     }
+  }
+
+  vpc_config {
+    security_group_ids = [module.bastion-subnet-security-group.security_group_id[0]]
+    subnet_ids = [
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
+    ]
   }
 
   tags = {
@@ -100,4 +127,35 @@ resource "aws_cloudwatch_event_rule" "lambda-function-schedule-rule" {
 resource "aws_cloudwatch_event_target" "lambda-function-schedule-target" {
   arn = aws_lambda_function.rds-backup-lambda-function.arn
   rule = aws_cloudwatch_event_rule.lambda-function-schedule-rule.name
+}
+
+module "bastion-subnet-security-group" {
+  source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
+
+  # Mandatory arguments
+  name = "saints-xctf-lambda-rds-backup-security"
+  tag_name = "saints-xctf-lambda-rds-backup-security"
+  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
+
+  # Optional arguments
+  sg_rules = [
+    {
+      # All Inbound traffic
+      type = "ingress"
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_blocks = local.public_cidr
+    },
+    {
+      # All Outbound traffic
+      type = "egress"
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_blocks = local.public_cidr
+    }
+  ]
+
+  description = "SaintsXCTF Bastion Security Group"
 }
