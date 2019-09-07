@@ -39,18 +39,6 @@ data "archive_file" "lambda" {
   source_dir = "${path.module}/func"
   output_path = "${path.module}/dist/lambda-${local.env}.zip"
   type = "zip"
-
-  depends_on = [null_resource.zip-lambda]
-}
-
-#--------------------------------------
-# Executed Before Resources are Created
-#--------------------------------------
-
-resource "null_resource" "zip-lambda" {
-  provisioner "local-exec" {
-    command = "bash ${path.module}/zip-lambda.sh"
-  }
 }
 
 #--------------------------------------------------
@@ -105,21 +93,21 @@ resource "aws_iam_role" "lambda-role" {
   }
 }
 
-resource "aws_iam_policy" "lambda-secrets-manager-policy" {
-  name = "lambda-secrets-manager-policy"
+resource "aws_iam_policy" "rds-backup-lambda-policy" {
+  name = "rds-backup-lambda-policy"
   path = "/saintsxctf/"
-  policy = file("${path.module}/secrets-manager-policy.json")
+  policy = file("${path.module}/rds-backup-lambda-policy.json")
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {
-  policy_arn = aws_iam_policy.lambda-secrets-manager-policy.arn
+  policy_arn = aws_iam_policy.rds-backup-lambda-policy.arn
   role = aws_iam_role.lambda-role.name
 }
 
 resource "aws_cloudwatch_event_rule" "lambda-function-schedule-rule" {
   name = "saints-xctf-rds-${local.env}-backup-lambda-rule"
   description = "Execute the Lambda Function Daily"
-  schedule_expression = "rate(5 minutes)" # "cron(0 7 * * * *)"
+  schedule_expression = "cron(0 7 * * ? *)"
   is_enabled = true
 
   tags = {
@@ -132,6 +120,14 @@ resource "aws_cloudwatch_event_rule" "lambda-function-schedule-rule" {
 resource "aws_cloudwatch_event_target" "lambda-function-schedule-target" {
   arn = aws_lambda_function.rds-backup-lambda-function.arn
   rule = aws_cloudwatch_event_rule.lambda-function-schedule-rule.name
+}
+
+resource "aws_lambda_permission" "lambda-function-schedule-permission" {
+  statement_id = "AllowExecutionFromCloudWatch"
+  action = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.rds-backup-lambda-function.function_name
+  principal = "events.amazonaws.com"
+  source_arn = aws_cloudwatch_event_rule.lambda-function-schedule-rule.arn
 }
 
 module "lambda-rds-backup-security-group" {

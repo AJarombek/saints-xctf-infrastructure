@@ -19,7 +19,7 @@ terraform {
   }
 }
 
-module "nat-gateway" {
+module "vpc-endpoints" {
   source = "../../modules/vpc-endpoints"
 }
 

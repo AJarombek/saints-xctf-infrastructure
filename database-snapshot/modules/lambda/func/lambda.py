@@ -20,6 +20,7 @@ def create_backup(event, context):
     """
 
     # Set the path to the executable scripts in the AWS Lambda environment.
+    # Source: https://aws.amazon.com/blogs/compute/running-executables-in-aws-lambda/
     os.environ['PATH'] = os.environ['PATH'] + ':' + os.environ['LAMBDA_TASK_ROOT']
 
     try:

@@ -60,7 +60,9 @@ resource "aws_security_group" "saints-xctf-database-security" {
     to_port = 3306
     cidr_blocks = [
       data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.cidr_block,
-      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.cidr_block
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.cidr_block,
+      data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.cidr_block,
+      data.aws_subnet.saints-xctf-com-vpc-private-subnet-1.cidr_block
     ]
   }
 
