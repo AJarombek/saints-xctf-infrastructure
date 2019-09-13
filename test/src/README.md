@@ -22,6 +22,7 @@ To run a single test suite, navigate to the suite's directory and execute the fi
 | `database/`          | Test suite for the applications MySQL databases.                                             |
 | `iam/`               | Test suite for IAM roles and policies.                                                       |
 | `route53/`           | Test suite for the applications Route53 DNS service.                                         |
+| `secretsmanager/`    | Test suite for the Secrets Manager service.                                                  |
 | `webapp/`            | Test suite for the web application module.                                                   |
 | `webserver/`         | Test suite for the web server and launch configuration.                                      |
 | `masterTestFuncs.py` | Functions used to help create a test suite environment.                                      |
