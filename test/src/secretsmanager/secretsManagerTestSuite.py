@@ -27,9 +27,9 @@ else:
     tests += dev_tests
 
 
-def iam_test_suite() -> bool:
+def secrets_manager_test_suite() -> bool:
     """
-    Execute all the tests related to the IAM roles and policies
+    Execute all the tests related to Secrets Manager credentials.
     :return: True if the tests succeed, False otherwise
     """
     return Test.testsuite(tests, "Secrets Manager Test Suite")

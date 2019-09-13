@@ -10,6 +10,10 @@ secrets_manager = boto3.client('secretsmanager')
 
 
 def prod_rds_secrets_exist():
+    """
+    Test that the SaintsXCTF production RDS instance credentials exist in Secrets Manager.
+    :return: True if the credentials exist, False otherwise
+    """
     credentials = secrets_manager.describe_secret(SecretId='saints-xctf-rds-prod-secret')
     return all([
         credentials.get('Name') == 'saints-xctf-rds-prod-secret',
@@ -18,6 +22,10 @@ def prod_rds_secrets_exist():
 
 
 def dev_rds_secrets_exist():
+    """
+    Test that the SaintsXCTF development RDS instance credentials exist in Secrets Manager.
+    :return: True if the credentials exist, False otherwise
+    """
     credentials = secrets_manager.describe_secret(SecretId='saints-xctf-rds-dev-secret')
     return all([
         credentials.get('Name') == 'saints-xctf-rds-dev-secret',

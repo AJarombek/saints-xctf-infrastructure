@@ -8,4 +8,4 @@ be run individually or inside the master test suite.
 | Filename                     | Description                                                                           |
 |------------------------------|---------------------------------------------------------------------------------------|
 | `secretsManagerTestFuncs.py` | Functions to test for existence of Secrets Manager credentials.                       |
-| `iamTestSuite.py`            | Test suite for the Secrets Manager service.                                           |
+| `secretsManagerTestSuite.py` | Test suite for the Secrets Manager service.                                           |
