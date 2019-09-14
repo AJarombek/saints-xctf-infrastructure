@@ -30,3 +30,23 @@ class VPC:
             return {}
         else:
             return vpcs[0]
+
+    @staticmethod
+    def get_subnet(name: str) -> dict:
+        """
+        Get a Subnet that matches a given name.
+        :param name: Name of the Subnet in AWS.
+        :return: A dictionary containing metadata about a Subnet.
+        """
+        subnets_response = ec2.describe_subnets(
+            Filters=[{
+                'Name': 'tag:Name',
+                'Values': [name]
+            }]
+        )
+        subnets = subnets_response.get('Subnets')
+
+        if subnets is None:
+            return {}
+        else:
+            return subnets[0]

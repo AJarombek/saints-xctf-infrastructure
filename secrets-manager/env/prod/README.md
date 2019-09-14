@@ -6,7 +6,7 @@ the infrastructure.  Replace `XXX` with the database password.
 ```bash
 # Create Infrastructure
 terraform init -upgrade
-terraform plan
+terraform plan -var 'rds_secrets={ username = "saintsxctfprod", password = "XXX" }'
 terraform validate
 terraform apply -auto-approve -var 'rds_secrets={ username = "saintsxctfprod", password = "XXX" }'
 

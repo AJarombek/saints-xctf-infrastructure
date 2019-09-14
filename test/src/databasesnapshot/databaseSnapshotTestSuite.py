@@ -13,16 +13,25 @@ try:
 except KeyError:
     prod_env = True
 
-tests = []
+tests = [
+    lambda: Test.test(Func.lambda_function_role_exists, "Assert that the IAM role for the lambda function exists"),
+    lambda: Test.test(Func.lambda_function_policy_attached, "Assert that the proper IAM policy is attached to the role")
+]
 
 if prod_env:
     prod_tests = [
-        lambda: Test.test(Func.prod_lambda_function_exists, "Prove that the Lambda Function for RDS backups exists")
+        lambda: Test.test(Func.prod_lambda_function_exists, "Prove that the Lambda Function for RDS backups exists"),
+        lambda: Test.test(Func.prod_lambda_function_in_vpc, "Lambda Function in the proper VPC"),
+        lambda: Test.test(Func.prod_lambda_function_in_subnets, "Lambda Function in the proper Subnets"),
+        lambda: Test.test(Func.prod_lambda_function_has_iam_role, "Lambda Function has the expected IAM role attached")
     ]
     tests += prod_tests
 else:
     dev_tests = [
-        lambda: Test.test(Func.dev_lambda_function_exists, "Prove that the Lambda Function for RDS backups exists")
+        lambda: Test.test(Func.dev_lambda_function_exists, "Prove that the Lambda Function for RDS backups exists"),
+        lambda: Test.test(Func.dev_lambda_function_in_vpc, "Lambda Function in the proper VPC"),
+        lambda: Test.test(Func.dev_lambda_function_in_subnets, "Lambda Function in the proper Subnets"),
+        lambda: Test.test(Func.dev_lambda_function_has_iam_role, "Lambda Function has the expected IAM role attached")
     ]
     tests += dev_tests
 
