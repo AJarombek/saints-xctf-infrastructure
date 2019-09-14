@@ -5,7 +5,7 @@ Date: 3/5/2019
 """
 
 import masterTestFuncs as Test
-from ..database import databaseTestFuncs as Func
+from databases import databaseTestFuncs as Func
 
 tests = [
     lambda: Test.test(Func.rds_running, "MySQL RDS Instance Running"),

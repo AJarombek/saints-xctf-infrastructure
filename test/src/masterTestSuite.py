@@ -7,7 +7,7 @@ Date: 2/23/2019
 import masterTestFuncs as Test
 from bastion import bastionTestSuite as Bastion
 from acm import acmTestSuite as ACM
-from .database import databaseTestSuite as Database
+from databases import databaseTestSuite as Database
 from databasesnapshot import databaseSnapshotTestSuite as DatabaseSnapshot
 from iam import iamTestSuite as IAM
 from route53 import route53TestSuite as Route53

@@ -19,7 +19,7 @@ To run a single test suite, navigate to the suite's directory and execute the fi
 |----------------------|----------------------------------------------------------------------------------------------|
 | `acm/`               | Test suite for the Amazon HTTPS certificates.                                                |
 | `bastion/`           | Test suite for the Bastion host.                                                             |
-| `database/`          | Test suite for the applications MySQL databases.                                             |
+| `databases/`         | Test suite for the applications MySQL databases.                                             |
 | `databasesnapshot/`  | Test suite for a lambda function which backs up the MySQL databases.                         |
 | `iam/`               | Test suite for IAM roles and policies.                                                       |
 | `route53/`           | Test suite for the applications Route53 DNS service.                                         |

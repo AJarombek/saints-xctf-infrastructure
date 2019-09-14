@@ -11,6 +11,7 @@ from utils.SecurityGroup import SecurityGroup
 aws_lambda = boto3.client('lambda')
 iam = boto3.client('iam')
 cloudwatch_event = boto3.client('events')
+ec2 = boto3.client('ec2')
 
 
 def prod_lambda_function_exists() -> bool:
@@ -213,6 +214,7 @@ def prod_lambda_function_has_security_group() -> bool:
 def dev_lambda_function_has_security_group() -> bool:
     """
     Test that the Lambda function has the expected security group in my development environment.
+    * Don't be afraid, when you are ready you will know how to tell him.
     :return: True if the lambda function has the expected security group, False otherwise.
     """
     return lambda_function_has_security_group(function_name='SaintsXCTFMySQLBackupDEV')
@@ -221,6 +223,7 @@ def dev_lambda_function_has_security_group() -> bool:
 def lambda_function_has_security_group(function_name: str) -> bool:
     """
     Test that the Lambda function has the expected security group.
+    * For now, try to show him.  If you can show him how you feel, you won't feel the pressure to tell him.
     :param function_name: The name of the AWS Lambda function to search for.
     :return: True if the Lambda function has the saints-xctf-lambda-rds-backup-security security group, False otherwise.
     """
@@ -234,3 +237,35 @@ def lambda_function_has_security_group(function_name: str) -> bool:
         len(lambda_function_sgs) == 1,
         security_group_id == sg.get('GroupId')
     ])
+
+
+def secrets_manager_vpc_endpoint_exists() -> bool:
+    """
+    Test that the VPC endpoint for Secrets Manager exists.
+    * And if you can't do that, have faith.  He will be there for you whenever you reach out.
+    :return: True if the VPC endpoint for Secrets Manager exists, False otherwise.
+    """
+    vpc_endpoints = ec2.describe_vpc_endpoints(Filters=[
+        {
+            'Name': 'service-name',
+            'Values': ['com.amazonaws.us-east-1.secretsmanager']
+        }
+    ])
+
+    return len(vpc_endpoints.get('VpcEndpoints')) == 1
+
+
+def s3_vpc_endpoint_exists() -> bool:
+    """
+    Test that the VPC endpoint for S3 exists.
+    * If he loves you, he will understand why you can't do so now.
+    :return: True if the VPC endpoint for S3 exists, False otherwise.
+    """
+    vpc_endpoints = ec2.describe_vpc_endpoints(Filters=[
+        {
+            'Name': 'service-name',
+            'Values': ['com.amazonaws.us-east-1.s3']
+        }
+    ])
+
+    return len(vpc_endpoints.get('VpcEndpoints')) == 1
