@@ -6,9 +6,11 @@ Date: 9/13/2019
 
 import boto3
 from utils.VPC import VPC
+from utils.SecurityGroup import SecurityGroup
 
 aws_lambda = boto3.client('lambda')
 iam = boto3.client('iam')
+cloudwatch_event = boto3.client('events')
 
 
 def prod_lambda_function_exists() -> bool:
@@ -124,7 +126,7 @@ def lambda_function_in_subnets(function_name: str, first_subnet: str, second_sub
 
 def prod_lambda_function_has_iam_role() -> bool:
     """
-    Test that an AWS Lambda function for RDS backups in my development environment has the proper IAM role.
+    Test that an AWS Lambda function for RDS backups in my production environment has the proper IAM role.
     :return: True if the lambda function is in the proper subnets, False otherwise.
     """
     return lambda_function_has_iam_role(function_name='SaintsXCTFMySQLBackupPROD')
@@ -168,3 +170,67 @@ def lambda_function_policy_attached() -> bool:
     policies = policy_response.get('AttachedPolicies')
     s3_policy = policies[0]
     return len(policies) == 1 and s3_policy.get('PolicyName') == 'rds-backup-lambda-policy'
+
+
+def prod_cloudwatch_event_rule_exists() -> bool:
+    """
+    Test that a CloudWatch event exists as expected in my production environment.
+    :return: True if the CloudWatch event exists as expected, False otherwise.
+    """
+    return cloudwatch_event_rule_exists(cloudwatch_event_name='saints-xctf-rds-prod-backup-lambda-rule')
+
+
+def dev_cloudwatch_event_rule_exists() -> bool:
+    """
+    Test that a CloudWatch event exists as expected in my development environment.
+    :return: True if the CloudWatch event exists as expected, False otherwise.
+    """
+    return cloudwatch_event_rule_exists(cloudwatch_event_name='saints-xctf-rds-dev-backup-lambda-rule')
+
+
+def cloudwatch_event_rule_exists(cloudwatch_event_name: str) -> bool:
+    """
+    Test that a CloudWatch event exists as expected in my development environment.
+    :param cloudwatch_event_name: The name of the CloudWatch event.
+    :return: True if the CloudWatch event exists as expected, False otherwise.
+    """
+    cloudwatch_event_dict: dict = cloudwatch_event.describe_rule(Name=cloudwatch_event_name)
+
+    return all([
+        cloudwatch_event_dict.get('Name') == cloudwatch_event_name,
+        cloudwatch_event_dict.get('ScheduleExpression') == 'cron(0 7 * * ? *)'
+    ])
+
+
+def prod_lambda_function_has_security_group() -> bool:
+    """
+    Test that the Lambda function has the expected security group in my production environment.
+    :return: True if the lambda function has the expected security group, False otherwise.
+    """
+    return lambda_function_has_security_group(function_name='SaintsXCTFMySQLBackupPROD')
+
+
+def dev_lambda_function_has_security_group() -> bool:
+    """
+    Test that the Lambda function has the expected security group in my development environment.
+    :return: True if the lambda function has the expected security group, False otherwise.
+    """
+    return lambda_function_has_security_group(function_name='SaintsXCTFMySQLBackupDEV')
+
+
+def lambda_function_has_security_group(function_name: str) -> bool:
+    """
+    Test that the Lambda function has the expected security group.
+    :param function_name: The name of the AWS Lambda function to search for.
+    :return: True if the Lambda function has the saints-xctf-lambda-rds-backup-security security group, False otherwise.
+    """
+    lambda_function = aws_lambda.get_function(FunctionName=function_name)
+    lambda_function_sgs: list = lambda_function.get('Configuration').get('VpcConfig').get('SecurityGroupIds')
+    security_group_id = lambda_function_sgs[0]
+
+    sg = SecurityGroup.get_security_group('saints-xctf-lambda-rds-backup-security')
+
+    return all([
+        len(lambda_function_sgs) == 1,
+        security_group_id == sg.get('GroupId')
+    ])
