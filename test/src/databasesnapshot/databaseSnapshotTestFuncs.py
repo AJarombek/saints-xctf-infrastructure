@@ -39,9 +39,9 @@ def lambda_function_exists(function_name: str) -> bool:
     lambda_function = aws_lambda.get_function(FunctionName=function_name)
 
     return all([
-        lambda_function.get('FunctionName') == function_name,
-        lambda_function.get('Runtime') == 'python3.7',
-        lambda_function.get('Handler') == 'lambda.create_backup'
+        lambda_function.get('Configuration').get('FunctionName') == function_name,
+        lambda_function.get('Configuration').get('Runtime') == 'python3.7',
+        lambda_function.get('Configuration').get('Handler') == 'lambda.create_backup'
     ])
 
 

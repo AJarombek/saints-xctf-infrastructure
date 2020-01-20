@@ -119,7 +119,7 @@ def rds_in_proper_subnets():
     filters = [
         {
             'Name': 'tag:Name',
-            'Values': ['SaintsXCTFcom VPC Private Subnet 0', 'SaintsXCTFcom VPC Private Subnet 1']
+            'Values': ['saints-xctf-com-cassiah-private-subnet', 'saints-xctf-com-carolined-private-subnet']
         }
     ]
 
