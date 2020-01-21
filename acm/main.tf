@@ -33,38 +33,37 @@ data "aws_route53_zone" "saints-xctf-zone" {
 # New AWS Resources for ACM
 #--------------------------
 
-#--------------------------------
-# Protects '*.dev.saintsxctf.com'
-#--------------------------------
+#--------------------------
+# Protects 'saintsxctf.com'
+#--------------------------
 
-resource "aws_acm_certificate" "saints-xctf-dev-wildcard-acm-certificate" {
-  domain_name = "*.dev.saintsxctf.com"
+resource "aws_acm_certificate" "saints-xctf-acm-certificate" {
+  domain_name = "saintsxctf.com"
   validation_method = "DNS"
 
   tags = {
-    Environment = "dev"
+    Environment = "production"
     Application = "saints-xctf"
   }
 
   lifecycle {
-    # Replace a certificate that is currently in use
     create_before_destroy = true
   }
 }
 
 /* Create a validation record used for certificate validation through DNS */
-resource "aws_route53_record" "saints-xctf-dev-wc-cert-validation-record" {
-  name = aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options[0].resource_record_name
-  type = aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options[0].resource_record_type
+resource "aws_route53_record" "saints-xctf-cert-validation-record" {
+  name = aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options[0].resource_record_name
+  type = aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options[0].resource_record_type
   zone_id = data.aws_route53_zone.saints-xctf-zone.id
-  records = [aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options[0].resource_record_value]
+  records = [aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options[0].resource_record_value]
   ttl = 60
 }
 
 /* Request a DNS validation certificate */
-resource "aws_acm_certificate_validation" "saints-xctf-dev-wc-cert-validation" {
-  certificate_arn = aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.arn
-  validation_record_fqdns = [aws_route53_record.saints-xctf-dev-wc-cert-validation-record.fqdn]
+resource "aws_acm_certificate_validation" "saints-xctf-cert-validation" {
+  certificate_arn = aws_acm_certificate.saints-xctf-acm-certificate.arn
+  validation_record_fqdns = [aws_route53_record.saints-xctf-cert-validation-record.fqdn]
 }
 
 #----------------------------
@@ -76,7 +75,7 @@ resource "aws_acm_certificate" "saints-xctf-wildcard-acm-certificate" {
   validation_method = "DNS"
 
   tags = {
-    Environment = "dev"
+    Environment = "development"
     Application = "saints-xctf"
   }
 
@@ -100,35 +99,70 @@ resource "aws_acm_certificate_validation" "saints-xctf-wc-cert-validation" {
   validation_record_fqdns = [aws_route53_record.saints-xctf-wc-cert-validation-record.fqdn]
 }
 
-#--------------------------
-# Protects 'saintsxctf.com'
-#--------------------------
+#--------------------------------
+# Protects '*.asset.saintsxctf.com'
+#--------------------------------
 
-resource "aws_acm_certificate" "saints-xctf-acm-certificate" {
-  domain_name = "saintsxctf.com"
+resource "aws_acm_certificate" "saints-xctf-asset-wildcard-acm-certificate" {
+  domain_name = "*.asset.saintsxctf.com"
   validation_method = "DNS"
 
   tags = {
-    Environment = "prod"
+    Environment = "production"
     Application = "saints-xctf"
   }
 
   lifecycle {
+    # Replace a certificate that is currently in use
     create_before_destroy = true
   }
 }
 
 /* Create a validation record used for certificate validation through DNS */
-resource "aws_route53_record" "saints-xctf-cert-validation-record" {
-  name = aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options[0].resource_record_name
-  type = aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options[0].resource_record_type
+resource "aws_route53_record" "saints-xctf-asset-wc-cert-validation-record" {
+  name = aws_acm_certificate.saints-xctf-asset-wildcard-acm-certificate.domain_validation_options[0].resource_record_name
+  type = aws_acm_certificate.saints-xctf-asset-wildcard-acm-certificate.domain_validation_options[0].resource_record_type
   zone_id = data.aws_route53_zone.saints-xctf-zone.id
-  records = [aws_acm_certificate.saints-xctf-acm-certificate.domain_validation_options[0].resource_record_value]
+  records = [aws_acm_certificate.saints-xctf-asset-wildcard-acm-certificate.domain_validation_options[0].resource_record_value]
   ttl = 60
 }
 
 /* Request a DNS validation certificate */
-resource "aws_acm_certificate_validation" "saints-xctf-cert-validation" {
-  certificate_arn = aws_acm_certificate.saints-xctf-acm-certificate.arn
-  validation_record_fqdns = [aws_route53_record.saints-xctf-cert-validation-record.fqdn]
+resource "aws_acm_certificate_validation" "saints-xctf-asset-wc-cert-validation" {
+  certificate_arn = aws_acm_certificate.saints-xctf-asset-wildcard-acm-certificate.arn
+  validation_record_fqdns = [aws_route53_record.saints-xctf-asset-wc-cert-validation-record.fqdn]
+}
+
+#--------------------------------
+# Protects '*.dev.saintsxctf.com'
+#--------------------------------
+
+resource "aws_acm_certificate" "saints-xctf-dev-wildcard-acm-certificate" {
+  domain_name = "*.dev.saintsxctf.com"
+  validation_method = "DNS"
+
+  tags = {
+    Environment = "development"
+    Application = "saints-xctf"
+  }
+
+  lifecycle {
+    # Replace a certificate that is currently in use
+    create_before_destroy = true
+  }
+}
+
+/* Create a validation record used for certificate validation through DNS */
+resource "aws_route53_record" "saints-xctf-dev-wc-cert-validation-record" {
+  name = aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options[0].resource_record_name
+  type = aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options[0].resource_record_type
+  zone_id = data.aws_route53_zone.saints-xctf-zone.id
+  records = [aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.domain_validation_options[0].resource_record_value]
+  ttl = 60
+}
+
+/* Request a DNS validation certificate */
+resource "aws_acm_certificate_validation" "saints-xctf-dev-wc-cert-validation" {
+  certificate_arn = aws_acm_certificate.saints-xctf-dev-wildcard-acm-certificate.arn
+  validation_record_fqdns = [aws_route53_record.saints-xctf-dev-wc-cert-validation-record.fqdn]
 }

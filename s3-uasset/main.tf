@@ -56,3 +56,17 @@ resource "aws_s3_bucket" "uasset-saintsxctf" {
     allowed_headers = ["*"]
   }
 }
+
+resource "aws_s3_bucket" "www-uasset-saintsxctf" {
+  bucket = "www.uasset.saintsxctf.com"
+  acl = "public-read"
+  policy = file("${path.module}/www-policy.json")
+
+  tags = {
+    Name = "www.uasset.saintsxctf.com"
+  }
+
+  website {
+    redirect_all_requests_to = "https://uasset.saintsxctf.com"
+  }
+}
