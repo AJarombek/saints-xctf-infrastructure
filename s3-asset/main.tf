@@ -250,3 +250,23 @@ resource "aws_route53_record" "www-asset-saintsxctf-a" {
     zone_id = aws_cloudfront_distribution.www-asset-saintsxctf-distribution.hosted_zone_id
   }
 }
+
+#-------------------
+# S3 Bucket Contents
+#-------------------
+
+resource "aws_s3_bucket_object" "saintsxctf-png" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "saintsxctf.png"
+  source = "asset/saintsxctf.png"
+  etag = filemd5("${path.cwd}/asset/saintsxctf.png")
+  content_type = "image/png"
+}
+
+resource "aws_s3_bucket_object" "saintsxctf-vid-mp4" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "saintsxctf-vid.mp4"
+  source = "asset/saintsxctf-vid.mp4"
+  etag = filemd5("${path.cwd}/asset/saintsxctf-vid.mp4")
+  content_type = "video/mp4"
+}
