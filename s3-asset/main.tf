@@ -270,3 +270,51 @@ resource "aws_s3_bucket_object" "saintsxctf-vid-mp4" {
   etag = filemd5("${path.cwd}/asset/saintsxctf-vid.mp4")
   content_type = "video/mp4"
 }
+
+resource "aws_s3_bucket_object" "thomas-c-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "thomas-c.jpg"
+  source = "asset/thomas-c.jpg"
+  etag = filemd5("${path.cwd}/asset/thomas-c.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "lisa-g-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "lisa-g.jpg"
+  source = "asset/lisa-g.jpg"
+  etag = filemd5("${path.cwd}/asset/lisa-g.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "evan-g-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "evan-g.jpg"
+  source = "asset/evan-g.jpg"
+  etag = filemd5("${path.cwd}/asset/evan-g.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "joe-s-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "joe-s.jpg"
+  source = "asset/joe-s.jpg"
+  etag = filemd5("${path.cwd}/asset/joe-s.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "ben-f-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "ben-f.jpg"
+  source = "asset/ben-f.jpg"
+  etag = filemd5("${path.cwd}/asset/ben-f.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "trevor-b-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "trevor-b.jpg"
+  source = "asset/trevor-b.jpg"
+  etag = filemd5("${path.cwd}/asset/trevor-b.jpg")
+  content_type = "image/jpeg"
+}

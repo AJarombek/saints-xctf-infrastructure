@@ -75,7 +75,7 @@ resource "aws_acm_certificate" "saints-xctf-wildcard-acm-certificate" {
   validation_method = "DNS"
 
   tags = {
-    Environment = "development"
+    Environment = "all"
     Application = "saints-xctf"
   }
 

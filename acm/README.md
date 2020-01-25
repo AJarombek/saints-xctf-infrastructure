@@ -1,7 +1,7 @@
 ### Overview
 
-Module which creates HTTPS certificates for both `saintsxctf.com` and `dev.saintsxctf.com`.  Wildcard certificates are 
-used for both the dev website and `www` prefixed domains.
+Module which creates HTTPS certificates for `saintsxctf.com`, `asset.saintsxctf.com`, `uasset.saintsxctf.com`, and 
+`dev.saintsxctf.com`.  Wildcard certificates are used for both the dev website and `www` prefixed domains.
 
 ### Files
 
