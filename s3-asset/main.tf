@@ -61,28 +61,13 @@ resource "aws_s3_bucket" "asset-saintsxctf" {
   }
 }
 
-resource "aws_s3_bucket" "www-asset-saintsxctf" {
-  bucket = "www.asset.saintsxctf.com"
-  acl = "public-read"
-  policy = file("${path.module}/www-policy.json")
-
-  tags = {
-    Name = "www.asset.saintsxctf.com"
-  }
-
-  website {
-    redirect_all_requests_to = "https://asset.saintsxctf.com"
-  }
-}
-
 resource "aws_cloudfront_distribution" "asset-saintsxctf-distribution" {
   origin {
     domain_name = aws_s3_bucket.asset-saintsxctf.bucket_regional_domain_name
     origin_id = "origin-bucket-${aws_s3_bucket.asset-saintsxctf.id}"
 
     s3_origin_config {
-      origin_access_identity =
-        aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
     }
   }
 
@@ -106,10 +91,10 @@ resource "aws_cloudfront_distribution" "asset-saintsxctf-distribution" {
 
   default_cache_behavior {
     # Which HTTP verbs CloudFront processes
-    allowed_methods = ["GET"]
+    allowed_methods = ["HEAD", "GET"]
 
     # Which HTTP verbs CloudFront caches responses to requests
-    cached_methods = ["GET"]
+    cached_methods = ["HEAD", "GET"]
 
     forwarded_values {
       cookies {
@@ -153,12 +138,11 @@ resource "aws_cloudfront_origin_access_identity" "origin-access-identity" {
 
 resource "aws_cloudfront_distribution" "www-asset-saintsxctf-distribution" {
   origin {
-    domain_name = aws_s3_bucket.www-asset-saintsxctf.bucket_regional_domain_name
-    origin_id = "origin-bucket-${aws_s3_bucket.www-asset-saintsxctf.id}"
+    domain_name = aws_s3_bucket.asset-saintsxctf.bucket_regional_domain_name
+    origin_id = "origin-bucket-${aws_s3_bucket.asset-saintsxctf.id}"
 
     s3_origin_config {
-      origin_access_identity =
-        aws_cloudfront_origin_access_identity.origin-access-identity-www.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
     }
   }
 
@@ -182,10 +166,10 @@ resource "aws_cloudfront_distribution" "www-asset-saintsxctf-distribution" {
 
   default_cache_behavior {
     # Which HTTP verbs CloudFront processes
-    allowed_methods = ["GET"]
+    allowed_methods = ["HEAD", "GET"]
 
     # Which HTTP verbs CloudFront caches responses to requests
-    cached_methods = ["GET"]
+    cached_methods = ["HEAD", "GET"]
 
     forwarded_values {
       cookies {
@@ -194,7 +178,7 @@ resource "aws_cloudfront_distribution" "www-asset-saintsxctf-distribution" {
       query_string = false
     }
 
-    target_origin_id = "origin-bucket-${aws_s3_bucket.www-asset-saintsxctf.id}"
+    target_origin_id = "origin-bucket-${aws_s3_bucket.asset-saintsxctf.id}"
 
     # Which protocols to use when accessing items from CloudFront
     viewer_protocol_policy = "allow-all"
@@ -221,10 +205,6 @@ resource "aws_cloudfront_distribution" "www-asset-saintsxctf-distribution" {
     Name = "www-asset-saintsxctf-com-cloudfront"
     Environment = "production"
   }
-}
-
-resource "aws_cloudfront_origin_access_identity" "origin-access-identity-www" {
-  comment = "www.asset.saintsxctf.com origin access identity"
 }
 
 resource "aws_route53_record" "asset-saintsxctf-a" {
@@ -255,6 +235,62 @@ resource "aws_route53_record" "www-asset-saintsxctf-a" {
 # S3 Bucket Contents
 #-------------------
 
+resource "aws_s3_bucket_object" "amazon-app-store-png" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "amazon-app-store.png"
+  source = "asset/amazon-app-store.png"
+  etag = filemd5("${path.cwd}/asset/amazon-app-store.png")
+  content_type = "image/png"
+}
+
+resource "aws_s3_bucket_object" "app-store-png" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "app-store.png"
+  source = "asset/app-store.png"
+  etag = filemd5("${path.cwd}/asset/app-store.png")
+  content_type = "image/png"
+}
+
+resource "aws_s3_bucket_object" "ben-f-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "ben-f.jpg"
+  source = "asset/ben-f.jpg"
+  etag = filemd5("${path.cwd}/asset/ben-f.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "evan-g-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "evan-g.jpg"
+  source = "asset/evan-g.jpg"
+  etag = filemd5("${path.cwd}/asset/evan-g.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "google-play-store-svg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "google-play-store.svg"
+  source = "asset/google-play-store.svg"
+  etag = filemd5("${path.cwd}/asset/google-play-store.svg")
+  content_type = "image/svg+xml"
+}
+
+resource "aws_s3_bucket_object" "joe-s-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "joe-s.jpg"
+  source = "asset/joe-s.jpg"
+  etag = filemd5("${path.cwd}/asset/joe-s.jpg")
+  content_type = "image/jpeg"
+}
+
+resource "aws_s3_bucket_object" "lisa-g-jpg" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  key = "lisa-g.jpg"
+  source = "asset/lisa-g.jpg"
+  etag = filemd5("${path.cwd}/asset/lisa-g.jpg")
+  content_type = "image/jpeg"
+}
+
 resource "aws_s3_bucket_object" "saintsxctf-png" {
   bucket = aws_s3_bucket.asset-saintsxctf.id
   key = "saintsxctf.png"
@@ -276,38 +312,6 @@ resource "aws_s3_bucket_object" "thomas-c-jpg" {
   key = "thomas-c.jpg"
   source = "asset/thomas-c.jpg"
   etag = filemd5("${path.cwd}/asset/thomas-c.jpg")
-  content_type = "image/jpeg"
-}
-
-resource "aws_s3_bucket_object" "lisa-g-jpg" {
-  bucket = aws_s3_bucket.asset-saintsxctf.id
-  key = "lisa-g.jpg"
-  source = "asset/lisa-g.jpg"
-  etag = filemd5("${path.cwd}/asset/lisa-g.jpg")
-  content_type = "image/jpeg"
-}
-
-resource "aws_s3_bucket_object" "evan-g-jpg" {
-  bucket = aws_s3_bucket.asset-saintsxctf.id
-  key = "evan-g.jpg"
-  source = "asset/evan-g.jpg"
-  etag = filemd5("${path.cwd}/asset/evan-g.jpg")
-  content_type = "image/jpeg"
-}
-
-resource "aws_s3_bucket_object" "joe-s-jpg" {
-  bucket = aws_s3_bucket.asset-saintsxctf.id
-  key = "joe-s.jpg"
-  source = "asset/joe-s.jpg"
-  etag = filemd5("${path.cwd}/asset/joe-s.jpg")
-  content_type = "image/jpeg"
-}
-
-resource "aws_s3_bucket_object" "ben-f-jpg" {
-  bucket = aws_s3_bucket.asset-saintsxctf.id
-  key = "ben-f.jpg"
-  source = "asset/ben-f.jpg"
-  etag = filemd5("${path.cwd}/asset/ben-f.jpg")
   content_type = "image/jpeg"
 }
 

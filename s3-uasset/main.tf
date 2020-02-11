@@ -61,28 +61,13 @@ resource "aws_s3_bucket" "uasset-saintsxctf" {
   }
 }
 
-resource "aws_s3_bucket" "www-uasset-saintsxctf" {
-  bucket = "www.uasset.saintsxctf.com"
-  acl = "public-read"
-  policy = file("${path.module}/www-policy.json")
-
-  tags = {
-    Name = "www.uasset.saintsxctf.com"
-  }
-
-  website {
-    redirect_all_requests_to = "https://uasset.saintsxctf.com"
-  }
-}
-
 resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
   origin {
     domain_name = aws_s3_bucket.uasset-saintsxctf.bucket_regional_domain_name
     origin_id = "origin-bucket-${aws_s3_bucket.uasset-saintsxctf.id}"
 
     s3_origin_config {
-      origin_access_identity =
-        aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
     }
   }
 
@@ -106,10 +91,10 @@ resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
 
   default_cache_behavior {
     # Which HTTP verbs CloudFront processes
-    allowed_methods = ["GET"]
+    allowed_methods = ["HEAD", "GET"]
 
     # Which HTTP verbs CloudFront caches responses to requests
-    cached_methods = ["GET"]
+    cached_methods = ["HEAD", "GET"]
 
     forwarded_values {
       cookies {
@@ -153,12 +138,11 @@ resource "aws_cloudfront_origin_access_identity" "origin-access-identity" {
 
 resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
   origin {
-    domain_name = aws_s3_bucket.www-uasset-saintsxctf.bucket_regional_domain_name
-    origin_id = "origin-bucket-${aws_s3_bucket.www-uasset-saintsxctf.id}"
+    domain_name = aws_s3_bucket.uasset-saintsxctf.bucket_regional_domain_name
+    origin_id = "origin-bucket-${aws_s3_bucket.uasset-saintsxctf.id}"
 
     s3_origin_config {
-      origin_access_identity =
-        aws_cloudfront_origin_access_identity.origin-access-identity-www.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
     }
   }
 
@@ -182,10 +166,10 @@ resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
 
   default_cache_behavior {
     # Which HTTP verbs CloudFront processes
-    allowed_methods = ["GET"]
+    allowed_methods = ["HEAD", "GET"]
 
     # Which HTTP verbs CloudFront caches responses to requests
-    cached_methods = ["GET"]
+    cached_methods = ["HEAD", "GET"]
 
     forwarded_values {
       cookies {
@@ -194,7 +178,7 @@ resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
       query_string = false
     }
 
-    target_origin_id = "origin-bucket-${aws_s3_bucket.www-uasset-saintsxctf.id}"
+    target_origin_id = "origin-bucket-${aws_s3_bucket.uasset-saintsxctf.id}"
 
     # Which protocols to use when accessing items from CloudFront
     viewer_protocol_policy = "allow-all"
@@ -221,10 +205,6 @@ resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
     Name = "www-asset-saintsxctf-com-cloudfront"
     Environment = "production"
   }
-}
-
-resource "aws_cloudfront_origin_access_identity" "origin-access-identity-www" {
-  comment = "www.uasset.saintsxctf.com origin access identity"
 }
 
 resource "aws_route53_record" "uasset-saintsxctf-a" {
