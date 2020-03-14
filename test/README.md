@@ -6,8 +6,14 @@ be run independently or all at once.
 
 To run the test suite, execute the following command from this directory:
 
-```
+```bash
 python3 runner.py
+```
+
+Or if you want the test results to be placed in a log, execute the following command:
+
+```bash
+python3 runner.py test_results.log
 ```
 
 ### Jenkins Job
@@ -20,15 +26,8 @@ This test suite has a corresponding Jenkins job located on my
 
 | Filename             | Description                                                                                  |
 |----------------------|----------------------------------------------------------------------------------------------|
-| `acm/`               | Test suite for the Amazon HTTPS certificates.                                                |
-| `bastion/`           | Test suite for the Bastion host.                                                             |
-| `databases/`         | Test suite for the applications MySQL databases.                                             |
-| `databasesnapshot/`  | Test suite for a lambda function which backs up the MySQL databases.                         |
-| `iam/`               | Test suite for IAM roles and policies.                                                       |
-| `route53/`           | Test suite for the applications Route53 DNS service.                                         |
-| `secretsmanager/`    | Test suite for the Secrets Manager service.                                                  |
-| `webapp/`            | Test suite for the web application module.                                                   |
-| `webserver/`         | Test suite for the web server and launch configuration.                                      |
+| `suites/`            | Test suites written in Python's `unittest` library.                                          |
+| `utils/`             | Utility functions for working with the `boto3` AWS SDK.                                      |
 | `runner.py`          | Invokes all the test suites.                                                                 |
 | `setup.sh`           | Bash script to setup the environment for a test suite.                                       |
 | `requirements.txt`   | Used to create a virtual environment with `pipenv`.                                          |
