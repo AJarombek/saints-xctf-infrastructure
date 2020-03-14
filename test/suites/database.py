@@ -5,8 +5,9 @@ Date: 3/5/2019
 """
 
 import unittest
-import boto3
 import os
+
+import boto3
 
 
 class TestDatabase(unittest.TestCase):

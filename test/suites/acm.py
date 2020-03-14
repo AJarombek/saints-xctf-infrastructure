@@ -5,6 +5,7 @@ Date: 3/4/2019
 """
 
 import unittest
+
 import boto3
 
 
@@ -17,6 +18,7 @@ class TestACM(unittest.TestCase):
         self.acm = boto3.client('acm')
         self.acm_certificates = self.acm.list_certificates(CertificateStatuses=['ISSUED'])
 
+    @unittest.SkipTest
     def test_acm_dev_wildcard_cert_issued(self) -> None:
         """
         Test that the dev wildcard ACM certificate exists

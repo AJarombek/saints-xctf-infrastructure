@@ -4,14 +4,17 @@ This is the testing suite for the SaintsXCTF cloud infrastructure.  Tests are ru
 Each infrastructure grouping has its own test suite.  Each test suite contains many individual tests.  Test suites can 
 be run independently or all at once.
 
-To run all test suites at once, execute the following command from this directory:
+To run the test suite, execute the following command from this directory:
 
 ```
-python3 masterTestSuite.py
+python3 runner.py
 ```
 
-To run a single test suite, navigate to the suite's directory and execute the file following the regular expression  
-`^[a-z]+TestSuite.py$`.
+### Jenkins Job
+
+This test suite has a corresponding Jenkins job located on my 
+[Jenkins server](http://jenkins.jarombek.io/job/saints-xctf-infrastructure/).  The source code is located in my 
+[global-jenkins-jobs](https://github.com/AJarombek/global-jenkins-jobs/tree/master/saints-xctf-infrastructure) repository.
 
 ### Files
 
@@ -26,6 +29,7 @@ To run a single test suite, navigate to the suite's directory and execute the fi
 | `secretsmanager/`    | Test suite for the Secrets Manager service.                                                  |
 | `webapp/`            | Test suite for the web application module.                                                   |
 | `webserver/`         | Test suite for the web server and launch configuration.                                      |
-| `masterTestFuncs.py` | Functions used to help create a test suite environment.                                      |
-| `masterTestSuite.py` | Invokes all the test suites.                                                                 |
+| `runner.py`          | Invokes all the test suites.                                                                 |
 | `setup.sh`           | Bash script to setup the environment for a test suite.                                       |
+| `requirements.txt`   | Used to create a virtual environment with `pipenv`.                                          |
+| `Pipfile`            | Used to create a virtual environment with `pip`.                                             |

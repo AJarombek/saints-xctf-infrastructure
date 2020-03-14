@@ -8,8 +8,8 @@ import unittest
 import os
 
 import boto3
-from test.utils.VPC import VPC
-from test.utils.SecurityGroup import SecurityGroup
+from utils.VPC import VPC
+from utils.SecurityGroup import SecurityGroup
 
 
 class TestDatabaseSnapshot(unittest.TestCase):

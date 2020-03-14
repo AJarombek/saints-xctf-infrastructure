@@ -16,7 +16,8 @@ class TestRoute53(unittest.TestCase):
         """
         Perform set-up logic before executing any unit tests
         """
-        self.ec2 = boto3.client('ec2')
+        self.ec2 = boto3.resource('ec2')
+        self.ec2_client = boto3.client('ec2')
         self.sts = boto3.client('sts')
         self.iam = boto3.client('iam')
         self.autoscaling = boto3.client('autoscaling')
@@ -31,7 +32,7 @@ class TestRoute53(unittest.TestCase):
         Check if there are one or many AMIs for the SaintsXCTF web server.
         """
         owner = self.sts.get_caller_identity().get('Account')
-        amis = self.ec2.describe_images(
+        amis = self.ec2_client.describe_images(
             Owners=[owner],
             Filters=[{
                 'Name': 'name',
@@ -120,7 +121,7 @@ class TestRoute53(unittest.TestCase):
         launch_config = lcs.get('LaunchConfigurations')[0]
         security_group_id = launch_config.get('SecurityGroups')[0]
 
-        security_group = self.ec2.describe_security_groups(GroupIds=[security_group_id]).get('SecurityGroups')[0]
+        security_group = self.ec2_client.describe_security_groups(GroupIds=[security_group_id]).get('SecurityGroups')[0]
 
         self.assertTrue(all([
             security_group.get('GroupName') == launch_config_sg,
@@ -380,7 +381,7 @@ class TestRoute53(unittest.TestCase):
         else:
             env = "dev"
 
-        response = self.ec2.describe_security_groups(Filters=[
+        response = self.ec2_client.describe_security_groups(Filters=[
             {
                 'Name': 'group-name',
                 'Values': [f'saints-xctf-database-security-{env}']

@@ -1,0 +1,16 @@
+# Dependencies and versioning used to create a virtual environemnt for the saints-xctf-infrastructure test suite.
+# Author: Andrew Jarombek
+# Date: 3/14/2020
+
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+boto3 = ">=1.12.21"
+
+[requires]
+python_version = "3.8"

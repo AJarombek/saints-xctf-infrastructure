@@ -5,6 +5,7 @@ Date: 2/23/2019
 """
 
 import unittest
+
 import boto3
 
 
@@ -17,6 +18,7 @@ class TestBastion(unittest.TestCase):
         self.ec2 = boto3.resource('ec2')
         self.iam = boto3.client('iam')
 
+    @unittest.SkipTest
     def get_bastion_ec2(self) -> list:
         """
         Get a list of running EC2 instances with name 'bastion-host'
@@ -35,6 +37,7 @@ class TestBastion(unittest.TestCase):
 
         return list(self.ec2.instances.filter(Filters=filters).all())
 
+    @unittest.SkipTest
     def test_bastion_ec2_running(self) -> None:
         """
         Test that the Bastion EC2 instance is running
@@ -42,6 +45,7 @@ class TestBastion(unittest.TestCase):
         instances = self.get_bastion_ec2()
         self.assertEqual(len(instances), 1)
 
+    @unittest.SkipTest
     def test_bastion_vpc(self) -> None:
         """
         Test that the Bastion EC2 instance exists in the SaintsXCTF VPC
@@ -56,6 +60,7 @@ class TestBastion(unittest.TestCase):
 
         self.assertEqual(vpc_tag, {'Key': 'Name', 'Value': 'SaintsXCTFcom VPC'})
 
+    @unittest.SkipTest
     def test_bastion_subnet(self) -> None:
         """
         Test that the bastion EC2 instance is in the proper subnet
@@ -70,6 +75,7 @@ class TestBastion(unittest.TestCase):
 
         return subnet_tag == {'Key': 'Name', 'Value': 'SaintsXCTFcom VPC Public Subnet 1'}
 
+    @unittest.SkipTest
     def test_bastion_rds_access(self) -> None:
         """
         Confirm that the Bastion host has access to RDS
@@ -96,6 +102,7 @@ class TestBastion(unittest.TestCase):
             role_arn == instance_profile.get('Roles')[0].get('Arn')
         ]))
 
+    @unittest.SkipTest
     def test_bastion_security_group(self) -> None:
         """
         Test that the Bastion host has the expected security group
