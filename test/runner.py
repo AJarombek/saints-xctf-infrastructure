@@ -18,7 +18,9 @@ if __name__ == '__main__':
 
             # Create a test runner an execute the test suite
             runner = unittest.TextTestRunner(log_file, verbosity=3)
-            runner.run(tests)
+            result: unittest.TestResult = runner.run(tests)
+            exit(len(result.errors))
     else:
         runner = unittest.TextTestRunner(verbosity=3)
-        runner.run(tests)
+        result: unittest.TestResult = runner.run(tests)
+        exit(len(result.errors))

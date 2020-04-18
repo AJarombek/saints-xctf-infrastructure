@@ -36,8 +36,9 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
   }
 
   tags = {
-    Name = "SaintsXCTF Database Backups Bucket"
+    Name = "saints-xctf-database-backups"
     Application = "saints-xctf"
+    Environment = var.prod ? "Production" : "Development"
   }
 }
 
