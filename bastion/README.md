@@ -3,6 +3,33 @@
 Infrastructure for a Bastion host, which connects to the private resources in the VPC.  A Bastion host is needed because 
 resources inside private VPCs are not publicly available outside the VPC.
 
+### Commands
+
+#### Connect to MySQL on the Bastion host
+
+**Bash commands to run from a local machine**
+
+```bash
+# SSH into the Bastion host
+ssh -i ~/bastion-key.pem -o IdentitiesOnly=yes ec2-user@ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com
+```
+
+**Bash commands to run on the Bastion host**
+
+```bash
+# Connect to the development database.
+DEV_HOST="saints-xctf-mysql-database-dev.xxxx.us-east-1.rds.amazonaws.com"
+mysql -h ${DEV_HOST} -u saintsxctfdev -p
+
+# Connect to the production database.
+PROD_HOST="saints-xctf-mysql-database-prod.xxxx.us-east-1.rds.amazonaws.com"
+mysql -h ${PROD_HOST} -u saintsxctfprod -p
+```
+
+#### SSH Tunnel to MySQL on the local machine
+
+*Work in progress*
+
 ### Files
 
 | Filename                | Description                                                                                      |
