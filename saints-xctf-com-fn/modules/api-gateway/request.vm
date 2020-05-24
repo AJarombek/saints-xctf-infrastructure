@@ -1,0 +1,14 @@
+#**
+ * HTTP Request for the email/forgot-password REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 5/24/2020
+ *#
+
+#set($to = $input.json('$.to'))
+#set($code = $input.json('$.code'))
+#set($username = $input.json('$.username'))
+
+{
+    "code": "$code",
+    "username": "$username"
+}

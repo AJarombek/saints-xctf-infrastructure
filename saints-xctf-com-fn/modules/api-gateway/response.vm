@@ -1,0 +1,15 @@
+#**
+ * HTTP Response for the email/forgot-password REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 5/24/2020
+ *#
+
+#set($response = $input.path('$'))
+
+{
+#if($response != "")
+    "result": "$response"
+#else
+    "error": "Failed to send email."
+#end
+}
