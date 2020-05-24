@@ -24,7 +24,9 @@ module "lambda" {
   prod = false
 }
 
-module "api-lambda" {
+module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = false
+  lambda-function-name = module.lambda.function-name
+  lambda-function-invoke-arn = module.lambda.function-invoke-arn
 }

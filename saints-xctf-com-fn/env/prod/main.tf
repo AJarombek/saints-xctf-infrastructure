@@ -21,10 +21,12 @@ terraform {
 
 module "lambda" {
   source = "../../modules/lambda"
-  prod = false
+  prod = true
 }
 
-module "api-lambda" {
+module "api-gateway" {
   source = "../../modules/api-gateway"
-  prod = false
+  prod = true
+  lambda-function-name = module.lambda.function-name
+  lambda-function-invoke-arn = module.lambda.function-invoke-arn
 }
