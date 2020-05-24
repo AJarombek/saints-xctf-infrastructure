@@ -8,3 +8,4 @@ web-app/env/prod/contents/*
 database-snapshot/modules/lambda/dist
 **/__pycache__/*
 venv/*
+*.zip

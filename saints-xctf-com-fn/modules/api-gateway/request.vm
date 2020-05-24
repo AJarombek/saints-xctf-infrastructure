@@ -7,8 +7,13 @@
 #set($to = $input.json('$.to'))
 #set($code = $input.json('$.code'))
 #set($username = $input.json('$.username'))
+#set($firstName = $input.json('$.firstName'))
+#set($lastName = $input.json('$.lastName'))
 
 {
-    "code": "$code",
-    "username": "$username"
+    "to": $to,
+    "code": $code,
+    "username": $username,
+    "firstName": $firstName,
+    "lastName": $lastName
 }

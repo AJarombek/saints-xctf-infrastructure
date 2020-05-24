@@ -8,7 +8,7 @@
 
 {
 #if($response != "")
-    "result": "$response"
+    "result": $response
 #else
     "error": "Failed to send email."
 #end

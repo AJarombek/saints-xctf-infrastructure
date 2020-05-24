@@ -63,10 +63,10 @@ resource "aws_api_gateway_integration" "email-forgot-password-integration" {
   # Lambda functions can only be invoked via HTTP POST
   integration_http_method = "POST"
 
-  type = "AWS_PROXY"
+  type = "AWS"
   uri = var.lambda-function-invoke-arn
 
-  request_templates {
+  request_templates = {
     "application/json" = file("${path.module}/request.vm")
   }
 }
@@ -78,7 +78,7 @@ resource "aws_api_gateway_integration_response" "email-forgot-password-integrati
   http_method = aws_api_gateway_method.email-forgot-password-method.http_method
   status_code = aws_api_gateway_method_response.email-forgot-password-method-response.status_code
 
-  response_templates {
+  response_templates = {
     "application/json" = file("${path.module}/response.vm")
   }
 

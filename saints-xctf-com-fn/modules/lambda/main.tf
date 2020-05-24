@@ -6,6 +6,7 @@
 
 locals {
   env = var.prod ? "prod" : "dev"
+  url_prefix = var.prod ? "" : "dev."
 }
 
 resource "aws_lambda_function" "forgot-password-email" {
@@ -16,6 +17,12 @@ resource "aws_lambda_function" "forgot-password-email" {
   runtime = "nodejs12.x"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFForgotPasswordEmail.zip")
   timeout = 10
+
+  environment {
+    variables = {
+      PREFIX = local.url_prefix
+    }
+  }
 
   tags = {
     Name = "saints-xctf-com-lambda-forgot-password-email"
@@ -30,12 +37,13 @@ resource "aws_cloudwatch_log_group" "welcome-email-log-group" {
 }
 
 resource "aws_iam_role" "lambda-role" {
-  name = "iam-lambda-role"
+  name = "email-lambda-role"
+  path = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/lambda-role.json")
 }
 
 resource "aws_iam_policy" "lambda-policy" {
-  name = "lambda-policy"
+  name = "email-lambda-policy"
   path = "/saints-xctf-com/"
   policy = file("${path.module}/lambda-policy.json")
   description = "IAM policy for logging & secrets for an AWS Lambda function"
