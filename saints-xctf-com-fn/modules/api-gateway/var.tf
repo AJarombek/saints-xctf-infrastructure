@@ -9,10 +9,14 @@ variable "prod" {
   default = true
 }
 
-variable "lambda-function-name" {
-  description = "The name of the AWS Lambda function to use with API Gateway"
+variable "email-lambda-name" {
+  description = "The name of the email Lambda function to use with API Gateway"
 }
 
-variable "lambda-function-invoke-arn" {
-  description = "The name of the AWS Lambda function to use with API Gateway"
+variable "email-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the email Lambda function to use with API Gateway"
+}
+
+variable "auth-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the auth Lambda function to use with API Gateway"
 }

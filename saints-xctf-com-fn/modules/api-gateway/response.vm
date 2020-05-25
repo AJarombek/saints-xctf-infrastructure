@@ -7,9 +7,5 @@
 #set($response = $input.path('$'))
 
 {
-#if($response != "")
     "result": $response
-#else
-    "error": "Failed to send email."
-#end
 }

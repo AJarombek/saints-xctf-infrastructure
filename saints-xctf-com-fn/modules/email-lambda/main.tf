@@ -40,6 +40,7 @@ resource "aws_iam_role" "lambda-role" {
   name = "email-lambda-role"
   path = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/lambda-role.json")
+  description = "IAM role for logging & secrets for an AWS Lambda function"
 }
 
 resource "aws_iam_policy" "lambda-policy" {

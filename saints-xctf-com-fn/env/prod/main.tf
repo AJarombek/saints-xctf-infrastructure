@@ -19,14 +19,19 @@ terraform {
   }
 }
 
-module "lambda" {
-  source = "../../modules/lambda"
-  prod = true
+module "email-lambda" {
+  source = "../../modules/email-lambda"
+  prod = false
+}
+
+module "auth-lambda" {
+  source = "../../modules/auth-lambda"
+  prod = false
 }
 
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = true
-  lambda-function-name = module.lambda.function-name
-  lambda-function-invoke-arn = module.lambda.function-invoke-arn
+  lambda-function-name = module.email-lambda.function-name
+  lambda-function-invoke-arn = module.email-lambda.function-invoke-arn
 }
