@@ -30,6 +30,7 @@ resource "aws_api_gateway_rest_api" "saints-xctf-com-api" {
 }
 
 resource "aws_api_gateway_authorizer" "saints-xctf-com-api-authorizer" {
+  type = "TOKEN"
   name = "saints-xctf-com-api-auth"
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-api.id
   authorizer_uri = var.auth-lambda-invoke-arn

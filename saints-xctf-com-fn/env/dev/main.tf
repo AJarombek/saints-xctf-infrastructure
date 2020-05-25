@@ -32,6 +32,7 @@ module "auth-lambda" {
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = false
-  lambda-function-name = module.email-lambda.function-name
-  lambda-function-invoke-arn = module.email-lambda.function-invoke-arn
+  email-lambda-name = module.email-lambda.function-name
+  email-lambda-invoke-arn = module.email-lambda.function-invoke-arn
+  auth-lambda-invoke-arn = module.auth-lambda.function-invoke-arn
 }

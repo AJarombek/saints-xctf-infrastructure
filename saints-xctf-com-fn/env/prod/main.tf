@@ -21,17 +21,18 @@ terraform {
 
 module "email-lambda" {
   source = "../../modules/email-lambda"
-  prod = false
+  prod = true
 }
 
 module "auth-lambda" {
   source = "../../modules/auth-lambda"
-  prod = false
+  prod = true
 }
 
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = true
-  lambda-function-name = module.email-lambda.function-name
-  lambda-function-invoke-arn = module.email-lambda.function-invoke-arn
+  email-lambda-name = module.email-lambda.function-name
+  email-lambda-invoke-arn = module.email-lambda.function-invoke-arn
+  auth-lambda-invoke-arn = module.auth-lambda.function-invoke-arn
 }
