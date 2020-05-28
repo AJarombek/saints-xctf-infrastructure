@@ -14,7 +14,7 @@ terraform {
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/fn-saints-xctf-com/env/dev"
+    key = "saints-xctf-infrastructure/saints-xctf-com-fn/env/dev"
     region = "us-east-1"
   }
 }
@@ -24,15 +24,9 @@ module "email-lambda" {
   prod = false
 }
 
-module "auth-lambda" {
-  source = "../../modules/auth-lambda"
-  prod = false
-}
-
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = false
   email-lambda-name = module.email-lambda.function-name
   email-lambda-invoke-arn = module.email-lambda.function-invoke-arn
-  auth-lambda-invoke-arn = module.auth-lambda.function-invoke-arn
 }
