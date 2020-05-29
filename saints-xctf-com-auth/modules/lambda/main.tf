@@ -9,7 +9,7 @@ locals {
 }
 
 resource "aws_lambda_function" "auth" {
-function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
+  function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFAuthorizer.zip"
   handler = "function.auth"
   role = aws_iam_role.lambda-role.arn
