@@ -24,17 +24,17 @@ module "lambda" {
   prod = false
 }
 
-module "api-gateway" {
+/*module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = false
   authenticate-lambda-name = module.lambda.authenticate-function-name
   authenticate-lambda-invoke-arn = module.lambda.authenticate-function-invoke-arn
   token-lambda-name = module.lambda.token-function-name
   token-lambda-invoke-arn = module.lambda.token-function-invoke-arn
-}
+}*/
 
 module "secrets-manager" {
   source = "../../modules/secrets-manager"
   prod = false
-  rotation-lambda-invoke-arn = module.lambda.rotate-function-invoke-arn
+  rotation-lambda-arn = module.lambda.rotate-function-arn
 }

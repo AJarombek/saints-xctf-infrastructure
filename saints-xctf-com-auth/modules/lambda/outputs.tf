@@ -4,7 +4,7 @@
  * Date: 5/25/2020
  */
 
-output "authenticate-function-name" {
+/*output "authenticate-function-name" {
   value = aws_lambda_function.authenticate.function_name
 }
 
@@ -18,8 +18,8 @@ output "token-function-name" {
 
 output "token-function-invoke-arn" {
   value = aws_lambda_function.token.invoke_arn
-}
+}*/
 
-output "rotate-function-invoke-arn" {
-  value = aws_lambda_function.rotate.invoke_arn
+output "rotate-function-arn" {
+  value = aws_lambda_function.rotate.arn
 }

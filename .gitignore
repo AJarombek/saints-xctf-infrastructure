@@ -9,3 +9,4 @@ database-snapshot/modules/lambda/dist
 **/__pycache__/*
 venv/*
 *.zip
+*.tfplan

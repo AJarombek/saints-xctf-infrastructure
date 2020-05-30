@@ -12,7 +12,7 @@ locals {
 # Authorizer Lambda Function (Standalone)
 # ---------------------------------------
 
-resource "aws_lambda_function" "authorizer" {
+/*resource "aws_lambda_function" "authorizer" {
   function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFAuthorizer.zip"
   handler = "function.lambda_handler"
@@ -31,7 +31,7 @@ resource "aws_lambda_function" "authorizer" {
 resource "aws_cloudwatch_log_group" "authorizer-log-group" {
   name = "/aws/lambda/SaintsXCTFAuthorizer${upper(local.env)}"
   retention_in_days = 7
-}
+}*/
 
 # -----------------------------------
 # Rotate Lambda Function (Standalone)
@@ -41,7 +41,7 @@ resource "aws_lambda_function" "rotate" {
   function_name = "SaintsXCTFRotate${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFRotate.zip"
   handler = "function.lambda_handler"
-  role = aws_iam_role.lambda-role.arn
+  role = aws_iam_role.rotate-lambda-role.arn
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFRotate.zip")
   timeout = 10
@@ -53,16 +53,42 @@ resource "aws_lambda_function" "rotate" {
   }
 }
 
+resource "aws_lambda_permission" "rotate-secrets-manager-permission" {
+  action = "lambda:InvokeFunction"
+  statement_id = "RotateSecretsManager"
+  function_name = aws_lambda_function.rotate.function_name
+  principal = "secretsmanager.amazonaws.com"
+}
+
 resource "aws_cloudwatch_log_group" "rotate-log-group" {
   name = "/aws/lambda/SaintsXCTFRotate${upper(local.env)}"
   retention_in_days = 7
+}
+
+resource "aws_iam_role" "rotate-lambda-role" {
+  name = "rotate-secret-lambda-role"
+  path = "/saints-xctf-com/"
+  assume_role_policy = file("${path.module}/rotate-lambda-role.json")
+  description = "IAM role for a SecretsManager secret rotation AWS Lambda function"
+}
+
+resource "aws_iam_policy" "rotate-lambda-policy" {
+  name = "rotate-secret-lambda-policy"
+  path = "/saints-xctf-com/"
+  policy = file("${path.module}/rotate-lambda-policy.json")
+  description = "IAM policy for a SecretsManager secret rotation AWS Lambda function"
+}
+
+resource "aws_iam_role_policy_attachment" "rotate-lambda-policy-attachment" {
+  role = aws_iam_role.rotate-lambda-role.name
+  policy_arn = aws_iam_policy.rotate-lambda-policy.arn
 }
 
 # ------------------------------------------
 # Authenticate Lambda Function (API Gateway)
 # ------------------------------------------
 
-resource "aws_lambda_function" "authenticate" {
+/*resource "aws_lambda_function" "authenticate" {
   function_name = "SaintsXCTFAuthenticate${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFAuthenticate.zip"
   handler = "function.lambda_handler"
@@ -106,7 +132,7 @@ resource "aws_lambda_function" "token" {
 resource "aws_cloudwatch_log_group" "token-log-group" {
   name = "/aws/lambda/SaintsXCTFToken${upper(local.env)}"
   retention_in_days = 7
-}
+}*/
 
 # ----------------
 # Shared Resources

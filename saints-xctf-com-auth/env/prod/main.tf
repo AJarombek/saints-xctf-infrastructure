@@ -36,5 +36,5 @@ module "api-gateway" {
 module "secrets-manager" {
   source = "../../modules/secrets-manager"
   prod = true
-  rotation-lambda-invoke-arn = module.lambda.rotate-function-invoke-arn
+  rotation-lambda-invoke-arn = module.lambda.rotate-function-arn
 }
