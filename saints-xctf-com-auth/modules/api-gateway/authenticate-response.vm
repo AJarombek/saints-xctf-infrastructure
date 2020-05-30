@@ -1,0 +1,11 @@
+#**
+ * HTTP Response for the /authenticate REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 5/30/2020
+ *#
+
+#set($response = $input.path('$'))
+
+{
+    "result": $response
+}

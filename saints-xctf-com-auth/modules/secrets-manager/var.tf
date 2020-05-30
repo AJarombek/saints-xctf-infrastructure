@@ -9,6 +9,6 @@ variable "prod" {
   default = true
 }
 
-variable "rotation-lambda-arn" {
+variable "rotation-lambda-invoke-arn" {
   description = "The Amazon Resource Name of the auth secret rotation Lambda function."
 }

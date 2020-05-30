@@ -1,0 +1,15 @@
+#**
+ * HTTP Request for the /token REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 5/29/2020
+ *#
+
+#set($clientId = $input.json('$.clientId'))
+#set($clientSecret = $input.json('$.clientSecret'))
+#set($type = $input.json('$.type'))
+
+{
+    "clientId": $clientId,
+    "clientSecret": $clientSecret,
+    "type": $type
+}

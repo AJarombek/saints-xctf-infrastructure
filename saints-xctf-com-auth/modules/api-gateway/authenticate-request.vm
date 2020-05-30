@@ -1,0 +1,11 @@
+#**
+ * HTTP Request for the /authenticate REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 5/29/2020
+ *#
+
+#set($token = $input.json('$.token'))
+
+{
+    "token": $token
+}

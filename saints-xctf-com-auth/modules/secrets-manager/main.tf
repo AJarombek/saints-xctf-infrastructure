@@ -11,7 +11,7 @@ locals {
 
 resource "aws_secretsmanager_secret" "saints-xctf-auth-secret" {
   name = "saints-xctf-auth-secret"
-  rotation_lambda_arn = var.rotation-lambda-arn
+  rotation_lambda_arn = var.rotation-lambda-invoke-arn
   description = "SaintsXCTF authentication RSA credential for the ${upper(local.env)} environment"
 
   rotation_rules {
