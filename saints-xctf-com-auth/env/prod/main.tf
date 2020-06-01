@@ -27,6 +27,7 @@ module "lambda" {
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = true
+
   authenticate-lambda-name = module.lambda.authenticate-function-name
   authenticate-lambda-invoke-arn = module.lambda.authenticate-function-invoke-arn
   token-lambda-name = module.lambda.token-function-name
@@ -36,5 +37,12 @@ module "api-gateway" {
 module "secrets-manager" {
   source = "../../modules/secrets-manager"
   prod = true
-  rotation-lambda-invoke-arn = module.lambda.rotate-function-arn
+
+  rotation-lambda-arn = module.lambda.rotate-function-arn
+
+  secret_rotation_depends_on = [
+    module.lambda.rotate-function-arn,
+    module.lambda.rotate-secrets-manager-permission-id,
+    module.lambda.rotate-log-group-id
+  ]
 }

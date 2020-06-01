@@ -136,14 +136,6 @@ resource "aws_lambda_function" "authenticate" {
     }
   }
 
-  vpc_config {
-    security_group_ids = [module.lambda-authenticate-security-group.security_group_id[0]]
-    subnet_ids = [
-      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
-      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
-    ]
-  }
-
   tags = {
     Name = "saints-xctf-com-lambda-authenticate"
     Environment = local.env
@@ -151,12 +143,51 @@ resource "aws_lambda_function" "authenticate" {
   }
 }
 
-module "lambda-authenticate-security-group" {
+resource "aws_cloudwatch_log_group" "authenticate-log-group" {
+  name = "/aws/lambda/SaintsXCTFAuthenticate${upper(local.env)}"
+  retention_in_days = 7
+}
+
+# -----------------------------------
+# Token Lambda Function (API Gateway)
+# -----------------------------------
+
+resource "aws_lambda_function" "token" {
+  function_name = "SaintsXCTFToken${upper(local.env)}"
+  filename = "${path.module}/SaintsXCTFToken.zip"
+  handler = "function.lambda_handler"
+  role = aws_iam_role.token-lambda-role.arn
+  runtime = "python3.8"
+  source_code_hash = filebase64sha256("${path.module}/SaintsXCTFToken.zip")
+  timeout = 10
+
+  environment {
+    variables = {
+      ENV = local.env
+    }
+  }
+
+  vpc_config {
+    security_group_ids = [module.lambda-auth-token-security-group.security_group_id[0]]
+    subnet_ids = [
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
+    ]
+  }
+
+  tags = {
+    Name = "saints-xctf-com-lambda-token"
+    Environment = local.env
+    Application = "saints-xctf-com"
+  }
+}
+
+module "lambda-auth-token-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
-  name = "saints-xctf-authenticate-lambda-security"
-  tag_name = "saints-xctf-authenticate-lambda-security"
+  name = "saints-xctf-auth-token-lambda-security"
+  tag_name = "saints-xctf-auth-token-lambda-security"
   vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
 
   # Optional arguments
@@ -179,43 +210,31 @@ module "lambda-authenticate-security-group" {
     }
   ]
 
-  description = "SaintsXCTF Authenticate Lambda Function Security Group"
-}
-
-resource "aws_cloudwatch_log_group" "authenticate-log-group" {
-  name = "/aws/lambda/SaintsXCTFAuthenticate${upper(local.env)}"
-  retention_in_days = 7
-}
-
-# -----------------------------------
-# Token Lambda Function (API Gateway)
-# -----------------------------------
-
-resource "aws_lambda_function" "token" {
-  function_name = "SaintsXCTFToken${upper(local.env)}"
-  filename = "${path.module}/SaintsXCTFToken.zip"
-  handler = "function.lambda_handler"
-  role = aws_iam_role.lambda-role.arn
-  runtime = "python3.8"
-  source_code_hash = filebase64sha256("${path.module}/SaintsXCTFToken.zip")
-  timeout = 10
-
-  environment {
-    variables = {
-      ENV = local.env
-    }
-  }
-
-  tags = {
-    Name = "saints-xctf-com-lambda-token"
-    Environment = local.env
-    Application = "saints-xctf-com"
-  }
+  description = "SaintsXCTF Auth Token Lambda Function Security Group"
 }
 
 resource "aws_cloudwatch_log_group" "token-log-group" {
   name = "/aws/lambda/SaintsXCTFToken${upper(local.env)}"
   retention_in_days = 7
+}
+
+resource "aws_iam_role" "token-lambda-role" {
+  name = "token-lambda-role"
+  path = "/saints-xctf-com/"
+  assume_role_policy = file("${path.module}/token-lambda-role.json")
+  description = "IAM role for a JWT request AWS Lambda function"
+}
+
+resource "aws_iam_policy" "token-lambda-policy" {
+  name = "token-lambda-policy"
+  path = "/saints-xctf-com/"
+  policy = file("${path.module}/token-lambda-policy.json")
+  description = "IAM policy for a JWT request AWS Lambda function"
+}
+
+resource "aws_iam_role_policy_attachment" "token-lambda-policy-attachment" {
+  role = aws_iam_role.token-lambda-role.name
+  policy_arn = aws_iam_policy.token-lambda-policy.arn
 }
 
 # ----------------

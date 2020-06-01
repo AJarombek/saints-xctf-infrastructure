@@ -31,3 +31,19 @@ resource "aws_secretsmanager_secret_version" "saints-xctf-auth-secret-version" {
   secret_string = jsonencode({})
   version_stages = ["AWSCURRENT"]
 }
+
+#-------------------------------------
+# Executed After Resources are Created
+#-------------------------------------
+
+resource "null_resource" "rotate-secret" {
+  provisioner "local-exec" {
+    command = "bash rotate-secret.sh ${local.env}"
+  }
+
+  depends_on = [
+    aws_secretsmanager_secret.saints-xctf-auth-secret,
+    aws_secretsmanager_secret_version.saints-xctf-auth-secret-version,
+    var.secret_rotation_depends_on
+  ]
+}
