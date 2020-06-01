@@ -6,13 +6,40 @@
 
 locals {
   env = var.prod ? "prod" : "dev"
+  public_cidr = "0.0.0.0/0"
 }
+
+#-------------------
+# Existing Resources
+#-------------------
+
+data "aws_vpc" "saints-xctf-com-vpc" {
+  tags = {
+    Name = "saints-xctf-com-vpc"
+  }
+}
+
+data "aws_subnet" "saints-xctf-com-vpc-public-subnet-0" {
+  tags = {
+    Name = "saints-xctf-com-lisag-public-subnet"
+  }
+}
+
+data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
+  tags = {
+    Name = "saints-xctf-com-megank-public-subnet"
+  }
+}
+
+#------------------------------------------
+# SaintsXCTF Auth Lambda Function Resources
+#------------------------------------------
 
 # ---------------------------------------
 # Authorizer Lambda Function (Standalone)
 # ---------------------------------------
 
-/*resource "aws_lambda_function" "authorizer" {
+resource "aws_lambda_function" "authorizer" {
   function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFAuthorizer.zip"
   handler = "function.lambda_handler"
@@ -20,6 +47,12 @@ locals {
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthorizer.zip")
   timeout = 10
+
+  environment {
+    variables = {
+      ENV = local.env
+    }
+  }
 
   tags = {
     Name = "saints-xctf-com-lambda-authorizer"
@@ -31,7 +64,7 @@ locals {
 resource "aws_cloudwatch_log_group" "authorizer-log-group" {
   name = "/aws/lambda/SaintsXCTFAuthorizer${upper(local.env)}"
   retention_in_days = 7
-}*/
+}
 
 # -----------------------------------
 # Rotate Lambda Function (Standalone)
@@ -88,7 +121,7 @@ resource "aws_iam_role_policy_attachment" "rotate-lambda-policy-attachment" {
 # Authenticate Lambda Function (API Gateway)
 # ------------------------------------------
 
-/*resource "aws_lambda_function" "authenticate" {
+resource "aws_lambda_function" "authenticate" {
   function_name = "SaintsXCTFAuthenticate${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFAuthenticate.zip"
   handler = "function.lambda_handler"
@@ -97,11 +130,56 @@ resource "aws_iam_role_policy_attachment" "rotate-lambda-policy-attachment" {
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthenticate.zip")
   timeout = 10
 
+  environment {
+    variables = {
+      ENV = local.env
+    }
+  }
+
+  vpc_config {
+    security_group_ids = [module.lambda-authenticate-security-group.security_group_id[0]]
+    subnet_ids = [
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
+    ]
+  }
+
   tags = {
     Name = "saints-xctf-com-lambda-authenticate"
     Environment = local.env
     Application = "saints-xctf-com"
   }
+}
+
+module "lambda-authenticate-security-group" {
+  source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
+
+  # Mandatory arguments
+  name = "saints-xctf-authenticate-lambda-security"
+  tag_name = "saints-xctf-authenticate-lambda-security"
+  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
+
+  # Optional arguments
+  sg_rules = [
+    {
+      # All Inbound traffic
+      type = "ingress"
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_blocks = local.public_cidr
+    },
+    {
+      # All Outbound traffic
+      type = "egress"
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_blocks = local.public_cidr
+    }
+  ]
+
+  description = "SaintsXCTF Authenticate Lambda Function Security Group"
 }
 
 resource "aws_cloudwatch_log_group" "authenticate-log-group" {
@@ -122,6 +200,12 @@ resource "aws_lambda_function" "token" {
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFToken.zip")
   timeout = 10
 
+  environment {
+    variables = {
+      ENV = local.env
+    }
+  }
+
   tags = {
     Name = "saints-xctf-com-lambda-token"
     Environment = local.env
@@ -132,7 +216,7 @@ resource "aws_lambda_function" "token" {
 resource "aws_cloudwatch_log_group" "token-log-group" {
   name = "/aws/lambda/SaintsXCTFToken${upper(local.env)}"
   retention_in_days = 7
-}*/
+}
 
 # ----------------
 # Shared Resources

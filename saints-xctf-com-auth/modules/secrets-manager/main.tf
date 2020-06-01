@@ -10,7 +10,7 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "saints-xctf-auth-secret" {
-  name = "saints-xctf-auth"
+  name = "saints-xctf-auth-${local.env}"
   rotation_lambda_arn = var.rotation-lambda-arn
   description = "SaintsXCTF authentication RSA credential for the ${upper(local.env)} environment"
   recovery_window_in_days = 0
@@ -28,5 +28,6 @@ resource "aws_secretsmanager_secret" "saints-xctf-auth-secret" {
 
 resource "aws_secretsmanager_secret_version" "saints-xctf-auth-secret-version" {
   secret_id = aws_secretsmanager_secret.saints-xctf-auth-secret.id
-  secret_string = jsonencode("{}")
+  secret_string = jsonencode({})
+  version_stages = ["AWSCURRENT"]
 }
