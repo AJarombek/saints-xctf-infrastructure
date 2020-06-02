@@ -6,6 +6,18 @@ This repository holds application specific infrastructure for the [saintsxctf.co
 VPCs for SaintsXCTF.com are configured in the [global-aws-infrastructure](https://github.com/AJarombek/global-aws-infrastructure) 
 repository.
 
+### Commands
+
+**One Time Bazel Setup (MacOS)**
+
+```bash
+brew tap bazelbuild/tap
+brew install bazelbuild/tap/bazel
+
+# Confirm the installation was successful.
+bazel --version
+```
+
 ### Infrastructure Diagram
 
 ![AWS Model](aws-model.png)
@@ -27,3 +39,7 @@ repository.
 | `iam`             | IAM policies used in the SaintsXCTF VPC.                                    |
 | `bastion`         | Bastion host for connecting to resources in the private subnets.            |
 | `test`            | Test code for the AWS infrastructure.                                       |
+
+### Resources
+
+1. [Bazel Installation](https://docs.bazel.build/versions/3.2.0/install-os-x.html)

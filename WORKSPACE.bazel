@@ -1,0 +1,15 @@
+# Workspace for the saints-xctf-infrastructure repository
+# Author: Andrew Jarombek
+# Date: 6/2/2020
+
+workspace(name = "saints_xctf_infrastructure")
+
+local_repository(
+    name = "saints_xctf_auth",
+    path = "../saints-xctf-auth"
+)
+
+local_repository(
+    name = "aws_lambda_emails",
+    path = "../aws-lambda-emails"
+)

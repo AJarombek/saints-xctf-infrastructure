@@ -166,7 +166,7 @@ resource "aws_api_gateway_integration_response" "auth-token-integration-response
   }
 
   depends_on = [
-    aws_api_gateway_integration.auth-authenticate-integration
+    aws_api_gateway_integration.auth-token-integration
   ]
 }
 

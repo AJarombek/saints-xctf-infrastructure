@@ -38,7 +38,7 @@ resource "aws_secretsmanager_secret_version" "saints-xctf-auth-secret-version" {
 
 resource "null_resource" "rotate-secret" {
   provisioner "local-exec" {
-    command = "bash rotate-secret.sh ${local.env}"
+    command = "bash ${path.module}/rotate-secret.sh ${local.env}"
   }
 
   depends_on = [
