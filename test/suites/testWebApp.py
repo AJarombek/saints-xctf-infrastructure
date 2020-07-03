@@ -10,7 +10,7 @@ import os
 import boto3
 
 
-class TestRoute53(unittest.TestCase):
+class TestWebApp(unittest.TestCase):
 
     def setUp(self) -> None:
         """

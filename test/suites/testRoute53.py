@@ -9,6 +9,11 @@ import os
 
 import boto3
 
+try:
+    prod_env = os.environ['TEST_ENV'] == "prod"
+except KeyError:
+    prod_env = True
+
 
 class TestRoute53(unittest.TestCase):
 
@@ -17,11 +22,7 @@ class TestRoute53(unittest.TestCase):
         Perform set-up logic before executing any unit tests
         """
         self.route53 = boto3.client('route53')
-
-        try:
-            self.prod_env = os.environ['TEST_ENV'] == "prod"
-        except KeyError:
-            self.prod_env = True
+        self.prod_env = prod_env
 
     def test_saintsxctf_zone_exists(self) -> None:
         """
@@ -44,6 +45,7 @@ class TestRoute53(unittest.TestCase):
         a_record = self.get_record('saintsxctf.com.', 'saintsxctf.com.', 'NS')
         self.assertTrue(a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'NS')
 
+    @unittest.skipIf(prod_env == 'dev', 'A record not configured in development.')
     def test_saintsxctf_a_record_exists(self) -> None:
         """
         Determine if the 'A' record exists for 'saintsxctf.com.' in Route53
@@ -56,6 +58,7 @@ class TestRoute53(unittest.TestCase):
         a_record = self.get_record('saintsxctf.com.', record_name, 'A')
         self.assertTrue(a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'A')
 
+    @unittest.skipIf(prod_env == 'dev', 'A record not configured in development.')
     def test_www_saintsxctf_a_record_exists(self) -> None:
         """
         Determine if the 'A' record exists for 'www.saintsxctf.com.' in Route53

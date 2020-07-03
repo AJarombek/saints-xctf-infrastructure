@@ -9,6 +9,11 @@ import os
 
 import boto3
 
+try:
+    prod_env = os.environ['TEST_ENV'] == "prod"
+except KeyError:
+    prod_env = True
+
 
 class TestDatabase(unittest.TestCase):
 
@@ -21,10 +26,7 @@ class TestDatabase(unittest.TestCase):
         self.s3 = boto3.client('s3')
 
         # Get the infrastructure environment to test (from an environment variable)
-        try:
-            self.prod_env = os.environ['TEST_ENV'] == "prod"
-        except KeyError:
-            self.prod_env = True
+        self.prod_env = prod_env
 
         if self.prod_env:
             self.rds_instance = self.get_rds('saints-xctf-mysql-database-prod')
@@ -40,6 +42,7 @@ class TestDatabase(unittest.TestCase):
         prod_db_result = self.rds.describe_db_instances(DBInstanceIdentifier=db_id)
         return prod_db_result.get('DBInstances')[0]
 
+    @unittest.skipIf(prod_env == 'dev', 'Development RDS instance not running.')
     def test_rds_running(self) -> None:
         """
         Make sure that an RDS instance is running
@@ -47,6 +50,7 @@ class TestDatabase(unittest.TestCase):
         status = self.rds_instance.get('DBInstanceStatus')
         self.assertTrue(status == 'available')
 
+    @unittest.skipIf(prod_env == 'dev', 'Development RDS instance not running.')
     def test_rds_engine_as_expected(self) -> None:
         """
         Determine if the engine and version of an RDS database is as expected
@@ -56,6 +60,7 @@ class TestDatabase(unittest.TestCase):
         self.assertTrue(rds_engine == 'mysql')
         self.assertTrue(rds_version == '5.7.19')
 
+    @unittest.skipIf(prod_env == 'dev', 'Development RDS instance not running.')
     def test_rds_in_proper_subnets(self) -> None:
         """
         Confirm that RDS is highly available across multiple subnets
@@ -79,6 +84,7 @@ class TestDatabase(unittest.TestCase):
         self.assertTrue(len(subnets) == len(rds_subnets))
         self.assertTrue(all((rds_subnet in subnets) for rds_subnet in rds_subnets))
 
+    @unittest.skipIf(prod_env == 'dev', 'S3 database backup not setup in development.')
     def test_s3_backup_bucket_exists(self) -> None:
         """
         Test if an S3 bucket for database backups exists

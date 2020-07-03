@@ -9,8 +9,13 @@ import os
 
 import boto3
 
+try:
+    prod_env = os.environ['TEST_ENV'] == "prod"
+except KeyError:
+    prod_env = True
 
-class TestRoute53(unittest.TestCase):
+
+class TestWebServer(unittest.TestCase):
 
     def setUp(self) -> None:
         """
@@ -22,10 +27,7 @@ class TestRoute53(unittest.TestCase):
         self.iam = boto3.client('iam')
         self.autoscaling = boto3.client('autoscaling')
 
-        try:
-            self.prod_env = os.environ['TEST_ENV'] == "prod"
-        except KeyError:
-            self.prod_env = True
+        self.prod_env = prod_env
 
     def test_ami_exists(self) -> None:
         """
@@ -41,6 +43,7 @@ class TestRoute53(unittest.TestCase):
         )
         self.assertTrue(len(amis.get('Images')) > 0)
 
+    @unittest.skipIf(prod_env == 'dev', 'Web server not running in development.')
     def test_instance_running(self) -> None:
         """
         Validate that the EC2 instance(s) holding the production web server are running
@@ -65,12 +68,14 @@ class TestRoute53(unittest.TestCase):
         instances = self.get_ec2(ec2_name)
         self.assertTrue(len(instances) < 3)
 
+    @unittest.skipIf(prod_env == 'dev', 'No instance profile setup in development.')
     def test_instance_profile_exists(self) -> None:
         """
         Prove that the instance profile exists for the prod EC2 web server
         """
         self.assertTrue(self.validate_instance_profile('s3-access-role', is_prod=self.prod_env))
 
+    @unittest.skipIf(prod_env == 'dev', 'No launch configuration setup in development.')
     def test_launch_config_valid(self) -> None:
         """
         Ensure that the Launch Configuration for a SaintsXCTF web server in production is valid
@@ -102,6 +107,7 @@ class TestRoute53(unittest.TestCase):
             launch_config.get('IamInstanceProfile') == instance_profile
         ]))
 
+    @unittest.skipIf(prod_env == 'dev', 'No launch configuration setup in development.')
     def test_launch_config_sg_valid(self):
         """
         Ensure that the security group attached to the launch configuration is as expected
@@ -131,12 +137,14 @@ class TestRoute53(unittest.TestCase):
             )
         ]))
 
+    @unittest.skipIf(prod_env == 'dev', 'No auto scaling group setup in development.')
     def test_autoscaling_group_valid(self) -> None:
         """
         Ensure that the AutoScaling Group for a SaintsXCTF web server in production is valid
         """
         self.assertTrue(self.validate_autoscaling_group(is_prod=self.prod_env))
 
+    @unittest.skipIf(prod_env == 'dev', 'No auto scaling group setup in development.')
     def test_autoscaling_schedules_unset(self) -> None:
         """
         Make sure there are no autoscaling schedules in production (the ASG should always be up)

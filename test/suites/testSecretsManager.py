@@ -9,20 +9,22 @@ import os
 
 import boto3
 
+try:
+    prod_env = os.environ['TEST_ENV'] == "prod"
+except KeyError:
+    prod_env = True
 
-class TestRoute53(unittest.TestCase):
+
+class TestSecretsManager(unittest.TestCase):
 
     def setUp(self) -> None:
         """
         Perform set-up logic before executing any unit tests
         """
         self.secrets_manager = boto3.client('secretsmanager')
+        self.prod_env = prod_env
 
-        try:
-            self.prod_env = os.environ['TEST_ENV'] == "prod"
-        except KeyError:
-            self.prod_env = True
-
+    @unittest.skipIf(prod_env == 'dev', 'No RDS secret created in development.')
     def test_rds_secrets_exist(self):
         """
         Test that the SaintsXCTF production RDS instance credentials exist in Secrets Manager.
@@ -35,7 +37,7 @@ class TestRoute53(unittest.TestCase):
             description = 'SaintsXCTF MySQL RDS Login Credentials for the DEV Environment'
 
         credentials = self.secrets_manager.describe_secret(SecretId=secret_id)
-        return all([
+        self.assertTrue(all([
             credentials.get('Name') == secret_id,
             credentials.get('Description') == description,
-        ])
+        ]))

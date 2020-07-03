@@ -5,6 +5,17 @@ resources inside private VPCs are not publicly available outside the VPC.
 
 ### Commands
 
+#### Create the Infrastructure
+
+```bash
+terraform init
+terraform validate
+
+sudo -s
+terraform plan
+terraform apply -auto-approve
+```
+
 #### Connect to MySQL on the Bastion host
 
 **Bash commands to run from a local machine**
