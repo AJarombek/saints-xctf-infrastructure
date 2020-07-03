@@ -30,7 +30,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
 
         self.prod_env = prod_env
 
-    @unittest.skipIf(prod_env == 'dev', 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
+    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
     def test_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups exists as expected.
@@ -49,7 +49,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
             lambda_function.get('Configuration').get('Handler') == 'lambda.create_backup'
         ]))
 
-    @unittest.skipIf(prod_env == 'dev', 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
+    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
     def test_lambda_function_in_vpc(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups exists in the proper VPC.
@@ -67,7 +67,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)
 
-    @unittest.skipIf(prod_env == 'dev', 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
+    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
     def test_lambda_function_in_subnets(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups exists in the proper subnets.
@@ -92,7 +92,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
             second_subnet_id in lambda_function_subnets
         ]))
 
-    @unittest.skipIf(prod_env == 'dev', 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
+    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
     def test_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups has the proper IAM role.
@@ -124,7 +124,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
         self.assertTrue(len(policies) == 1)
         self.assertTrue(s3_policy.get('PolicyName') == 'rds-backup-lambda-policy')
 
-    @unittest.skipIf(prod_env == 'dev', 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
+    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
     def test_cloudwatch_event_rule_exists(self) -> None:
         """
         Test that a CloudWatch event exists as expected in my development environment.
@@ -141,7 +141,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
             cloudwatch_event_dict.get('ScheduleExpression') == 'cron(0 7 * * ? *)'
         ]))
 
-    @unittest.skipIf(prod_env == 'dev', 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
+    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLBackupDEV lambda function not setup in development.')
     def test_lambda_function_has_security_group(self) -> bool:
         """
         Test that the Lambda function has the expected security group.

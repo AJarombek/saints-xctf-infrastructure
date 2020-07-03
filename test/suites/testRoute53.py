@@ -45,7 +45,7 @@ class TestRoute53(unittest.TestCase):
         a_record = self.get_record('saintsxctf.com.', 'saintsxctf.com.', 'NS')
         self.assertTrue(a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'NS')
 
-    @unittest.skipIf(prod_env == 'dev', 'A record not configured in development.')
+    @unittest.skipIf(not prod_env, 'A record not configured in development.')
     def test_saintsxctf_a_record_exists(self) -> None:
         """
         Determine if the 'A' record exists for 'saintsxctf.com.' in Route53
@@ -58,7 +58,7 @@ class TestRoute53(unittest.TestCase):
         a_record = self.get_record('saintsxctf.com.', record_name, 'A')
         self.assertTrue(a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'A')
 
-    @unittest.skipIf(prod_env == 'dev', 'A record not configured in development.')
+    @unittest.skipIf(not prod_env, 'A record not configured in development.')
     def test_www_saintsxctf_a_record_exists(self) -> None:
         """
         Determine if the 'A' record exists for 'www.saintsxctf.com.' in Route53
