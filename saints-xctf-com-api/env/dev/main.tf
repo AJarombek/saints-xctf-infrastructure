@@ -1,7 +1,7 @@
 /**
- * Infrastructure for saintsxctf.com on Kubernetes in the development environment
+ * Infrastructure for api.saintsxctf.com on Kubernetes in the development environment
  * Author: Andrew Jarombek
- * Date: 5/17/2020
+ * Date: 7/13/2020
  */
 
 provider "aws" {

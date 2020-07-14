@@ -1,7 +1,7 @@
 /**
- * Infrastructure for saintsxctf.com on Kubernetes in the development environment
+ * Infrastructure for api.saintsxctf.com on Kubernetes in all environments
  * Author: Andrew Jarombek
- * Date: 5/17/2020
+ * Date: 7/13/2020
  */
 
 provider "aws" {
@@ -19,12 +19,11 @@ terraform {
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "jarombek-com-infrastructure/saints-xctf-com/env/dev"
+    key = "jarombek-com-infrastructure/saints-xctf-com-api/env/all"
     region = "us-east-1"
   }
 }
 
-module "kubernetes" {
-  source = "../../modules/kubernetes"
-  prod = false
+module "ecr" {
+  source = "../../modules/ecr"
 }
