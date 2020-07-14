@@ -1,7 +1,7 @@
 /**
- * Infrastructure for V2 of the saintsxctf.com ECS/EKS cluster in the PROD environment
+ * Infrastructure for saintsxctf.com on Kubernetes in the production environment
  * Author: Andrew Jarombek
- * Date: 5/24/2020
+ * Date: 7/13/2020
  */
 
 provider "aws" {
@@ -11,6 +11,11 @@ provider "aws" {
 terraform {
   required_version = ">= 0.12"
 
+  required_providers {
+    aws = ">= 2.66.0"
+    kubernetes = ">= 1.11"
+  }
+
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
@@ -19,17 +24,7 @@ terraform {
   }
 }
 
-module "alb" {
-  source = "../../modules/alb"
-  enabled = true
-}
-
-module "ecs" {
-  source = "../../modules/ecs"
-  enabled = true
-}
-
-module "eks" {
-  source = "../../modules/eks"
-  enabled = false
+module "kubernetes" {
+  source = "../../modules/kubernetes"
+  prod = true
 }
