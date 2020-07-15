@@ -1,0 +1,21 @@
+# Kubernetes NodePort service for the SaintsXCTF web application.
+# Author: Andrew Jarombek
+# Date: 7/14/2020
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: saints-xctf-web-service
+  namespace: saints-xctf
+  labels:
+    version: v1.0.0
+    environment: production
+    application: saints-xctf-web
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    application: saints-xctf-web

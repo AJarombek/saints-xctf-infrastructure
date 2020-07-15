@@ -1,0 +1,44 @@
+# Kubernetes deployment for the SaintsXCTF web application.
+# Author: Andrew Jarombek
+# Date: 7/14/2020
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saints-xctf-web-deployment
+  namespace: saints-xctf
+  labels:
+    version: v1.0.0
+    environment: production
+    application: saints-xctf-web
+spec:
+  replicas: 1
+  minReadySeconds: 10
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      application: saints-xctf-web
+      environment: production
+  template:
+    metadata:
+      labels:
+        version: v1.0.0
+        environment: production
+        application: saints-xctf-web
+    spec:
+      containers:
+        - name: saints-xctf-web
+          image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web:1.0.0
+          readinessProbe:
+            periodSeconds: 5
+            initialDelaySeconds: 20
+            httpGet:
+              path: /
+              port: 8080
+          ports:
+            - containerPort: 8080
+              protocol: TCP
