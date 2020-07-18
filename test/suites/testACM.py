@@ -18,6 +18,28 @@ class TestACM(unittest.TestCase):
         self.acm = boto3.client('acm')
         self.acm_certificates = self.acm.list_certificates(CertificateStatuses=['ISSUED'])
 
+    def test_acm_asset_wildcard_cert_issued(self) -> None:
+        """
+        Test that the asset wildcard ACM certificate exists
+        """
+        for cert in self.acm_certificates.get('CertificateSummaryList'):
+            if cert.get('DomainName') == '*.asset.saintsxctf.com':
+                self.assertTrue(True)
+                return
+
+        self.assertTrue(False)
+
+    def test_acm_auth_wildcard_cert_issued(self) -> None:
+        """
+        Test that the auth wildcard ACM certificate exists
+        """
+        for cert in self.acm_certificates.get('CertificateSummaryList'):
+            if cert.get('DomainName') == '*.auth.saintsxctf.com':
+                self.assertTrue(True)
+                return
+
+        self.assertTrue(False)
+
     @unittest.SkipTest
     def test_acm_dev_wildcard_cert_issued(self) -> None:
         """
@@ -25,6 +47,17 @@ class TestACM(unittest.TestCase):
         """
         for cert in self.acm_certificates.get('CertificateSummaryList'):
             if cert.get('DomainName') == '*.dev.saintsxctf.com':
+                self.assertTrue(True)
+                return
+
+        self.assertTrue(False)
+
+    def test_acm_fn_wildcard_cert_issued(self) -> None:
+        """
+        Test that the fn wildcard ACM certificate exists
+        """
+        for cert in self.acm_certificates.get('CertificateSummaryList'):
+            if cert.get('DomainName') == '*.fn.saintsxctf.com':
                 self.assertTrue(True)
                 return
 
@@ -47,6 +80,17 @@ class TestACM(unittest.TestCase):
         """
         for cert in self.acm_certificates.get('CertificateSummaryList'):
             if cert.get('DomainName') == 'saintsxctf.com':
+                self.assertTrue(True)
+                return
+
+        self.assertTrue(False)
+
+    def test_acm_uasset_wildcard_cert_issued(self) -> None:
+        """
+        Test that the uasset wildcard ACM certificate exists
+        """
+        for cert in self.acm_certificates.get('CertificateSummaryList'):
+            if cert.get('DomainName') == '*.uasset.saintsxctf.com':
                 self.assertTrue(True)
                 return
 
