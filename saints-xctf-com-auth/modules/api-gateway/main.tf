@@ -6,14 +6,34 @@
 
 locals {
   env = var.prod ? "prodution" : "development"
+  domain_name = var.prod ? "auth.saintsxctf.com" : "dev.auth.saintsxctf.com"
+  cert = var.prod ? "*.saintsxctf.com" : "*.auth.saintsxctf.com"
 }
 
+# ----------------------
+# Existing AWS Resources
+# ----------------------
+
+data "aws_route53_zone" "saints-xctf-wildcard-zone" {
+  name = "saintsxctf.com."
+  private_zone = false
+}
+
+data "aws_acm_certificate" "saints-xctf-wildcard-cert" {
+  domain = local.cert
+  statuses = ["ISSUED"]
+}
+
+# ---------------------------------
+# auth.saintsxctf.com AWS Resources
+# ---------------------------------
+
 resource "aws_api_gateway_rest_api" "saints-xctf-com-auth" {
-  name = "saints-xctf-com-fn"
+  name = "saints-xctf-com-auth"
   description = "A REST API for AWS Lambda Functions in the auth.saintsxctf.com domain"
 }
 
-resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
+resource "aws_api_gateway_deployment" "saints-xctf-com-auth-deployment" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
   stage_name = local.env
 
@@ -21,6 +41,23 @@ resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
     aws_api_gateway_integration.auth-authenticate-integration,
     aws_api_gateway_integration_response.auth-authenticate-integration-response
   ]
+}
+
+resource "aws_api_gateway_domain_name" "saints-xctf-com-auth-domain" {
+  domain_name = local.domain_name
+  certificate_arn = data.aws_acm_certificate.saints-xctf-wildcard-cert.arn
+}
+
+resource "aws_route53_record" "saints-xctf-com-auth-record" {
+  name = aws_api_gateway_domain_name.saints-xctf-com-auth-domain.domain_name
+  type = "A"
+  zone_id = data.aws_route53_zone.saints-xctf-wildcard-zone.id
+
+  alias {
+    evaluate_target_health = true
+    name = aws_api_gateway_domain_name.saints-xctf-com-auth-domain.cloudfront_domain_name
+    zone_id = aws_api_gateway_domain_name.saints-xctf-com-auth-domain.cloudfront_zone_id
+  }
 }
 
 # API Endpoints

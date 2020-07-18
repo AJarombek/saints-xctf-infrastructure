@@ -27,6 +27,7 @@ resource "aws_secretsmanager_secret" "saints-xctf-auth-secret" {
 }
 
 resource "aws_secretsmanager_secret_version" "saints-xctf-auth-secret-version" {
+  count = 0
   secret_id = aws_secretsmanager_secret.saints-xctf-auth-secret.id
   secret_string = jsonencode({})
   version_stages = ["AWSCURRENT"]
