@@ -1,6 +1,6 @@
 ### Overview
 
-Files specific to the AWS Lambda function source code.
+Files specific to the backup AWS Lambda function source code.
 
 ### Files
 

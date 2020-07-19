@@ -1,15 +1,15 @@
 ### Overview
 
-Module for creating an AWS Lambda function.
+Module for creating AWS Lambda functions.
 
 ### Files
 
 | Filename                        | Description                                                                                  |
 |---------------------------------|----------------------------------------------------------------------------------------------|
-| `main.tf`                       | Main Terraform file that creates an AWS Lambda function.                                     |
+| `main.tf`                       | Main Terraform file that creates two AWS Lambda functions.                                   |
 | `var.tf`                        | Input variables for the AWS Lambda function module.                                          |
-| `role.json`                     | IAM Role for the AWS Lambda function.                                                        |
-| `rds-backup-lambda-policy.json` | Policies specifying which resources the AWS Lambda function has access to.                   |
+| `role.json`                     | IAM Role for the AWS Lambda functions.                                                       |
+| `rds-backup-lambda-policy.json` | Policies specifying which resources the AWS Lambda functions have access to.                 |
 
 ### Resources
 
