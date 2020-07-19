@@ -35,10 +35,57 @@ data "aws_db_instance" "saints-xctf-mysql-database" {
   db_instance_identifier = "saints-xctf-mysql-database-${local.env}"
 }
 
-data "archive_file" "lambda" {
-  source_dir = "${path.module}/func"
-  output_path = "${path.module}/dist/lambda-${local.env}.zip"
+data "archive_file" "backup-lambda" {
+  source_dir = "${path.module}/func/backup"
+  output_path = "${path.module}/dist/backup-lambda-${local.env}.zip"
   type = "zip"
+}
+
+data "archive_file" "restore-lambda" {
+  source_dir = "${path.module}/func/restore"
+  output_path = "${path.module}/dist/restore-lambda-${local.env}.zip"
+  type = "zip"
+}
+
+#---------------------------------------------------
+# SaintsXCTF MySQL Restore Lambda Function Resources
+#---------------------------------------------------
+
+resource "aws_lambda_function" "rds-restore-lambda-function" {
+  function_name = "SaintsXCTFMySQLRestore${upper(local.env)}"
+  filename = "${path.module}/dist/restore-lambda-${local.env}.zip"
+  handler = "lambda.restore"
+  role = aws_iam_role.lambda-role.arn
+  runtime = "python3.8"
+  timeout = 15
+
+  environment {
+    variables = {
+      ENV = local.env
+      DB_HOST = data.aws_db_instance.saints-xctf-mysql-database.address
+    }
+  }
+
+  vpc_config {
+    security_group_ids = [module.lambda-rds-backup-security-group.security_group_id[0]]
+    subnet_ids = [
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
+      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
+    ]
+  }
+
+  tags = {
+    Name = "saints-xctf-rds-${local.env}-restore"
+    Environment = upper(local.env)
+    Application = "saints-xctf"
+  }
+}
+
+resource "aws_lambda_alias" "rds-backup-lambda-alias" {
+  name = "SaintsXCTFMySQLRestoreAlias${upper(local.env)}"
+  description = "AWS Lambda function which restores a MySQL database from a backup"
+  function_name = aws_lambda_function.rds-backup-lambda-function.function_name
+  function_version = "$LATEST"
 }
 
 #--------------------------------------------------
@@ -47,7 +94,7 @@ data "archive_file" "lambda" {
 
 resource "aws_lambda_function" "rds-backup-lambda-function" {
   function_name = "SaintsXCTFMySQLBackup${upper(local.env)}"
-  filename = "${path.module}/dist/lambda-${local.env}.zip"
+  filename = "${path.module}/dist/backup-lambda-${local.env}.zip"
   handler = "lambda.create_backup"
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.7"

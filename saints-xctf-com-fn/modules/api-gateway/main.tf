@@ -6,11 +6,23 @@
 
 locals {
   env = var.prod ? "prodution" : "development"
+  domain_name = var.prod ? "fn.saintsxctf.com" : "dev.fn.saintsxctf.com"
+  cert = var.prod ? "*.saintsxctf.com" : "*.fn.saintsxctf.com"
 }
 
 #-----------------------
 # Existing AWS Resources
 #-----------------------
+
+data "aws_route53_zone" "saints-xctf-wildcard-zone" {
+  name = "saintsxctf.com."
+  private_zone = false
+}
+
+data "aws_acm_certificate" "saints-xctf-wildcard-cert" {
+  domain = local.cert
+  statuses = ["ISSUED"]
+}
 
 data "aws_lambda_function" "authorizer" {
   function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
@@ -57,6 +69,23 @@ resource "aws_iam_policy" "auth-invocation-policy" {
 resource "aws_iam_role_policy_attachment" "auth-invocation-role-policy-attachment" {
   policy_arn = aws_iam_policy.auth-invocation-policy.arn
   role = aws_iam_role.auth-invocation-role.name
+}
+
+resource "aws_api_gateway_domain_name" "saints-xctf-com-fn-domain" {
+  domain_name = local.domain_name
+  certificate_arn = data.aws_acm_certificate.saints-xctf-wildcard-cert.arn
+}
+
+resource "aws_route53_record" "saints-xctf-com-fn-record" {
+  name = aws_api_gateway_domain_name.saints-xctf-com-fn-domain.domain_name
+  type = "A"
+  zone_id = data.aws_route53_zone.saints-xctf-wildcard-zone.id
+
+  alias {
+    evaluate_target_health = true
+    name = aws_api_gateway_domain_name.saints-xctf-com-fn-domain.cloudfront_domain_name
+    zone_id = aws_api_gateway_domain_name.saints-xctf-com-fn-domain.cloudfront_zone_id
+  }
 }
 
 # API Endpoints
