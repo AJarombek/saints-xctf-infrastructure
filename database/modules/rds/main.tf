@@ -80,7 +80,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   engine_version = "5.7.19"
 
   allocated_storage = 5
-  backup_retention_period = "${local.backups_retained_days}"
+  backup_retention_period = local.backups_retained_days
   storage_type = "gp2"
   storage_encrypted = false
   backup_window = "07:00-08:00"

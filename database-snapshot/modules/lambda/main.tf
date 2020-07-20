@@ -47,6 +47,10 @@ data "archive_file" "restore-lambda" {
   type = "zip"
 }
 
+data "aws_iam_role" "lambda-role" {
+  name = "saints-xctf-rds-backup-lambda-role"
+}
+
 #---------------------------------------------------
 # SaintsXCTF MySQL Restore Lambda Function Resources
 #---------------------------------------------------
@@ -55,7 +59,7 @@ resource "aws_lambda_function" "rds-restore-lambda-function" {
   function_name = "SaintsXCTFMySQLRestore${upper(local.env)}"
   filename = "${path.module}/dist/restore-lambda-${local.env}.zip"
   handler = "lambda.restore"
-  role = aws_iam_role.lambda-role.arn
+  role = data.aws_iam_role.lambda-role.arn
   runtime = "python3.8"
   timeout = 15
 
@@ -67,7 +71,7 @@ resource "aws_lambda_function" "rds-restore-lambda-function" {
   }
 
   vpc_config {
-    security_group_ids = [module.lambda-rds-backup-security-group.security_group_id[0]]
+    security_group_ids = [module.security-group.security_group_id[0]]
     subnet_ids = [
       data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
       data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
@@ -81,10 +85,10 @@ resource "aws_lambda_function" "rds-restore-lambda-function" {
   }
 }
 
-resource "aws_lambda_alias" "rds-backup-lambda-alias" {
+resource "aws_lambda_alias" "rds-restore-lambda-alias" {
   name = "SaintsXCTFMySQLRestoreAlias${upper(local.env)}"
   description = "AWS Lambda function which restores a MySQL database from a backup"
-  function_name = aws_lambda_function.rds-backup-lambda-function.function_name
+  function_name = aws_lambda_function.rds-restore-lambda-function.function_name
   function_version = "$LATEST"
 }
 
@@ -96,7 +100,7 @@ resource "aws_lambda_function" "rds-backup-lambda-function" {
   function_name = "SaintsXCTFMySQLBackup${upper(local.env)}"
   filename = "${path.module}/dist/backup-lambda-${local.env}.zip"
   handler = "lambda.create_backup"
-  role = aws_iam_role.lambda-role.arn
+  role = data.aws_iam_role.lambda-role.arn
   runtime = "python3.7"
   timeout = 15
 
@@ -108,7 +112,7 @@ resource "aws_lambda_function" "rds-backup-lambda-function" {
   }
 
   vpc_config {
-    security_group_ids = [module.lambda-rds-backup-security-group.security_group_id[0]]
+    security_group_ids = [module.security-group.security_group_id[0]]
     subnet_ids = [
       data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
       data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
@@ -127,28 +131,6 @@ resource "aws_lambda_alias" "rds-backup-lambda-alias" {
   description = "AWS Lambda function which creates MySQL database backups"
   function_name = aws_lambda_function.rds-backup-lambda-function.function_name
   function_version = "$LATEST"
-}
-
-resource "aws_iam_role" "lambda-role" {
-  name = "saints-xctf-rds-backup-lambda-role"
-  assume_role_policy = file("${path.module}/role.json")
-
-  tags = {
-    Name = "saints-xctf-rds-backup-lambda-role"
-    Environment = "all"
-    Application = "saints-xctf"
-  }
-}
-
-resource "aws_iam_policy" "rds-backup-lambda-policy" {
-  name = "rds-backup-lambda-policy"
-  path = "/saintsxctf/"
-  policy = file("${path.module}/rds-backup-lambda-policy.json")
-}
-
-resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {
-  policy_arn = aws_iam_policy.rds-backup-lambda-policy.arn
-  role = aws_iam_role.lambda-role.name
 }
 
 resource "aws_cloudwatch_event_rule" "lambda-function-schedule-rule" {
@@ -177,12 +159,12 @@ resource "aws_lambda_permission" "lambda-function-schedule-permission" {
   source_arn = aws_cloudwatch_event_rule.lambda-function-schedule-rule.arn
 }
 
-module "lambda-rds-backup-security-group" {
+module "security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
-  name = "saints-xctf-lambda-rds-backup-security"
-  tag_name = "saints-xctf-lambda-rds-backup-security"
+  name = "saints-xctf-lambda-rds-backup-security-${local.env}"
+  tag_name = "saints-xctf-lambda-rds-backup-security-${local.env}"
   vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
 
   # Optional arguments
@@ -205,5 +187,5 @@ module "lambda-rds-backup-security-group" {
     }
   ]
 
-  description = "SaintsXCTF RDS Backup Lambda Function Security Group"
+  description = "SaintsXCTF RDS ${upper(local.env)} Backup Lambda Function Security Group"
 }

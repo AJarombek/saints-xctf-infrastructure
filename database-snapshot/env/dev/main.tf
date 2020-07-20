@@ -19,10 +19,6 @@ terraform {
   }
 }
 
-module "vpc-endpoints" {
-  source = "../../modules/vpc-endpoints"
-}
-
 module "lambda" {
   source = "../../modules/lambda"
   prod = false

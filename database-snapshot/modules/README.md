@@ -7,5 +7,6 @@ run once a day.
 
 | Directory Name    | Description                                                                   |
 |-------------------|-------------------------------------------------------------------------------|
-| `lambda`          | Terraform module for a Lambda Function for RDS backups.                       |
+| `iam`             | Terraform module for IAM roles and polcies used by the lambda functions       |
+| `lambda`          | Terraform module creating Lambda Functions for RDS backups/restorations.      |
 | `vpc-endpoints`   | Terraform module for VPC Endpoints exposing resources to the private subnets. |

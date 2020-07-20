@@ -7,5 +7,6 @@ resides in `dev` and the code to configure *PROD* resides in `prod`.
 
 | Directory Name    | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
+| `all`             | Infrastructure shared between the *DEV* and *PROD* environments.            |
 | `dev`             | Code to build a Lambda function for RDS backups in the *DEV* environment.   |
 | `prod`            | Code to build a Lambda function for RDS backups in the *PROD* environment.  |
