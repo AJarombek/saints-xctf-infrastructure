@@ -18,7 +18,7 @@ resource "aws_iam_role" "lambda-role" {
 resource "aws_iam_policy" "rds-backup-lambda-policy" {
   name = "rds-backup-lambda-policy"
   path = "/saintsxctf/"
-  policy = file("${path.module}/rds-backup-lambda-policy.json")
+  policy = file("${path.module}/policy.json")
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {

@@ -92,6 +92,11 @@ resource "aws_lambda_alias" "rds-restore-lambda-alias" {
   function_version = "$LATEST"
 }
 
+resource "aws_cloudwatch_log_group" "rds-restore-log-group" {
+  name = "/aws/lambda/SaintsXCTFMySQLRestore${upper(local.env)}"
+  retention_in_days = 7
+}
+
 #--------------------------------------------------
 # SaintsXCTF MySQL Backup Lambda Function Resources
 #--------------------------------------------------
@@ -131,6 +136,11 @@ resource "aws_lambda_alias" "rds-backup-lambda-alias" {
   description = "AWS Lambda function which creates MySQL database backups"
   function_name = aws_lambda_function.rds-backup-lambda-function.function_name
   function_version = "$LATEST"
+}
+
+resource "aws_cloudwatch_log_group" "rds-backup-log-group" {
+  name = "/aws/lambda/SaintsXCTFMySQLBackup${upper(local.env)}"
+  retention_in_days = 7
 }
 
 resource "aws_cloudwatch_event_rule" "lambda-function-schedule-rule" {

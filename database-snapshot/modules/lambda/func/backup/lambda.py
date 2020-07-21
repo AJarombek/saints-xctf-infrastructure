@@ -41,7 +41,7 @@ def create_backup(event, context):
     username = secret_dict.get("username")
     password = secret_dict.get("password")
 
-    # To execute the bash script on AWS Lambda, change its pemissions and move it into the /tmp/ directory.
+    # To execute the bash script on AWS Lambda, change its permissions and move it into the /tmp/ directory.
     # Source: https://stackoverflow.com/a/48196444
     subprocess.check_call(["cp ./backup.sh /tmp/backup.sh && chmod 755 /tmp/backup.sh"], shell=True)
 

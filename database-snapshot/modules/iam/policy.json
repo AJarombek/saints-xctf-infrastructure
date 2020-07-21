@@ -10,6 +10,10 @@
       "ec2:DescribeNetworkInterfaces",
       "ec2:DetachNetworkInterface",
       "ec2:DeleteNetworkInterface",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams",
       "rds:*",
       "s3:*"
     ],

@@ -11,7 +11,7 @@ import json
 import subprocess
 
 
-def create_backup(event, context):
+def restore(event, context):
     """
     Restore an RDS MySQL database from a backup on S3
     :param event: provides information about the triggering of the function
@@ -49,6 +49,7 @@ def create_backup(event, context):
 
     # To execute the bash script on AWS Lambda, change its permissions and move it into the /tmp/ directory.
     subprocess.check_call(["cp ./restore.sh /tmp/restore.sh && chmod 755 /tmp/restore.sh"], shell=True)
+    subprocess.check_call(["cp ./mysql /tmp/mysql && chmod 755 /tmp/mysql"], shell=True)
 
     subprocess.check_call(["/tmp/restore.sh", env, host, username, password])
 

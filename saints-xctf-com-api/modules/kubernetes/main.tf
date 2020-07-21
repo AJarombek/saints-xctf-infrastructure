@@ -107,3 +107,153 @@ resource "aws_security_group" "saints-xctf-api-lb-sg" {
     Environment = local.env
   }
 }
+
+#---------------------------------------------------
+# Kubernetes Resources for the SaintsXCTF Web Server
+#---------------------------------------------------
+
+resource "kubernetes_deployment" "deployment" {
+  metadata {
+    name = "saints-xctf-api-deployment"
+    namespace = local.namespace
+
+    labels = {
+      version = local.version
+      environment = local.env
+      application = "saints-xctf-api"
+    }
+  }
+
+  spec {
+    replicas = 1
+    min_ready_seconds = 10
+
+    strategy {
+      type = "RollingUpdate"
+
+      rolling_update {
+        max_surge = "1"
+        max_unavailable = "0"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          version = local.version
+          environment = local.env
+          application = "saints-xctf-api"
+        }
+      }
+
+      spec {
+        container {
+          name = "saints-xctf-api"
+          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api:${local.short_version}"
+
+          readiness_probe {
+            period_seconds = 5
+            initial_delay_seconds = 20
+
+            http_get {
+              path = "/"
+              port = 5000
+            }
+          }
+
+          port {
+            container_port = 5000
+            protocol = "TCP"
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "service" {
+  metadata {
+    name = "saints-xctf-api-service"
+    namespace = local.namespace
+
+    labels = {
+      version = local.version
+      environment = local.env
+      application = "saints-xctf-api"
+    }
+  }
+
+  spec {
+    type = "NodePort"
+
+    port {
+      port = 80
+      target_port = 5000
+      protocol = "TCP"
+    }
+
+    selector = {
+      application = "saints-xctf-api"
+    }
+  }
+}
+
+resource "kubernetes_ingress" "ingress" {
+  metadata {
+    name = "saints-xctf-api-ingress"
+    namespace = local.namespace
+
+    annotations = {
+      "kubernetes.io/ingress.class" = "alb"
+      "external-dns.alpha.kubernetes.io/hostname" = "api.saintsxctf.com,www.api.saintsxctf.com"
+      "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
+      "alb.ingress.kubernetes.io/certificate-arn" = "${local.cert_arn},${local.wildcard_cert_arn}"
+      "alb.ingress.kubernetes.io/healthcheck-path" = "/login"
+      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\":80}, {\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/healthcheck-protocol": "HTTP"
+      "alb.ingress.kubernetes.io/scheme" = "internet-facing"
+      "alb.ingress.kubernetes.io/security-groups" = aws_security_group.saints-xctf-api-lb-sg.id
+      "alb.ingress.kubernetes.io/subnets" = "${local.subnet1},${local.subnet2}"
+      "alb.ingress.kubernetes.io/target-type" = "instance"
+      "alb.ingress.kubernetes.io/tags" = "Name=saints-xctf-web-load-balancer,Application=saints-xctf,Environment=${local.env}"
+    }
+
+    labels = {
+      version = local.version
+      environment = local.env
+      application = "api.saints-xctf-web"
+    }
+  }
+
+  spec {
+    rule {
+      host = "api.saintsxctf.com"
+
+      http {
+        path {
+          path = "/*"
+
+          backend {
+            service_name = "saints-xctf-api-service"
+            service_port = 80
+          }
+        }
+      }
+    }
+
+    rule {
+      host = "www.api.saintsxctf.com"
+
+      http {
+        path {
+          path = "/*"
+
+          backend {
+            service_name = "saints-xctf-api-service"
+            service_port = 80
+          }
+        }
+      }
+    }
+  }
+}

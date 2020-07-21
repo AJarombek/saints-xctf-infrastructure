@@ -149,7 +149,7 @@ resource "kubernetes_deployment" "deployment" {
       spec {
         container {
           name = "saints-xctf-web"
-          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-dev:${local.short_version}"
+          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf:${local.short_version}"
 
           readiness_probe {
             period_seconds = 5
