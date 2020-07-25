@@ -1,0 +1,42 @@
+# Kubernetes ingress object for the SaintsXCTF API application's ALB ingress controller.
+# Author: Andrew Jarombek
+# Date: 7/20/2020
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: saints-xctf-api-ingress
+  namespace: saints-xctf
+  annotations:
+    kubernetes.io/ingress.class: alb
+    external-dns.alpha.kubernetes.io/hostname: api.saintsxctf.com,www.api.saintsxctf.com
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: ${ACM_CERT_ARNS}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/healthcheck-path: '/'
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/security-groups: ${SECURITY_GROUPS_ID}
+    alb.ingress.kubernetes.io/subnets: ${SUBNET_IDS}
+    alb.ingress.kubernetes.io/target-type: instance
+    alb.ingress.kubernetes.io/tags: Name=saints-xctf-api-load-balancer,Application=saints-xctf,Environment=${ENV}
+  labels:
+    version: v1.0.0
+    environment: production
+    application: saints-xctf-api
+spec:
+  rules:
+    - host: api.saintsxctf.com
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: saints-xctf-api-service
+              servicePort: 80
+    - host: www.api.saintsxctf.com
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: saints-xctf-api-service
+              servicePort: 80
