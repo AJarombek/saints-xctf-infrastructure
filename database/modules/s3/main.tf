@@ -47,6 +47,9 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
 #-------------------------------------
 
 resource "null_resource" "initial-backups" {
+  # Disabled since backups are currently automated.
+  count = 0
+
   provisioner "local-exec" {
     command = "bash ../../modules/s3/initial_backup.sh ${local.env}"
   }
