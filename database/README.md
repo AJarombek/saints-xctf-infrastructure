@@ -13,4 +13,4 @@ pass variables to the modules in `modules` to configure the database.
 | Directory Name    | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
 | `env`             | Code to build a MySQL database for *DEV* and *PROD* environments.           |
-| `modules`         | Modules for building MySQL databases and database backup storage.           |
+| `modules`         | Modules for building MySQL databases.                                       |

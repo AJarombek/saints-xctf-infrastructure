@@ -10,8 +10,5 @@ HOST=$2
 USERNAME=$3
 PASSWORD=$4
 
-ls -ltr
-ls -ltr /tmp
-
 export MYSQL_PWD="${PASSWORD}"
 /tmp/mysql -h ${HOST} -u ${USERNAME} saintsxctf < /tmp/backup.sql

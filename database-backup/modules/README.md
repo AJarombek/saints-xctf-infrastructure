@@ -1,9 +1,9 @@
 ### Overview
 
-There is one module for creating a MySQL database environment on RDS.
+There is on module that handles database backups.
 
 ### Directories
 
 | Directory Name    | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
-| `rds`             | Terraform module for a MySQL RDS instance.                                  |
+| `s3`              | Terraform module for an S3 bucket that holds database backups.              |

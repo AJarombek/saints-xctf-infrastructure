@@ -25,8 +25,3 @@ module "rds" {
   username = var.username
   password = var.password
 }
-
-module "s3" {
-  source = "../../modules/s3"
-  prod = true
-}

@@ -1,9 +1,9 @@
 ### Overview
 
-MySQL and database backup configuration for the *DEV* environment.  In order for this module to work, the databases
+MySQL database configuration for the *DEV* environment.  In order for this module to work, the databases
 `username` and `password` must be passed in via the command line:
 
-```
+```bash
 terraform apply -var 'username=XXX' -var 'password=XXX'
 ```
 
