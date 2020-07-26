@@ -1,7 +1,7 @@
 /**
- * Infrastructure needed in the SaintsXCTF VPC for the lambda backup function to work.
+ * VPC endpoints needed for the SaintsXCTF Auth Lambda functions.
  * Author: Andrew Jarombek
- * Date: 9/1/2019
+ * Date: 7/26/2020
  */
 
 locals {
@@ -40,9 +40,9 @@ data "aws_route_table" "saints-xctf-com-route-table-public" {
 # SaintsXCTF VPC Endpoint Resources
 #----------------------------------
 
-resource "aws_vpc_endpoint" "saints-xctf-secrets-manager-vpc-endpoint" {
+resource "aws_vpc_endpoint" "saints-xctf-rds-vpc-endpoint" {
   vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
-  service_name = "com.amazonaws.us-east-1.secretsmanager"
+  service_name = "com.amazonaws.us-east-1.rds"
   vpc_endpoint_type = "Interface"
 
   subnet_ids = [
@@ -54,22 +54,12 @@ resource "aws_vpc_endpoint" "saints-xctf-secrets-manager-vpc-endpoint" {
   private_dns_enabled = true
 }
 
-resource "aws_vpc_endpoint" "saints-xctf-s3-vpc-endpoint" {
-  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
-  service_name = "com.amazonaws.us-east-1.s3"
-  vpc_endpoint_type = "Gateway"
-
-  route_table_ids = [
-    data.aws_route_table.saints-xctf-com-route-table-public.id
-  ]
-}
-
 module "vpc-endpoint-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
-  name = "saints-xctf-vpc-endpoint-security"
-  tag_name = "saints-xctf-vpc-endpoint-security"
+  name = "saints-xctf-auth-vpc-endpoint-security"
+  tag_name = "saints-xctf-auth-vpc-endpoint-security"
   vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
 
   # Optional arguments
@@ -92,5 +82,5 @@ module "vpc-endpoint-security-group" {
     }
   ]
 
-  description = "SaintsXCTF VPC Endpoint Security Group"
+  description = "SaintsXCTF Auth VPC Endpoint Security Group"
 }
