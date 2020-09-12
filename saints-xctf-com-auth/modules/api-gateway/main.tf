@@ -14,7 +14,7 @@ locals {
 # Existing AWS Resources
 # ----------------------
 
-data "aws_route53_zone" "saints-xctf-wildcard-zone" {
+data "aws_route53_zone" "saints-xctf-zone" {
   name = "saintsxctf.com."
   private_zone = false
 }
@@ -39,8 +39,16 @@ resource "aws_api_gateway_deployment" "saints-xctf-com-auth-deployment" {
 
   depends_on = [
     aws_api_gateway_integration.auth-authenticate-integration,
-    aws_api_gateway_integration_response.auth-authenticate-integration-response
+    aws_api_gateway_integration_response.auth-authenticate-integration-response,
+    aws_api_gateway_integration.auth-token-integration,
+    aws_api_gateway_integration_response.auth-token-integration-response
   ]
+}
+
+resource "aws_api_gateway_stage" "saints-xctf-com-auth-stage" {
+  deployment_id = aws_api_gateway_deployment.saints-xctf-com-auth-deployment.id
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
+  stage_name = local.env
 }
 
 resource "aws_api_gateway_domain_name" "saints-xctf-com-auth-domain" {
@@ -48,10 +56,16 @@ resource "aws_api_gateway_domain_name" "saints-xctf-com-auth-domain" {
   certificate_arn = data.aws_acm_certificate.saints-xctf-wildcard-cert.arn
 }
 
+resource "aws_api_gateway_base_path_mapping" "saints-xctf-com-auth-base" {
+  api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
+  stage_name = aws_api_gateway_deployment.saints-xctf-com-auth-deployment.stage_name
+  domain_name = aws_api_gateway_domain_name.saints-xctf-com-auth-domain.domain_name
+}
+
 resource "aws_route53_record" "saints-xctf-com-auth-record" {
   name = aws_api_gateway_domain_name.saints-xctf-com-auth-domain.domain_name
   type = "A"
-  zone_id = data.aws_route53_zone.saints-xctf-wildcard-zone.id
+  zone_id = data.aws_route53_zone.saints-xctf-zone.id
 
   alias {
     evaluate_target_health = true
@@ -83,14 +97,23 @@ resource "aws_api_gateway_method" "auth-authenticate-method" {
   authorization = "NONE"
 }
 
+resource "aws_api_gateway_method_settings" "auth-authenticate-method-settings" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
+  stage_name = aws_api_gateway_stage.saints-xctf-com-auth-stage.stage_name
+  method_path = "${aws_api_gateway_resource.saints-xctf-com-auth-authenticate-path.path_part}/${aws_api_gateway_method.auth-authenticate-method.http_method}"
+
+  settings {
+    metrics_enabled = true
+    logging_level = "INFO"
+  }
+}
+
 resource "aws_api_gateway_request_validator" "auth-authenticate-request-validator" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
   validate_request_body = true
   validate_request_parameters = false
   name = "auth-authenticate-request-body-${local.env}"
 }
-
-
 
 resource "aws_api_gateway_integration" "auth-authenticate-integration" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
@@ -157,6 +180,17 @@ resource "aws_api_gateway_method" "auth-token-method" {
 
   http_method = "POST"
   authorization = "NONE"
+}
+
+resource "aws_api_gateway_method_settings" "auth-token-method-settings" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
+  stage_name = aws_api_gateway_stage.saints-xctf-com-auth-stage.stage_name
+  method_path = "${aws_api_gateway_resource.saints-xctf-com-auth-token-path.path_part}/${aws_api_gateway_method.auth-token-method.http_method}"
+
+  settings {
+    metrics_enabled = true
+    logging_level = "INFO"
+  }
 }
 
 resource "aws_api_gateway_request_validator" "auth-token-request-validator" {

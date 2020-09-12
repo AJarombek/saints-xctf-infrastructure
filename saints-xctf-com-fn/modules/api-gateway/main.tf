@@ -45,6 +45,33 @@ resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
   description = "A REST API for AWS Lambda Functions in the fn.saintsxctf.com domain"
 }
 
+resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  stage_name = local.env
+
+  depends_on = [
+    aws_api_gateway_integration.email-forgot-password-integration,
+    aws_api_gateway_integration_response.email-forgot-password-integration-response
+  ]
+}
+
+resource "aws_api_gateway_stage" "saints-xctf-com-fn-stage" {
+  deployment_id = aws_api_gateway_deployment.saints-xctf-com-fn-deployment.id
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  stage_name = local.env
+}
+
+resource "aws_api_gateway_method_settings" "saints-xctf-com-fn-method-settings" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  stage_name = aws_api_gateway_stage.saints-xctf-com-fn-stage.stage_name
+  method_path = "*/*"
+
+  settings {
+    metrics_enabled = true
+    logging_level = "INFO"
+  }
+}
+
 resource "aws_api_gateway_authorizer" "saints-xctf-com-fn-authorizer" {
   type = "TOKEN"
   name = "saints-xctf-com-fn-auth"
@@ -76,6 +103,12 @@ resource "aws_api_gateway_domain_name" "saints-xctf-com-fn-domain" {
   certificate_arn = data.aws_acm_certificate.saints-xctf-wildcard-cert.arn
 }
 
+resource "aws_api_gateway_base_path_mapping" "saints-xctf-com-auth-base" {
+  api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  stage_name = aws_api_gateway_deployment.saints-xctf-com-fn-deployment.stage_name
+  domain_name = aws_api_gateway_domain_name.saints-xctf-com-fn-domain.domain_name
+}
+
 resource "aws_route53_record" "saints-xctf-com-fn-record" {
   name = aws_api_gateway_domain_name.saints-xctf-com-fn-domain.domain_name
   type = "A"
@@ -92,6 +125,8 @@ resource "aws_route53_record" "saints-xctf-com-fn-record" {
 # -------------
 # /email/welcome
 # /email/forgot-password
+# /uasset/user
+# /uasset/group
 
 # Resource for the API path /email
 resource "aws_api_gateway_resource" "saints-xctf-com-fn-email-path" {
@@ -177,14 +212,4 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   statement_id = "AllowExecutionFromApiGateway"
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
-}
-
-resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  stage_name = local.env
-
-  depends_on = [
-    aws_api_gateway_integration.email-forgot-password-integration,
-    aws_api_gateway_integration_response.email-forgot-password-integration-response
-  ]
 }

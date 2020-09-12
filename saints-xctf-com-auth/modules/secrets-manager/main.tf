@@ -38,6 +38,9 @@ resource "aws_secretsmanager_secret_version" "saints-xctf-auth-secret-version" {
 #-------------------------------------
 
 resource "null_resource" "rotate-secret" {
+  # Temporary disable secret rotation
+  count = 0
+
   provisioner "local-exec" {
     command = "bash ${path.module}/rotate-secret.sh ${local.env}"
   }

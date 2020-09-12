@@ -4,7 +4,9 @@
     {
       "Sid": "Permissions",
       "Effect": "Allow",
-      "Principal": "*",
+      "Principal": {
+        "AWS": "739088120071"
+      },
       "Action": ["s3:PutObject", "s3:GetObject"],
       "Resource": ["arn:aws:s3:::saints-xctf-db-backups-prod/*"]
     }
