@@ -10,7 +10,7 @@
         ]
       },
       "Effect": "Allow",
-      "Sid": ""
+      "Sid": "AuthTokenLambdaRole"
     }
   ]
 }

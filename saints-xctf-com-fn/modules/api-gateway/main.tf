@@ -47,7 +47,6 @@ resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
 
 resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  stage_name = local.env
 
   depends_on = [
     aws_api_gateway_integration.email-forgot-password-integration,
@@ -105,7 +104,7 @@ resource "aws_api_gateway_domain_name" "saints-xctf-com-fn-domain" {
 
 resource "aws_api_gateway_base_path_mapping" "saints-xctf-com-auth-base" {
   api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  stage_name = aws_api_gateway_deployment.saints-xctf-com-fn-deployment.stage_name
+  stage_name = local.env
   domain_name = aws_api_gateway_domain_name.saints-xctf-com-fn-domain.domain_name
 }
 

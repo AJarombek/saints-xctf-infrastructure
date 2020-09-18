@@ -35,7 +35,6 @@ resource "aws_api_gateway_rest_api" "saints-xctf-com-auth" {
 
 resource "aws_api_gateway_deployment" "saints-xctf-com-auth-deployment" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
-  stage_name = local.env
 
   depends_on = [
     aws_api_gateway_integration.auth-authenticate-integration,
@@ -58,8 +57,10 @@ resource "aws_api_gateway_domain_name" "saints-xctf-com-auth-domain" {
 
 resource "aws_api_gateway_base_path_mapping" "saints-xctf-com-auth-base" {
   api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
-  stage_name = aws_api_gateway_deployment.saints-xctf-com-auth-deployment.stage_name
+  stage_name = local.env
   domain_name = aws_api_gateway_domain_name.saints-xctf-com-auth-domain.domain_name
+
+  depends_on = [aws_api_gateway_stage.saints-xctf-com-auth-stage]
 }
 
 resource "aws_route53_record" "saints-xctf-com-auth-record" {

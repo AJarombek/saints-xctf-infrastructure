@@ -7,5 +7,5 @@
 #set($response = $input.path('$'))
 
 {
-    "result": $response
+    "result": "$response"
 }
