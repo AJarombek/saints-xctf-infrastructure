@@ -1,5 +1,6 @@
 /**
- * Infrastructure for an automated system of deploying database scripts to the SaintsXCTF production database.
+ * Infrastructure shared by development and production environments which deploy database scripts
+ * to the SaintsXCTF database.
  * Author: Andrew Jarombek
  * Date: 9/17/2020
  */
@@ -18,12 +19,15 @@ terraform {
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/database-deployment/env/prod"
+    key = "saints-xctf-infrastructure/database-deployment/env/all"
     region = "us-east-1"
   }
 }
 
-module "lambda" {
-  source = "../../modules/lambda"
-  prod = true
+module "iam" {
+  source = "../../modules/iam"
+}
+
+module "s3" {
+  source = "../../modules/s3"
 }

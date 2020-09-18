@@ -24,11 +24,6 @@ terraform {
   }
 }
 
-module "s3" {
-  source = "../../modules/s3"
-  prod = false
-}
-
 module "lambda" {
   source = "../../modules/lambda"
   prod = false
