@@ -15,7 +15,8 @@
       "logs:PutLogEvents",
       "logs:DescribeLogStreams",
       "rds:*",
-      "s3:GetObject"
+      "s3:GetObject",
+      "s3:ListBucket"
     ],
     "Resource": "*"
   }

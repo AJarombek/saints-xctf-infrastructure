@@ -1,7 +1,6 @@
 ### Overview
 
-AWS Lambda function for RDS backups in the *DEV* environment.  From this directory, run the following commands to build 
-the infrastructure:
+AWS infrastructure shared between the *DEV* and *PROD* environments.
 
 ```bash
 # Create Infrastructure

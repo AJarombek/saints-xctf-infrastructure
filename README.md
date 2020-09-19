@@ -31,6 +31,8 @@ bazel --version
 | `acm`                     | HTTPS Certificates for the application load balancer.                               |
 | `bastion`                 | Bastion host for connecting to resources in the private subnets.                    |
 | `database`                | Infrastructure for the SaintsXCTF MySQL database.                                   |
+| `database-backup`         | S3 buckets for storing RDS database backups.                                        |
+| `database-deployment`     | Lambda function for deploying scripts to RDS databases.                             |
 | `database-snapshot`       | Lambda functions for creating backups and restoring RDS databases.                  |
 | `iam`                     | IAM policies used in the SaintsXCTF VPC.                                            |
 | `route53`                 | Configures the DNS records for the application.                                     |
