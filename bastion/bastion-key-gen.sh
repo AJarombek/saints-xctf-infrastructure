@@ -4,6 +4,8 @@
 # Author: Andrew Jarombek
 # Date: 2/13/2019
 
+export AWS_DEFAULT_REGION=us-east-1
+
 # Used to preserve newlines in the private key.  Otherwise the key has an invalid format.
 # https://unix.stackexchange.com/a/164548
 IFS=

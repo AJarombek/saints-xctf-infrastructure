@@ -28,12 +28,26 @@ ssh -i ~/bastion-key.pem -o IdentitiesOnly=yes ec2-user@ec2-xxx-xxx-xxx-xxx.comp
 **Bash commands to run on the Bastion host**
 
 ```bash
+# Get the Dev host.
+DEV_HOST=$(
+    aws rds describe-db-instances \
+        --db-instance-identifier saints-xctf-mysql-database-dev \
+        --query "DBInstances[0].Endpoint.Address" \
+        --output text
+)
+
 # Connect to the development database.
-DEV_HOST="saints-xctf-mysql-database-dev.xxxx.us-east-1.rds.amazonaws.com"
 mysql -h ${DEV_HOST} -u saintsxctfdev -p
 
+# Get the Production host.
+PROD_HOST=$(
+    aws rds describe-db-instances \
+        --db-instance-identifier saints-xctf-mysql-database-prod \
+        --query "DBInstances[0].Endpoint.Address" \
+        --output text
+)
+
 # Connect to the production database.
-PROD_HOST="saints-xctf-mysql-database-prod.xxxx.us-east-1.rds.amazonaws.com"
 mysql -h ${PROD_HOST} -u saintsxctfprod -p
 ```
 

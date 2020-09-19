@@ -1,7 +1,8 @@
 ### Overview
 
-There is one module for creating a Lambda Function for RDS backups.  `lambda` creates an AWS Lambda function which is 
-run once a day.
+There are three modules.  The first is for creating Lambda Functions for RDS backups & restorations.  The second creates 
+IAM roles and policies for the Lambda functions.  The third creates VPC endpoints to access resources from private 
+subnets without a NAT gateway.
 
 ### Directories
 
