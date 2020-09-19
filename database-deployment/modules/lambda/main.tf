@@ -49,13 +49,13 @@ data "archive_file" "lambda-zip" {
 # SaintsXCTF Database Deployment Lambda Function Resources
 #---------------------------------------------------------
 
-resource "aws_lambda_function" "rds-restore-lambda-function" {
+resource "aws_lambda_function" "database-deployment-lambda-function" {
   function_name = "SaintsXCTFDatabaseDeployment${upper(local.env)}"
   filename = "${path.module}/dist/lambda-${local.env}.zip"
   handler = "lambda.deploy"
   role = data.aws_iam_role.lambda-role.arn
   runtime = "python3.8"
-  timeout = 15
+  timeout = 600
 
   environment {
     variables = {
@@ -79,14 +79,14 @@ resource "aws_lambda_function" "rds-restore-lambda-function" {
   }
 }
 
-resource "aws_lambda_alias" "rds-restore-lambda-alias" {
+resource "aws_lambda_alias" "database-deployment-lambda-alias" {
   name = "SaintsXCTFDatabaseDeploymentAlias${upper(local.env)}"
   description = "AWS Lambda function which deploys SQL scripts to an RDS database for SaintsXCTF."
-  function_name = aws_lambda_function.rds-restore-lambda-function.function_name
+  function_name = aws_lambda_function.database-deployment-lambda-function.function_name
   function_version = "$LATEST"
 }
 
-resource "aws_cloudwatch_log_group" "rds-restore-log-group" {
+resource "aws_cloudwatch_log_group" "database-deployment-log-group" {
   name = "/aws/lambda/SaintsXCTFDatabaseDeployment${upper(local.env)}"
   retention_in_days = 7
 }

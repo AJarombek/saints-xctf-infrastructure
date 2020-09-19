@@ -28,6 +28,8 @@ ssh -i ~/bastion-key.pem -o IdentitiesOnly=yes ec2-user@ec2-xxx-xxx-xxx-xxx.comp
 **Bash commands to run on the Bastion host**
 
 ```bash
+export AWS_DEFAULT_REGION=us-east-1
+
 # Get the Dev host.
 DEV_HOST=$(
     aws rds describe-db-instances \

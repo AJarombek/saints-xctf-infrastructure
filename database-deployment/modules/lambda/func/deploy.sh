@@ -11,4 +11,4 @@ USERNAME=$3
 PASSWORD=$4
 
 export MYSQL_PWD="${PASSWORD}"
-/tmp/mysql -h ${HOST} -u ${USERNAME} saintsxctf < /tmp/deploy.sql
+/tmp/mysql -h ${HOST} -u ${USERNAME} saintsxctf < /tmp/script.sql

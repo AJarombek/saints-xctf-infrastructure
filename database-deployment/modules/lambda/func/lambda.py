@@ -39,7 +39,7 @@ def deploy(event, context):
     password = secret_dict.get("password")
 
     s3 = boto3.resource('s3', 'us-east-1', config=botocore.config.Config(s3={'addressing_style': 'path'}))
-    s3.meta.client.download_file(f'saints-xctf-database-deployments', event.file_path, '/tmp/script.sql')
+    s3.meta.client.download_file(f'saints-xctf-database-deployments', event['file_path'], '/tmp/script.sql')
 
     # To execute the bash script on AWS Lambda, change its permissions and move it into the /tmp/ directory.
     subprocess.check_call(["cp ./deploy.sh /tmp/deploy.sh && chmod 755 /tmp/deploy.sh"], shell=True)

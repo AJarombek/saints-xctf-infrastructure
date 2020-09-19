@@ -6,7 +6,7 @@
 
 locals {
   public_cidr = "0.0.0.0/0"
-  my_cidr = "74.64.209.222/32"
+  my_cidr = "69.124.72.192/32"
 }
 
 provider "aws" {
