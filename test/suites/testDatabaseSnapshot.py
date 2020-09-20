@@ -8,6 +8,9 @@ import unittest
 import os
 
 import boto3
+
+from utils.Lambda import Lambda
+from utils.IAM import IAM
 from utils.VPC import VPC
 from utils.SecurityGroup import SecurityGroup
 
@@ -48,7 +51,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
             lambda_function.get('Configuration').get('Handler') == 'lambda.create_backup'
         ]))
 
-    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLRestoreDEV lambda function not setup.')
+    @unittest.skipIf(prod_env, 'SaintsXCTFMySQLRestorePROD lambda function not setup.')
     def test_restore_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function for restoring RDS instances from backups exists as expected.
@@ -84,7 +87,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)
 
-    @unittest.skipIf(not prod_env, 'SaintsXCTFMySQLRestoreDEV lambda function not setup.')
+    @unittest.skipIf(prod_env, 'SaintsXCTFMySQLRestorePROD lambda function not setup.')
     def test_restore_lambda_function_in_vpc(self) -> None:
         """
         Test that an AWS Lambda function for RDS restoration from a backup exists in the proper VPC.
@@ -102,7 +105,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)
 
-    def test_lambda_function_in_subnets(self) -> None:
+    def test_backup_lambda_function_in_subnets(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups exists in the proper subnets.
         """
@@ -111,22 +114,27 @@ class TestDatabaseSnapshot(unittest.TestCase):
         else:
             function_name = 'SaintsXCTFMySQLBackupDEV'
 
-        lambda_function = self.aws_lambda.get_function(FunctionName=function_name)
-        lambda_function_subnets: list = lambda_function.get('Configuration').get('VpcConfig').get('SubnetIds')
+        self.assertTrue(Lambda.lambda_function_in_subnets(
+            function_name=function_name,
+            subnets=['saints-xctf-com-lisag-public-subnet', 'saints-xctf-com-megank-public-subnet']
+        ))
 
-        first_subnet_dict = VPC.get_subnet('saints-xctf-com-lisag-public-subnet')
-        first_subnet_id = first_subnet_dict.get('SubnetId')
+    @unittest.skipIf(prod_env, 'SaintsXCTFMySQLRestorePROD lambda function not setup.')
+    def test_restore_lambda_function_in_subnets(self) -> None:
+        """
+        Test that an AWS Lambda function for RDS restorations from backups exists in the proper subnets.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFMySQLRestorePROD'
+        else:
+            function_name = 'SaintsXCTFMySQLRestoreDEV'
 
-        second_subnet_dict = VPC.get_subnet('saints-xctf-com-megank-public-subnet')
-        second_subnet_id = second_subnet_dict.get('SubnetId')
+        self.assertTrue(Lambda.lambda_function_in_subnets(
+            function_name=function_name,
+            subnets=['saints-xctf-com-lisag-public-subnet', 'saints-xctf-com-megank-public-subnet']
+        ))
 
-        self.assertTrue(all([
-            len(lambda_function_subnets) == 2,
-            first_subnet_id in lambda_function_subnets,
-            second_subnet_id in lambda_function_subnets
-        ]))
-
-    def test_lambda_function_has_iam_role(self) -> None:
+    def test_backup_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups has the proper IAM role.
         """
@@ -135,27 +143,40 @@ class TestDatabaseSnapshot(unittest.TestCase):
         else:
             function_name = 'SaintsXCTFMySQLBackupDEV'
 
-        lambda_function = self.aws_lambda.get_function(FunctionName=function_name)
-        lambda_function_iam_role: list = lambda_function.get('Configuration').get('Role')
-        self.assertTrue('saints-xctf-rds-backup-lambda-role' in lambda_function_iam_role)
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='saints-xctf-rds-backup-lambda-role'
+        ))
 
-    def test_lambda_function_role_exists(self) -> None:
+    def test_backup_lambda_function_role_exists(self) -> None:
         """
         Test that the saints-xctf-rds-backup-lambda-role IAM Role exists
         """
-        role_dict = self.iam.get_role(RoleName='saints-xctf-rds-backup-lambda-role')
-        role = role_dict.get('Role')
-        self.assertTrue(role.get('RoleName') == 'saints-xctf-rds-backup-lambda-role')
+        self.assertTrue(IAM.iam_role_exists(role_name='saints-xctf-rds-backup-lambda-role'))
 
-    def test_lambda_function_policy_attached(self) -> None:
+    def test_backup_lambda_function_policy_attached(self) -> None:
         """
         Test that the rds-backup-lambda-policy is attached to the saints-xctf-rds-backup-lambda-role
         """
-        policy_response = self.iam.list_attached_role_policies(RoleName='saints-xctf-rds-backup-lambda-role')
-        policies = policy_response.get('AttachedPolicies')
-        s3_policy = policies[0]
-        self.assertTrue(len(policies) == 1)
-        self.assertTrue(s3_policy.get('PolicyName') == 'rds-backup-lambda-policy')
+        self.assertTrue(IAM.iam_policy_attached_to_role(
+            role_name='saints-xctf-rds-backup-lambda-role',
+            policy_name='rds-backup-lambda-policy'
+        ))
+
+    @unittest.skipIf(prod_env, 'SaintsXCTFMySQLRestorePROD lambda function not setup.')
+    def test_restore_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for restoring an RDS instance from a backup has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFMySQLRestorePROD'
+        else:
+            function_name = 'SaintsXCTFMySQLRestoreDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='saints-xctf-rds-backup-lambda-role'
+        ))
 
     def test_cloudwatch_event_rule_exists(self) -> None:
         """

@@ -14,6 +14,8 @@ from boto3_type_annotations.iam import Client as IAMClient
 from boto3_type_annotations.cloudwatch import Client as CloudWatchClient
 from boto3_type_annotations.ec2 import Client as EC2Client
 
+from utils.IAM import IAM
+from utils.Lambda import Lambda
 from utils.VPC import VPC
 
 try:
@@ -54,7 +56,7 @@ class TestDatabaseDeployment(unittest.TestCase):
             lambda_function.get('Configuration').get('Handler') == 'lambda.deploy'
         ]))
 
-    def test_backup_lambda_function_in_vpc(self) -> None:
+    def test_deployment_lambda_function_in_vpc(self) -> None:
         """
         Test that an AWS Lambda function for RDS database deployments exists in the proper VPC.
         """
@@ -70,3 +72,46 @@ class TestDatabaseDeployment(unittest.TestCase):
         vpc_id = vpc.get('VpcId')
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)
+
+    def test_deployment_lambda_function_in_subnets(self) -> None:
+        """
+        Test that an AWS Lambda function for RDS database deployments exists in the proper subnets.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFDatabaseDeploymentPROD'
+        else:
+            function_name = 'SaintsXCTFDatabaseDeploymentDEV'
+
+        self.assertTrue(Lambda.lambda_function_in_subnets(
+            function_name=function_name,
+            subnets=['saints-xctf-com-lisag-public-subnet', 'saints-xctf-com-megank-public-subnet']
+        ))
+
+    def test_backup_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for RDS database deployments has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFMySQLDatabaseDeploymentPROD'
+        else:
+            function_name = 'SaintsXCTFMySQLDatabaseDeploymentDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='saints-xctf-database-deployment-lambda-role'
+        ))
+
+    def test_backup_lambda_function_role_exists(self) -> None:
+        """
+        Test that the saints-xctf-database-deployment-lambda-role IAM Role exists
+        """
+        self.assertTrue(IAM.iam_role_exists(role_name='saints-xctf-database-deployment-lambda-role'))
+
+    def test_backup_lambda_function_policy_attached(self) -> None:
+        """
+        Test that the rds-backup-lambda-policy is attached to the saints-xctf-database-deployment-lambda-role
+        """
+        self.assertTrue(IAM.iam_policy_attached_to_role(
+            role_name='saints-xctf-database-deployment-lambda-role',
+            policy_name='saints-xctf-database-deployment-lambda-policy'
+        ))
