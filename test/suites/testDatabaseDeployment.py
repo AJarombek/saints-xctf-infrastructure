@@ -1,7 +1,7 @@
 """
 Unit tests for RDS database deployment infrastructure.
 Author: Andrew Jarombek
-Date: 9/19/2019
+Date: 9/19/2020
 """
 
 import unittest
@@ -87,27 +87,27 @@ class TestDatabaseDeployment(unittest.TestCase):
             subnets=['saints-xctf-com-lisag-public-subnet', 'saints-xctf-com-megank-public-subnet']
         ))
 
-    def test_backup_lambda_function_has_iam_role(self) -> None:
+    def test_deployment_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for RDS database deployments has the proper IAM role.
         """
         if self.prod_env:
-            function_name = 'SaintsXCTFMySQLDatabaseDeploymentPROD'
+            function_name = 'SaintsXCTFDatabaseDeploymentPROD'
         else:
-            function_name = 'SaintsXCTFMySQLDatabaseDeploymentDEV'
+            function_name = 'SaintsXCTFDatabaseDeploymentDEV'
 
         self.assertTrue(Lambda.lambda_function_has_iam_role(
             function_name=function_name,
             role_name='saints-xctf-database-deployment-lambda-role'
         ))
 
-    def test_backup_lambda_function_role_exists(self) -> None:
+    def test_deployment_lambda_function_role_exists(self) -> None:
         """
         Test that the saints-xctf-database-deployment-lambda-role IAM Role exists
         """
         self.assertTrue(IAM.iam_role_exists(role_name='saints-xctf-database-deployment-lambda-role'))
 
-    def test_backup_lambda_function_policy_attached(self) -> None:
+    def test_deployment_lambda_function_policy_attached(self) -> None:
         """
         Test that the rds-backup-lambda-policy is attached to the saints-xctf-database-deployment-lambda-role
         """
@@ -115,3 +115,27 @@ class TestDatabaseDeployment(unittest.TestCase):
             role_name='saints-xctf-database-deployment-lambda-role',
             policy_name='saints-xctf-database-deployment-lambda-policy'
         ))
+
+    def test_deployment_lambda_function_has_security_group(self) -> None:
+        """
+        Test that the Lambda function deploying SQL scripts an RDS instance has the expected security group.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFDatabaseDeploymentPROD'
+            sg_name = 'saints-xctf-prod-database-deployment-security'
+        else:
+            function_name = 'SaintsXCTFDatabaseDeploymentDEV'
+            sg_name = 'saints-xctf-dev-database-deployment-security'
+
+        self.assertTrue(Lambda.lambda_function_has_security_group(
+            function_name=function_name,
+            sg_name=sg_name
+        ))
+
+    def test_saints_xctf_database_deployments_s3_bucket_exists(self) -> None:
+        """
+        Test if a saints-xctf-database-deployments S3 bucket exists
+        """
+        bucket_name = 'saints-xctf-database-deployments'
+        s3_bucket = self.s3.list_objects(Bucket=bucket_name)
+        self.assertTrue(s3_bucket.get('Name') == bucket_name)

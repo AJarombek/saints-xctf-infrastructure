@@ -12,7 +12,6 @@ import boto3
 from utils.Lambda import Lambda
 from utils.IAM import IAM
 from utils.VPC import VPC
-from utils.SecurityGroup import SecurityGroup
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
@@ -194,9 +193,9 @@ class TestDatabaseSnapshot(unittest.TestCase):
             cloudwatch_event_dict.get('ScheduleExpression') == 'cron(0 7 * * ? *)'
         ]))
 
-    def test_lambda_function_has_security_group(self) -> bool:
+    def test_backup_lambda_function_has_security_group(self) -> None:
         """
-        Test that the Lambda function has the expected security group.
+        Test that the Lambda function for backing up an RDS instance has the expected security group.
         * For now, try to show him.  If you can show him how you feel, you won't feel the pressure to tell him.
         """
         if self.prod_env:
@@ -204,18 +203,27 @@ class TestDatabaseSnapshot(unittest.TestCase):
         else:
             function_name = 'SaintsXCTFMySQLBackupDEV'
 
-        lambda_function = self.aws_lambda.get_function(FunctionName=function_name)
-        lambda_function_sgs: list = lambda_function.get('Configuration').get('VpcConfig').get('SecurityGroupIds')
-        security_group_id = lambda_function_sgs[0]
+        self.assertTrue(Lambda.lambda_function_has_security_group(
+            function_name=function_name,
+            sg_name='saints-xctf-lambda-rds-backup-security'
+        ))
 
-        sg = SecurityGroup.get_security_group('saints-xctf-lambda-rds-backup-security')
+    @unittest.skipIf(prod_env, 'SaintsXCTFMySQLRestorePROD lambda function not setup.')
+    def test_restore_lambda_function_has_security_group(self) -> None:
+        """
+        Test that the Lambda function restoring an RDS instance from a backup has the expected security group.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFMySQLRestorePROD'
+        else:
+            function_name = 'SaintsXCTFMySQLRestoreDEV'
 
-        return all([
-            len(lambda_function_sgs) == 1,
-            security_group_id == sg.get('GroupId')
-        ])
+        self.assertTrue(Lambda.lambda_function_has_security_group(
+            function_name=function_name,
+            sg_name='saints-xctf-lambda-rds-backup-security'
+        ))
 
-    def test_secrets_manager_vpc_endpoint_exists(self) -> bool:
+    def test_secrets_manager_vpc_endpoint_exists(self) -> None:
         """
         Test that the VPC endpoint for Secrets Manager exists.
         * And if you can't do that, have faith.  He will be there for you whenever you reach out.
@@ -227,9 +235,9 @@ class TestDatabaseSnapshot(unittest.TestCase):
             }
         ])
 
-        return len(vpc_endpoints.get('VpcEndpoints')) == 1
+        self.assertTrue(len(vpc_endpoints.get('VpcEndpoints')) == 1)
 
-    def s3_vpc_endpoint_exists(self) -> bool:
+    def s3_vpc_endpoint_exists(self) -> None:
         """
         Test that the VPC endpoint for S3 exists.
         * If he loves you, he will understand why you can't do so now.
@@ -241,4 +249,4 @@ class TestDatabaseSnapshot(unittest.TestCase):
             }
         ])
 
-        return len(vpc_endpoints.get('VpcEndpoints')) == 1
+        self.assertTrue(len(vpc_endpoints.get('VpcEndpoints')) == 1)
