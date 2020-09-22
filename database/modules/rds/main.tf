@@ -14,31 +14,31 @@ locals {
 # Existing SaintsXCTF VPC Resources
 #----------------------------------
 
-data "aws_vpc" "saints-xctf-com-vpc" {
+data "aws_vpc" "application-vpc" {
   tags = {
-    Name = "saints-xctf-com-vpc"
+    Name = "application-vpc"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-public-subnet-0" {
+data "aws_subnet" "application-vpc-public-subnet-0" {
   tags = {
     Name = "saints-xctf-com-lisag-public-subnet"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
+data "aws_subnet" "application-vpc-public-subnet-1" {
   tags = {
     Name = "saints-xctf-com-megank-public-subnet"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-private-subnet-0" {
+data "aws_subnet" "application-vpc-private-subnet-0" {
   tags = {
     Name = "saints-xctf-com-cassiah-private-subnet"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
+data "aws_subnet" "application-vpc-private-subnet-1" {
   tags = {
     Name = "saints-xctf-com-carolined-private-subnet"
   }
@@ -52,17 +52,17 @@ data "aws_subnet" "saints-xctf-com-vpc-private-subnet-1" {
 resource "aws_security_group" "saints-xctf-database-security" {
   name = "saints-xctf-database-security-${local.env}"
   description = "Allow incoming traffic to the MySQL port"
-  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
+  vpc_id = data.aws_vpc.application-vpc.id
 
   ingress {
     protocol = "tcp"
     from_port = 3306
     to_port = 3306
     cidr_blocks = [
-      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.cidr_block,
-      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.cidr_block,
-      data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.cidr_block,
-      data.aws_subnet.saints-xctf-com-vpc-private-subnet-1.cidr_block
+      data.aws_subnet.application-vpc-public-subnet-0.cidr_block,
+      data.aws_subnet.application-vpc-public-subnet-1.cidr_block,
+      data.aws_subnet.application-vpc-private-subnet-0.cidr_block,
+      data.aws_subnet.application-vpc-private-subnet-1.cidr_block
     ]
   }
 
@@ -116,8 +116,8 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
 /* The subnets to use for a highly available database */
 resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
   subnet_ids = [
-    data.aws_subnet.saints-xctf-com-vpc-private-subnet-0.id,
-    data.aws_subnet.saints-xctf-com-vpc-private-subnet-1.id
+    data.aws_subnet.application-vpc-private-subnet-0.id,
+    data.aws_subnet.application-vpc-private-subnet-1.id
   ]
 
   tags = {

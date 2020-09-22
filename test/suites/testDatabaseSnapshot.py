@@ -81,7 +81,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
         lambda_function = self.aws_lambda.get_function(FunctionName=function_name)
         lambda_function_vpc_id = lambda_function.get('Configuration').get('VpcConfig').get('VpcId')
 
-        vpc = VPC.get_vpc('saints-xctf-com-vpc')
+        vpc = VPC.get_vpc('application-vpc')
         vpc_id = vpc.get('VpcId')
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)
@@ -99,7 +99,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
         lambda_function = self.aws_lambda.get_function(FunctionName=function_name)
         lambda_function_vpc_id = lambda_function.get('Configuration').get('VpcConfig').get('VpcId')
 
-        vpc = VPC.get_vpc('saints-xctf-com-vpc')
+        vpc = VPC.get_vpc('application-vpc')
         vpc_id = vpc.get('VpcId')
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)

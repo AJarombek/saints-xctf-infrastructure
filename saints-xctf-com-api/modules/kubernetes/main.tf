@@ -112,9 +112,9 @@ resource "aws_security_group" "saints-xctf-api-lb-sg" {
 # Kubernetes Resources for the SaintsXCTF Web Server
 #---------------------------------------------------
 
-resource "kubernetes_deployment" "deployment" {
+resource "kubernetes_deployment" "nginx-deployment" {
   metadata {
-    name = "saints-xctf-api-deployment"
+    name = "saints-xctf-api-nginx-deployment"
     namespace = local.namespace
 
     labels = {
@@ -148,8 +148,67 @@ resource "kubernetes_deployment" "deployment" {
 
       spec {
         container {
-          name = "saints-xctf-api"
-          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api:${local.short_version}"
+          name = "saints-xctf-api-nginx"
+          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:${local.short_version}"
+
+          readiness_probe {
+            period_seconds = 5
+            initial_delay_seconds = 20
+
+            http_get {
+              path = "/"
+              port = 80
+            }
+          }
+
+          port {
+            container_port = 80
+            protocol = "TCP"
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_deployment" "flask-deployment" {
+  metadata {
+    name = "saints-xctf-api-flask-deployment"
+    namespace = local.namespace
+
+    labels = {
+      version = local.version
+      environment = local.env
+      application = "saints-xctf-api"
+    }
+  }
+
+  spec {
+    replicas = 1
+    min_ready_seconds = 10
+
+    strategy {
+      type = "RollingUpdate"
+
+      rolling_update {
+        max_surge = "1"
+        max_unavailable = "0"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          version = local.version
+          environment = local.env
+          application = "saints-xctf-api"
+        }
+      }
+
+      spec {
+        container {
+          name = "saints-xctf-api-flask"
+          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.short_version}"
 
           readiness_probe {
             period_seconds = 5
@@ -173,7 +232,7 @@ resource "kubernetes_deployment" "deployment" {
 
 resource "kubernetes_service" "service" {
   metadata {
-    name = "saints-xctf-api-service"
+    name = "saints-xctf-api"
     namespace = local.namespace
 
     labels = {
@@ -187,8 +246,35 @@ resource "kubernetes_service" "service" {
     type = "NodePort"
 
     port {
-      port = 80
+      port = 5000
       target_port = 5000
+      protocol = "TCP"
+    }
+
+    selector = {
+      application = "saints-xctf-api"
+    }
+  }
+}
+
+resource "kubernetes_service" "flask-service" {
+  metadata {
+    name = "saints-xctf-api-flask"
+    namespace = local.namespace
+
+    labels = {
+      version = local.version
+      environment = local.env
+      application = "saints-xctf-api"
+    }
+  }
+
+  spec {
+    type = "ClusterIP"
+
+    port {
+      port = 80
+      target_port = 80
       protocol = "TCP"
     }
 

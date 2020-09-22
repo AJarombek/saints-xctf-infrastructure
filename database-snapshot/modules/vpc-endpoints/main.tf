@@ -12,19 +12,19 @@ locals {
 # Existing Resources
 #-------------------
 
-data "aws_vpc" "saints-xctf-com-vpc" {
+data "aws_vpc" "application-vpc" {
   tags = {
-    Name = "saints-xctf-com-vpc"
+    Name = "application-vpc"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-public-subnet-0" {
+data "aws_subnet" "application-vpc-public-subnet-0" {
   tags = {
     Name = "saints-xctf-com-lisag-public-subnet"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
+data "aws_subnet" "application-vpc-public-subnet-1" {
   tags = {
     Name = "saints-xctf-com-megank-public-subnet"
   }
@@ -32,7 +32,7 @@ data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
 
 data "aws_route_table" "saints-xctf-com-route-table-public" {
   tags = {
-    Name = "saints-xctf-com-vpc-public-subnet-rt"
+    Name = "application-vpc-public-subnet-rt"
   }
 }
 
@@ -41,13 +41,13 @@ data "aws_route_table" "saints-xctf-com-route-table-public" {
 #----------------------------------
 
 resource "aws_vpc_endpoint" "saints-xctf-secrets-manager-vpc-endpoint" {
-  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
+  vpc_id = data.aws_vpc.application-vpc.id
   service_name = "com.amazonaws.us-east-1.secretsmanager"
   vpc_endpoint_type = "Interface"
 
   subnet_ids = [
-    data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
-    data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
+    data.aws_subnet.application-vpc-public-subnet-0.id,
+    data.aws_subnet.application-vpc-public-subnet-1.id
   ]
 
   security_group_ids = [module.vpc-endpoint-security-group.security_group_id[0]]
@@ -55,7 +55,7 @@ resource "aws_vpc_endpoint" "saints-xctf-secrets-manager-vpc-endpoint" {
 }
 
 resource "aws_vpc_endpoint" "saints-xctf-s3-vpc-endpoint" {
-  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
+  vpc_id = data.aws_vpc.application-vpc.id
   service_name = "com.amazonaws.us-east-1.s3"
   vpc_endpoint_type = "Gateway"
 
@@ -70,7 +70,7 @@ module "vpc-endpoint-security-group" {
   # Mandatory arguments
   name = "saints-xctf-vpc-endpoint-security"
   tag_name = "saints-xctf-vpc-endpoint-security"
-  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
+  vpc_id = data.aws_vpc.application-vpc.id
 
   # Optional arguments
   sg_rules = [

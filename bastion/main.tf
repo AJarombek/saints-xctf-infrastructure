@@ -36,7 +36,7 @@ data "aws_subnet" "saints-xctf-public-subnet-1" {
 
 data "aws_vpc" "saints-xctf-vpc" {
   tags = {
-    Name = "saints-xctf-com-vpc"
+    Name = "application-vpc"
   }
 }
 

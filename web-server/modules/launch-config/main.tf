@@ -16,7 +16,7 @@ locals {
 
 data "aws_vpc" "saints-xctf-vpc" {
   tags = {
-    Name = "saints-xctf-com-vpc"
+    Name = "application-vpc"
   }
 }
 

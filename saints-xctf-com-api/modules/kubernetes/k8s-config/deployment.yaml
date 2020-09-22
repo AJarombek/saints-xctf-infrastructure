@@ -5,7 +5,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: saints-xctf-api-deployment
+  name: saints-xctf-api-nginx-deployment
   namespace: saints-xctf
   labels:
     version: v1.0.0
@@ -31,8 +31,51 @@ spec:
         application: saints-xctf-api
     spec:
       containers:
-        - name: saints-xctf-api
-          image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api:1.0.0
+        - name: saints-xctf-api-nginx
+          image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:1.0.0
+          readinessProbe:
+            periodSeconds: 5
+            initialDelaySeconds: 20
+            httpGet:
+              path: /
+              port: 80
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saints-xctf-api-flask-deployment
+  namespace: saints-xctf
+  labels:
+    version: v1.0.0
+    environment: production
+    application: saints-xctf-api
+spec:
+  replicas: 1
+  minReadySeconds: 10
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      application: saints-xctf-api
+      environment: production
+  template:
+    metadata:
+      labels:
+        version: v1.0.0
+        environment: production
+        application: saints-xctf-api
+    spec:
+      containers:
+        - name: saints-xctf-api-flask
+          image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:1.0.0
           readinessProbe:
             periodSeconds: 5
             initialDelaySeconds: 20

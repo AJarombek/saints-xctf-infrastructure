@@ -13,19 +13,19 @@ locals {
 # Existing Resources
 #-------------------
 
-data "aws_vpc" "saints-xctf-com-vpc" {
+data "aws_vpc" "application-vpc" {
   tags = {
-    Name = "saints-xctf-com-vpc"
+    Name = "application-vpc"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-public-subnet-0" {
+data "aws_subnet" "application-vpc-public-subnet-0" {
   tags = {
     Name = "saints-xctf-com-lisag-public-subnet"
   }
 }
 
-data "aws_subnet" "saints-xctf-com-vpc-public-subnet-1" {
+data "aws_subnet" "application-vpc-public-subnet-1" {
   tags = {
     Name = "saints-xctf-com-megank-public-subnet"
   }
@@ -170,8 +170,8 @@ resource "aws_lambda_function" "token" {
   vpc_config {
     security_group_ids = [module.lambda-auth-token-security-group.security_group_id[0]]
     subnet_ids = [
-      data.aws_subnet.saints-xctf-com-vpc-public-subnet-0.id,
-      data.aws_subnet.saints-xctf-com-vpc-public-subnet-1.id
+      data.aws_subnet.application-vpc-public-subnet-0.id,
+      data.aws_subnet.application-vpc-public-subnet-1.id
     ]
   }
 
@@ -188,7 +188,7 @@ module "lambda-auth-token-security-group" {
   # Mandatory arguments
   name = "saints-xctf-auth-token-lambda-security"
   tag_name = "saints-xctf-auth-token-lambda-security"
-  vpc_id = data.aws_vpc.saints-xctf-com-vpc.id
+  vpc_id = data.aws_vpc.application-vpc.id
 
   # Optional arguments
   sg_rules = [
