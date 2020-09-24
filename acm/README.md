@@ -7,6 +7,7 @@ Modules which create HTTPS certificates for `saintsxctf.com`, `asset.saintsxctf.
 
 | Directory Name          | Description                                                                 |
 |-------------------------|-----------------------------------------------------------------------------|
+| `api-saints-xctf`       | ACM certificates for `*.api.saintsxctf.com`.                                |
 | `asset-saints-xctf`     | ACM certificates for `*.asset.saintsxctf.com`.                              |
 | `auth-saints-xctf`      | ACM certificates for `*.auth.saintsxctf.com`.                               |
 | `dev-saints-xctf`       | ACM certificates for `*.dev.saintsxctf.com`.                                |

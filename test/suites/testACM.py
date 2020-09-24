@@ -18,6 +18,28 @@ class TestACM(unittest.TestCase):
         self.acm = boto3.client('acm')
         self.acm_certificates = self.acm.list_certificates(CertificateStatuses=['ISSUED'])
 
+    def test_acm_api_wildcard_cert_issued(self) -> None:
+        """
+        Test that the api wildcard ACM certificate exists
+        """
+        for cert in self.acm_certificates.get('CertificateSummaryList'):
+            if cert.get('DomainName') == '*.api.saintsxctf.com':
+                self.assertTrue(True)
+                return
+
+        self.assertTrue(False)
+
+    def test_acm_dev_api_wildcard_cert_issued(self) -> None:
+        """
+        Test that the development api wildcard ACM certificate exists
+        """
+        for cert in self.acm_certificates.get('CertificateSummaryList'):
+            if cert.get('DomainName') == '*.dev.api.saintsxctf.com':
+                self.assertTrue(True)
+                return
+
+        self.assertTrue(False)
+
     def test_acm_asset_wildcard_cert_issued(self) -> None:
         """
         Test that the asset wildcard ACM certificate exists

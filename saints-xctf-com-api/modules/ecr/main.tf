@@ -19,8 +19,8 @@ resource "aws_ecr_repository" "saints-xctf-api-flask-repository" {
   }
 }
 
-resource "aws_ecr_repository" "saints-xctf-api-redux-repository" {
-  name = "saints-xctf-api-redux"
+resource "aws_ecr_repository" "saints-xctf-api-nginx-repository" {
+  name = "saints-xctf-api-nginx"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -28,7 +28,7 @@ resource "aws_ecr_repository" "saints-xctf-api-redux-repository" {
   }
 
   tags = {
-    Name = "saints-xctf-api-redux-container-repository"
+    Name = "saints-xctf-api-nginx-container-repository"
     Application = "saints-xctf"
     Environment = "all"
   }

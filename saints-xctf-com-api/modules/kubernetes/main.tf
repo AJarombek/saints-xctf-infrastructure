@@ -14,9 +14,9 @@ data "aws_eks_cluster_auth" "cluster" {
   name = "andrew-jarombek-eks-cluster"
 }
 
-data "aws_vpc" "kubernetes-vpc" {
+data "aws_vpc" "application-vpc" {
   tags = {
-    Name = "kubernetes-vpc"
+    Name = "application-vpc"
   }
 }
 
@@ -57,6 +57,7 @@ locals {
   short_env = var.prod ? "prod" : "dev"
   env = var.prod ? "production" : "development"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
+  hostname = var.prod ? "api.saintsxctf.com,www.api.saintsxctf.com" : "dev.api.saintsxctf.com,www.dev.api.saintsxctf.com"
   short_version = "1.0.0"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
@@ -74,7 +75,7 @@ locals {
 
 resource "aws_security_group" "saints-xctf-api-lb-sg" {
   name = "saints-xctf-api-${local.short_env}-lb-security-group"
-  vpc_id = data.aws_vpc.kubernetes-vpc.id
+  vpc_id = data.aws_vpc.application-vpc.id
 
   lifecycle {
     create_before_destroy = true
@@ -291,7 +292,7 @@ resource "kubernetes_ingress" "ingress" {
 
     annotations = {
       "kubernetes.io/ingress.class" = "alb"
-      "external-dns.alpha.kubernetes.io/hostname" = "api.saintsxctf.com,www.api.saintsxctf.com"
+      "external-dns.alpha.kubernetes.io/hostname" = local.hostname
       "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
       "alb.ingress.kubernetes.io/certificate-arn" = "${local.cert_arn},${local.wildcard_cert_arn}"
       "alb.ingress.kubernetes.io/healthcheck-path" = "/login"
@@ -307,7 +308,7 @@ resource "kubernetes_ingress" "ingress" {
     labels = {
       version = local.version
       environment = local.env
-      application = "api.saints-xctf-web"
+      application = "saints-xctf-api"
     }
   }
 
