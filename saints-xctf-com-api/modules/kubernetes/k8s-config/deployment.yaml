@@ -11,6 +11,7 @@ metadata:
     version: v1.0.0
     environment: production
     application: saints-xctf-api
+    task: nginx
 spec:
   replicas: 1
   minReadySeconds: 10
@@ -21,14 +22,17 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
+      version: v1.0.0
       application: saints-xctf-api
       environment: production
+      task: nginx
   template:
     metadata:
       labels:
         version: v1.0.0
         environment: production
         application: saints-xctf-api
+        task: nginx
     spec:
       containers:
         - name: saints-xctf-api-nginx
@@ -54,6 +58,7 @@ metadata:
     version: v1.0.0
     environment: production
     application: saints-xctf-api
+    task: flask
 spec:
   replicas: 1
   minReadySeconds: 10
@@ -64,14 +69,17 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
+      version: v1.0.0
       application: saints-xctf-api
       environment: production
+      task: flask
   template:
     metadata:
       labels:
         version: v1.0.0
         environment: production
         application: saints-xctf-api
+        task: flask
     spec:
       containers:
         - name: saints-xctf-api-flask

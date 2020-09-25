@@ -57,7 +57,9 @@ locals {
   short_env = var.prod ? "prod" : "dev"
   env = var.prod ? "production" : "development"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
-  hostname = var.prod ? "api.saintsxctf.com,www.api.saintsxctf.com" : "dev.api.saintsxctf.com,www.dev.api.saintsxctf.com"
+  host1 = var.prod ? "api.saintsxctf.com" : "dev.api.saintsxctf.com"
+  host2 = var.prod ? "www.api.saintsxctf.com" : "www.dev.api.saintsxctf.com"
+  hostname = "${local.host1},${local.host2}"
   short_version = "1.0.0"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
@@ -122,6 +124,7 @@ resource "kubernetes_deployment" "nginx-deployment" {
       version = local.version
       environment = local.env
       application = "saints-xctf-api"
+      task = "nginx"
     }
   }
 
@@ -138,12 +141,22 @@ resource "kubernetes_deployment" "nginx-deployment" {
       }
     }
 
+    selector {
+      match_labels = {
+        version = local.version
+        environment = local.env
+        application = "saints-xctf-api"
+        task = "nginx"
+      }
+    }
+
     template {
       metadata {
         labels = {
           version = local.version
           environment = local.env
           application = "saints-xctf-api"
+          task = "nginx"
         }
       }
 
@@ -181,6 +194,7 @@ resource "kubernetes_deployment" "flask-deployment" {
       version = local.version
       environment = local.env
       application = "saints-xctf-api"
+      task = "flask"
     }
   }
 
@@ -197,12 +211,22 @@ resource "kubernetes_deployment" "flask-deployment" {
       }
     }
 
+    selector {
+      match_labels = {
+        version = local.version
+        environment = local.env
+        application = "saints-xctf-api"
+        task = "flask"
+      }
+    }
+
     template {
       metadata {
         labels = {
           version = local.version
           environment = local.env
           application = "saints-xctf-api"
+          task = "flask"
         }
       }
 
@@ -314,7 +338,7 @@ resource "kubernetes_ingress" "ingress" {
 
   spec {
     rule {
-      host = "api.saintsxctf.com"
+      host = local.host1
 
       http {
         path {
@@ -329,7 +353,7 @@ resource "kubernetes_ingress" "ingress" {
     }
 
     rule {
-      host = "www.api.saintsxctf.com"
+      host = local.host2
 
       http {
         path {

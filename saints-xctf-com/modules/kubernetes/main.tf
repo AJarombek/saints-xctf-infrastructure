@@ -14,9 +14,9 @@ data "aws_eks_cluster_auth" "cluster" {
   name = "andrew-jarombek-eks-cluster"
 }
 
-data "aws_vpc" "kubernetes-vpc" {
+data "aws_vpc" "application-vpc" {
   tags = {
-    Name = "kubernetes-vpc"
+    Name = "application-vpc"
   }
 }
 
@@ -57,6 +57,9 @@ locals {
   short_env = var.prod ? "prod" : "dev"
   env = var.prod ? "production" : "development"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
+  host1 = var.prod ? "new.saintsxctf.com" : "dev.saintsxctf.com"
+  host2 = var.prod ? "www.new.saintsxctf.com" : "www.dev.saintsxctf.com"
+  hostname = "${local.host1},${local.host2}"
   short_version = "1.0.0"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
@@ -74,7 +77,7 @@ locals {
 
 resource "aws_security_group" "saints-xctf-lb-sg" {
   name = "saints-xctf-${local.short_env}-lb-security-group"
-  vpc_id = data.aws_vpc.kubernetes-vpc.id
+  vpc_id = data.aws_vpc.application-vpc.id
 
   lifecycle {
     create_before_destroy = true
@@ -137,6 +140,14 @@ resource "kubernetes_deployment" "deployment" {
       }
     }
 
+    selector {
+      match_labels = {
+        version = local.version
+        environment = local.env
+        application = "saints-xctf-web"
+      }
+    }
+
     template {
       metadata {
         labels = {
@@ -149,7 +160,7 @@ resource "kubernetes_deployment" "deployment" {
       spec {
         container {
           name = "saints-xctf-web"
-          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf:${local.short_version}"
+          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web:${local.short_version}"
 
           readiness_probe {
             period_seconds = 5
@@ -205,7 +216,7 @@ resource "kubernetes_ingress" "ingress" {
 
     annotations = {
       "kubernetes.io/ingress.class" = "alb"
-      "external-dns.alpha.kubernetes.io/hostname" = "saintsxctf.com,www.saintsxctf.com"
+      "external-dns.alpha.kubernetes.io/hostname" = local.hostname
       "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
       "alb.ingress.kubernetes.io/certificate-arn" = "${local.cert_arn},${local.wildcard_cert_arn}"
       "alb.ingress.kubernetes.io/healthcheck-path" = "/login"
@@ -227,7 +238,7 @@ resource "kubernetes_ingress" "ingress" {
 
   spec {
     rule {
-      host = "saintsxctf.com"
+      host = local.host1
 
       http {
         path {
@@ -242,7 +253,7 @@ resource "kubernetes_ingress" "ingress" {
     }
 
     rule {
-      host = "www.saintsxctf.com"
+      host = local.host2
 
       http {
         path {
