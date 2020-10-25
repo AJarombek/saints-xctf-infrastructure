@@ -30,6 +30,21 @@ resource "aws_ecr_repository" "saints-xctf-web-nginx-repository" {
   tags = {
     Name = "saints-xctf-web-nginx-container-repository"
     Application = "saints-xctf"
-    Environment = "all"
+    Environment = "production"
+  }
+}
+
+resource "aws_ecr_repository" "saints-xctf-web-nginx-dev-repository" {
+  name = "saints-xctf-web-nginx-dev"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Name = "saints-xctf-web-nginx-dev-container-repository"
+    Application = "saints-xctf"
+    Environment = "development"
   }
 }

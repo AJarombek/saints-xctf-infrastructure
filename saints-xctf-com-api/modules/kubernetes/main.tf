@@ -193,13 +193,14 @@ resource "kubernetes_service" "service" {
     type = "NodePort"
 
     port {
-      port = 5000
-      target_port = 5000
+      port = 80
+      target_port = 80
       protocol = "TCP"
     }
 
     selector = {
       application = "saints-xctf-api"
+      task = "nginx"
     }
   }
 }
@@ -220,13 +221,14 @@ resource "kubernetes_service" "flask-service" {
     type = "ClusterIP"
 
     port {
-      port = 80
-      target_port = 80
+      port = 5000
+      target_port = 5000
       protocol = "TCP"
     }
 
     selector = {
       application = "saints-xctf-api"
+      task = "flask"
     }
   }
 }

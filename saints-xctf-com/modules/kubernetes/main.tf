@@ -28,6 +28,7 @@ provider "kubernetes" {
 locals {
   env = var.prod ? "production" : "development"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
+  image = var.prod ? "saints-xctf-web-nginx" : "saints-xctf-web-nginx-dev"
   short_version = "1.0.0"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
@@ -82,7 +83,7 @@ resource "kubernetes_deployment" "deployment" {
       spec {
         container {
           name = "saints-xctf-web"
-          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web:${local.short_version}"
+          image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/${local.image}:${local.short_version}"
 
           readiness_probe {
             period_seconds = 5

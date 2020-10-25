@@ -11,18 +11,22 @@ locals {
 
 resource "aws_secretsmanager_secret" "saints-xctf-auth-secret" {
   name = "saints-xctf-auth-${local.env}"
-  rotation_lambda_arn = var.rotation-lambda-arn
   description = "SaintsXCTF authentication RSA credential for the ${upper(local.env)} environment"
   recovery_window_in_days = 0
-
-  rotation_rules {
-    automatically_after_days = 7
-  }
 
   tags = {
     Name = "saints-xctf-auth-${local.env}-secret"
     Environment = upper(local.env)
     Application = "saints-xctf"
+  }
+}
+
+resource "aws_secretsmanager_secret_rotation" "saints-xctf-auth-secret-rotation" {
+  rotation_lambda_arn = var.rotation-lambda-arn
+  secret_id = aws_secretsmanager_secret.saints-xctf-auth-secret.id
+
+  rotation_rules {
+    automatically_after_days = 7
   }
 }
 

@@ -143,6 +143,12 @@ resource "aws_lambda_function" "authenticate" {
   }
 }
 
+resource "aws_lambda_provisioned_concurrency_config" "authenticate" {
+  function_name = aws_lambda_function.authenticate.function_name
+  provisioned_concurrent_executions = 1
+  qualifier = aws_lambda_function.authenticate.version
+}
+
 resource "aws_cloudwatch_log_group" "authenticate-log-group" {
   name = "/aws/lambda/SaintsXCTFAuthenticate${upper(local.env)}"
   retention_in_days = 7
@@ -180,6 +186,12 @@ resource "aws_lambda_function" "token" {
     Environment = local.env
     Application = "saints-xctf-com"
   }
+}
+
+resource "aws_lambda_provisioned_concurrency_config" "token" {
+  function_name = aws_lambda_function.token.function_name
+  provisioned_concurrent_executions = 1
+  qualifier = aws_lambda_function.token.version
 }
 
 module "lambda-auth-token-security-group" {
