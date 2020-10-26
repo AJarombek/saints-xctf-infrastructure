@@ -91,12 +91,12 @@ resource "kubernetes_deployment" "deployment" {
 
             http_get {
               path = "/"
-              port = 8080
+              port = 80
             }
           }
 
           port {
-            container_port = 8080
+            container_port = 80
             protocol = "TCP"
           }
         }
@@ -122,7 +122,7 @@ resource "kubernetes_service" "service" {
 
     port {
       port = 80
-      target_port = 8080
+      target_port = 80
       protocol = "TCP"
     }
 

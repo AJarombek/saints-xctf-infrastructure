@@ -37,6 +37,11 @@ spec:
       containers:
         - name: saints-xctf-api-nginx
           image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:1.0.0
+          env:
+            - name: FLASK_ENV
+              value: development
+            - name: ENV
+              value: dev
           readinessProbe:
             periodSeconds: 5
             initialDelaySeconds: 20

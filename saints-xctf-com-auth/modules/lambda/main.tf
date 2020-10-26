@@ -129,6 +129,7 @@ resource "aws_lambda_function" "authenticate" {
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthenticate.zip")
   timeout = 10
+  publish = true
 
   environment {
     variables = {
@@ -166,6 +167,7 @@ resource "aws_lambda_function" "token" {
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFToken.zip")
   timeout = 10
+  publish = true
 
   environment {
     variables = {

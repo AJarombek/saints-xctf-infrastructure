@@ -2,6 +2,15 @@
 
 Creates Kubernetes, ALB, and ECR infrastructure for the SaintsXCTF web application (V2).
 
+### Commands
+
+**Debugging the Kubernetes infrastructure**
+
+```bash
+ kubectl get po -n saints-xctf-dev
+ kubectl describe po -n saints-xctf-dev
+```
+
 ### Directories
 
 | Directory Name    | Description                                                                                     |

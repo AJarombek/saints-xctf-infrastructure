@@ -199,7 +199,7 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "saints-xctf-api-service"
+            service_name = "saints-xctf-api"
             service_port = 80
           }
         }
@@ -214,7 +214,7 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "saints-xctf-api-service"
+            service_name = "saints-xctf-api"
             service_port = 80
           }
         }

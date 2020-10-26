@@ -27,6 +27,7 @@ provider "kubernetes" {
 
 locals {
   env = var.prod ? "production" : "development"
+  short_env = var.prod ? "prod" : "dev"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
   short_version = "1.0.0"
   version = "v${local.short_version}"
@@ -157,14 +158,14 @@ resource "kubernetes_deployment" "flask-deployment" {
           name = "saints-xctf-api-flask"
           image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.short_version}"
 
-          readiness_probe {
-            period_seconds = 5
-            initial_delay_seconds = 20
+          env {
+            name = "FLASK_ENV"
+            value = local.env
+          }
 
-            http_get {
-              path = "/"
-              port = 5000
-            }
+          env {
+            name = "ENV"
+            value = local.short_env
           }
 
           port {
