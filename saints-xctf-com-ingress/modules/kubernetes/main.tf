@@ -141,6 +141,7 @@ resource "kubernetes_ingress" "ingress" {
     annotations = {
       "kubernetes.io/ingress.class" = "alb"
       "external-dns.alpha.kubernetes.io/hostname" = local.hostname
+      "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\": \"redirect\", \"RedirectConfig\": {\"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
       "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
       "alb.ingress.kubernetes.io/certificate-arn" = local.certificates
       "alb.ingress.kubernetes.io/healthcheck-path" = "/login"
@@ -169,6 +170,15 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
+            service_name = "ssl-redirect"
+            service_port = "use-annotation"
+          }
+        }
+
+        path {
+          path = "/*"
+
+          backend {
             service_name = "saints-xctf-web-service"
             service_port = 80
           }
@@ -180,6 +190,15 @@ resource "kubernetes_ingress" "ingress" {
       host = local.host2
 
       http {
+        path {
+          path = "/*"
+
+          backend {
+            service_name = "ssl-redirect"
+            service_port = "use-annotation"
+          }
+        }
+
         path {
           path = "/*"
 
