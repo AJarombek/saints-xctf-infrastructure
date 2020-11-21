@@ -12,6 +12,17 @@
 }
 ```
 
+### Files
+
+| Filename                        | Description                                                                                  |
+|---------------------------------|----------------------------------------------------------------------------------------------|
+| `email`                         | Request and response mappings for functions located under the `/email` path.                 |
+| `uasset`                        | Request and response mappings for functions located under the `/uasset` path.                |
+| `main.tf`                       | Main Terraform script of the API Gateway module.                                             |
+| `var.tf`                        | Variables used in the Terraform API Gateway module.                                          |
+| `api-gateway-auth-policy.json`  | Lambda authorizer policy for the API Gateway endpoints.                                      |
+| `api-gateway-auth-role.json`    | Lambda authorizer assume role policy for the API Gateway endpoints.                          |
+
 ### Resources
 
 1. [Velocity Input Variable Options](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html#input-variable-reference)

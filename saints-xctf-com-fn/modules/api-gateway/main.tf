@@ -6,6 +6,7 @@
 
 locals {
   env = var.prod ? "prodution" : "development"
+  env_suffix = var.prod ? "" : "-dev"
   domain_name = var.prod ? "fn.saintsxctf.com" : "dev.fn.saintsxctf.com"
   cert = var.prod ? "*.saintsxctf.com" : "*.fn.saintsxctf.com"
 }
@@ -41,7 +42,7 @@ data "template_file" "api-gateway-auth-policy-file" {
 #----------------------------------
 
 resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
-  name = "saints-xctf-com-fn"
+  name = "saints-xctf-com-fn-${local.env_suffix}"
   description = "A REST API for AWS Lambda Functions in the fn.saintsxctf.com domain"
 }
 
@@ -148,6 +149,29 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-forgot-password-path" {
   path_part = "forgot-password"
 }
 
+# Resource for the API path /uasset
+resource "aws_api_gateway_resource" "saints-xctf-com-fn-uasset-path" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_id = aws_api_gateway_rest_api.saints-xctf-com-fn.root_resource_id
+  path_part = "uasset"
+}
+
+# Resource for the API path /uasset/user
+resource "aws_api_gateway_resource" "saints-xctf-com-fn-user-path" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
+  path_part = "user"
+}
+
+# Resource for the API path /uasset/group
+resource "aws_api_gateway_resource" "saints-xctf-com-fn-group-path" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
+  path_part = "group"
+}
+
+/* POST /email/forgot-password */
+
 resource "aws_api_gateway_method" "email-forgot-password-method" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   resource_id = aws_api_gateway_resource.saints-xctf-com-fn-forgot-password-path.id
@@ -185,7 +209,7 @@ resource "aws_api_gateway_integration" "email-forgot-password-integration" {
   uri = var.email-lambda-invoke-arn
 
   request_templates = {
-    "application/json" = file("${path.module}/request.vm")
+    "application/json" = file("${path.module}/email/forgot-password/request.vm")
   }
 }
 
@@ -197,7 +221,7 @@ resource "aws_api_gateway_integration_response" "email-forgot-password-integrati
   status_code = aws_api_gateway_method_response.email-forgot-password-method-response.status_code
 
   response_templates = {
-    "application/json" = file("${path.module}/response.vm")
+    "application/json" = file("${path.module}/email/forgot-password/response.vm")
   }
 
   depends_on = [
@@ -212,3 +236,5 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
 }
+
+/* POST /uasset/user */

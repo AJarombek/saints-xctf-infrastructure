@@ -1,6 +1,6 @@
 ### Overview
 
-Kubernetes objects for the SaintsXCTF API in the *DEV* and *PROD* environments.
+Terraform module which creates a Kubernetes `Ingress` object for SaintsXCTF in the *DEV* and *PROD* environments.
 
 ### Files
 

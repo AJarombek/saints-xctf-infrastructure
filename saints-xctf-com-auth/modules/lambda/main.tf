@@ -128,6 +128,7 @@ resource "aws_lambda_function" "authenticate" {
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthenticate.zip")
+  memory_size = 1792
   timeout = 10
   publish = true
 
@@ -166,6 +167,7 @@ resource "aws_lambda_function" "token" {
   role = aws_iam_role.token-lambda-role.arn
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFToken.zip")
+  memory_size = 1792
   timeout = 10
   publish = true
 
