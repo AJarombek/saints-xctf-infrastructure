@@ -44,6 +44,8 @@ data "template_file" "api-gateway-auth-policy-file" {
 resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
   name = "saints-xctf-com-fn-${local.env_suffix}"
   description = "A REST API for AWS Lambda Functions in the fn.saintsxctf.com domain"
+
+  binary_media_types = ["image/png", "image/jpeg"]
 }
 
 resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
@@ -238,3 +240,71 @@ resource "aws_lambda_permission" "allow_api_gateway" {
 }
 
 /* POST /uasset/user */
+
+resource "aws_api_gateway_method" "uasset-user-method" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
+  request_validator_id = aws_api_gateway_request_validator.uasset-user-request-validator.id
+
+  http_method = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_request_validator" "uasset-user-request-validator" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  validate_request_body = true
+  validate_request_parameters = false
+  name = "uasset-user-request-body-${local.env}"
+}
+
+resource "aws_api_gateway_method_response" "uasset-user-method-response" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
+
+  http_method = aws_api_gateway_method.uasset-user-method.http_method
+  status_code = "200"
+}
+
+resource "aws_api_gateway_integration" "uasset-user-integration" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
+
+  http_method = aws_api_gateway_method.uasset-user-method.http_method
+
+  # Lambda functions can only be invoked via HTTP POST
+  integration_http_method = "POST"
+
+  type = "AWS"
+  uri = var.uasset-user-lambda-invoke-arn
+
+  # Convert the binary image to a base 64 encoded string.
+  content_handling = "CONVERT_TO_TEXT"
+
+  request_templates = {
+    "application/json" = file("${path.module}/uasset/user/request.vm")
+  }
+}
+
+resource "aws_api_gateway_integration_response" "uasset-user-integration-response" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
+
+  http_method = aws_api_gateway_method.uasset-user-method.http_method
+  status_code = aws_api_gateway_method_response.uasset-user-method-response.status_code
+
+  response_templates = {
+    "application/json" = file("${path.module}/uasset/user/response.vm")
+  }
+
+  depends_on = [
+    aws_api_gateway_integration.uasset-user-integration
+  ]
+}
+
+resource "aws_lambda_permission" "allow-api-gateway-uasset-user" {
+  action = "lambda:InvokeFunction"
+  function_name = var.uasset-user-lambda-name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}

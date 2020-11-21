@@ -1,0 +1,11 @@
+#**
+ * HTTP Response for the uasset/user REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 11/21/2020
+ *#
+
+#set($response = $input.path('$'))
+
+{
+    "result": $response
+}

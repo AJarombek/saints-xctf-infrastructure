@@ -1,0 +1,15 @@
+#**
+ * HTTP Request for the uasset/user REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 11/21/2020
+ *#
+
+#set($username = $input.json('$.username'))
+#set($fileName = $input.json('$.fileName'))
+#set($base64Image = $input.body)
+
+{
+    "username": $username,
+    "fileName": $fileName,
+    "base64Image": $lastName
+}
