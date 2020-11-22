@@ -28,6 +28,7 @@ class TestSXCTFFn(unittest.TestCase):
         self.lambda_: LambdaClient = boto3.client('lambda', region_name='us-east-1')
         self.prod_env = prod_env
 
+    @unittest.skipIf(prod_env, 'Production API not running.')
     def test_fn_saintsxctf_com_api_exists(self) -> None:
         """
         Test if the fn.saintsxctf.com API Gateway REST API exists
