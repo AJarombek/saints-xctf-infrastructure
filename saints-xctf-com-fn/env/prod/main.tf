@@ -24,9 +24,16 @@ module "email-lambda" {
   prod = true
 }
 
+module "uasset-lambda" {
+  source = "../../modules/uasset-lambda"
+  prod = true
+}
+
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = true
   email-lambda-name = module.email-lambda.function-name
   email-lambda-invoke-arn = module.email-lambda.function-invoke-arn
+  uasset-user-lambda-invoke-arn = module.uasset-lambda.user-function-invoke-arn
+  uasset-user-lambda-name = module.uasset-lambda.user-function-name
 }

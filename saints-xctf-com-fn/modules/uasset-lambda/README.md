@@ -1,7 +1,7 @@
 ### Overview
 
-Terraform module for AWS Lambda functions related to sending emails.  These functions are called from the 
-`fn.saintsxctf.com` API Gateway REST API under the `/email` route.
+Terraform module for AWS Lambda functions related to manipulating objects in the `uasset.saintsxctf.com` S3 bucket.  
+These functions are called from the `fn.saintsxctf.com` API Gateway REST API under the `/uasset` route.
 
 ### Files
 
