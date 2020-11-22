@@ -6,6 +6,7 @@
 
 locals {
   env = var.prod ? "prodution" : "development"
+  env_short = var.prod ? "prod" : "dev"
   env_suffix = var.prod ? "" : "-dev"
   domain_name = var.prod ? "fn.saintsxctf.com" : "dev.fn.saintsxctf.com"
   cert = var.prod ? "*.saintsxctf.com" : "*.fn.saintsxctf.com"
@@ -26,7 +27,7 @@ data "aws_acm_certificate" "saints-xctf-wildcard-cert" {
 }
 
 data "aws_lambda_function" "authorizer" {
-  function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
+  function_name = "SaintsXCTFAuthorizer${upper(local.env_short)}"
 }
 
 data "template_file" "api-gateway-auth-policy-file" {

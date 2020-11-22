@@ -5,9 +5,9 @@
  */
 
 output "user-function-name" {
-  value = aws_lambda_function.forgot-password-email.function_name
+  value = aws_lambda_function.uasset-user-email.function_name
 }
 
 output "user-function-invoke-arn" {
-  value = aws_lambda_function.forgot-password-email.invoke_arn
+  value = aws_lambda_function.uasset-user-email.invoke_arn
 }

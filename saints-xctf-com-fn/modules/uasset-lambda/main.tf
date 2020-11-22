@@ -64,7 +64,7 @@ data "aws_iam_policy_document" "lambda-policy" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeLogStreams"
-    ],
+    ]
     resources = ["*"]
   }
 }
