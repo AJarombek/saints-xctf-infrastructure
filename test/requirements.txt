@@ -1,2 +1,2 @@
-boto3>=1.12.21
+boto3>=1.16.23
 boto3_type_annotations>=0.3.1

@@ -5,7 +5,7 @@
  */
 
 locals {
-  env = var.prod ? "prodution" : "development"
+  env = var.prod ? "production" : "development"
   env_short = var.prod ? "prod" : "dev"
   env_suffix = var.prod ? "" : "-dev"
   domain_name = var.prod ? "fn.saintsxctf.com" : "dev.fn.saintsxctf.com"
@@ -43,7 +43,7 @@ data "template_file" "api-gateway-auth-policy-file" {
 #----------------------------------
 
 resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
-  name = "saints-xctf-com-fn-${local.env_suffix}"
+  name = "saints-xctf-com-fn${local.env_suffix}"
   description = "A REST API for AWS Lambda Functions in the fn.saintsxctf.com domain"
 
   binary_media_types = ["image/png", "image/jpeg"]
@@ -106,9 +106,9 @@ resource "aws_api_gateway_domain_name" "saints-xctf-com-fn-domain" {
   certificate_arn = data.aws_acm_certificate.saints-xctf-wildcard-cert.arn
 }
 
-resource "aws_api_gateway_base_path_mapping" "saints-xctf-com-auth-base" {
+resource "aws_api_gateway_base_path_mapping" "saints-xctf-com-fn-base" {
   api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  stage_name = local.env
+  stage_name = aws_api_gateway_stage.saints-xctf-com-fn-stage.stage_name
   domain_name = aws_api_gateway_domain_name.saints-xctf-com-fn-domain.domain_name
 }
 

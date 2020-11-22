@@ -59,7 +59,7 @@ data "aws_iam_policy_document" "lambda-policy" {
     sid = "UassetLambda"
     effect = "Allow"
     actions = [
-      "s3:createObject",
+      "s3:PutObject",
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
