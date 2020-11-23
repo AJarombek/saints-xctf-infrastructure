@@ -12,6 +12,8 @@ import boto3
 from boto3_type_annotations.apigateway import Client as ApiGatewayClient
 from boto3_type_annotations.lambda_ import Client as LambdaClient
 
+from utils.APIGateway import APIGateway
+
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
 except KeyError:
@@ -38,22 +40,24 @@ class TestSXCTFFn(unittest.TestCase):
         """
         Test if the fn.saintsxctf.com API Gateway REST API exists
         """
-        apis: dict = self.apigateway.get_rest_apis()
-        api_list: List[dict] = apis.get('items')
-        matching_apis = [api for api in api_list if api.get('name') == self.api_name]
-        self.assertEqual(1, len(matching_apis))
+        APIGateway.rest_api_exists(self, self.api_name)
 
     @unittest.skipIf(prod_env, 'Production Function API not running.')
     def test_fn_saintsxctf_com_api_deployment_exists(self) -> None:
         """
         Test if a deployment exists for the fn.saintsxctf.com API Gateway REST API.
         """
-        apis: dict = self.apigateway.get_rest_apis()
-        api_list: List[dict] = apis.get('items')
-        matching_apis = [api for api in api_list if api.get('name') == self.api_name]
-        self.assertEqual(1, len(matching_apis))
+        APIGateway.deployment_exists(self, self.api_name)
 
-        api_id = matching_apis[0].get('id')
-        deployments = self.apigateway.get_deployments(restApiId=api_id)
-        deployment_list: List[dict] = deployments.get('items')
-        self.assertEqual(1, len(deployment_list))
+    #@unittest.skipIf(prod_env, 'Production Function API not running.')
+    def test_fn_saintsxctf_com_api_stage_exists(self) -> None:
+        """
+        Test if a stage (named reference to a deployment) exists for the fn.saintsxctf.com API Gateway REST API.
+        """
+        if self.prod_env:
+            stage_name = 'production'
+        else:
+            stage_name = 'development'
+
+        APIGateway.stage_exists(self, self.api_name, stage_name)
+

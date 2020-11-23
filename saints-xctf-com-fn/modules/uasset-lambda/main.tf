@@ -59,13 +59,22 @@ data "aws_iam_policy_document" "lambda-policy" {
     sid = "UassetLambda"
     effect = "Allow"
     actions = [
-      "s3:PutObject",
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeLogStreams"
     ]
     resources = ["*"]
+  }
+
+  statement {
+    sid = "UassetLambdaS3"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = ["arn:aws:s3:::uasset.saintsxctf.com/*"]
   }
 }
 
