@@ -6,6 +6,7 @@
 
 locals {
   env = var.prod ? "prodution" : "development"
+  env_suffix = var.prod ? "" : "-dev"
   domain_name = var.prod ? "auth.saintsxctf.com" : "dev.auth.saintsxctf.com"
   cert = var.prod ? "*.saintsxctf.com" : "*.auth.saintsxctf.com"
 }
@@ -29,7 +30,7 @@ data "aws_acm_certificate" "saints-xctf-wildcard-cert" {
 # ---------------------------------
 
 resource "aws_api_gateway_rest_api" "saints-xctf-com-auth" {
-  name = "saints-xctf-com-auth"
+  name = "saints-xctf-com-auth${local.env_suffix}"
   description = "A REST API for AWS Lambda Functions in the auth.saintsxctf.com domain"
 }
 
