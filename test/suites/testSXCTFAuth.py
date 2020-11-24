@@ -60,3 +60,33 @@ class TestSXCTFAuth(unittest.TestCase):
             stage_name = 'development'
 
         APIGateway.stage_exists(self, self.api_name, stage_name)
+
+    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    def test_auth_saintsxctf_com_api_domain_name_exists(self) -> None:
+        """
+        Test that a domain name is configured for the auth.saintsxctf.com REST API.
+        """
+        if self.prod_env:
+            domain_name = 'auth.saintsxctf.com'
+        else:
+            domain_name = 'dev.auth.saintsxctf.com'
+
+        domain = self.apigateway.get_domain_name(domainName=domain_name)
+        self.assertEqual('AVAILABLE', domain.get('domainNameStatus'))
+
+    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    def test_auth_saintsxctf_com_api_base_path_mapping_empty(self) -> None:
+        """
+        Test that an empty string is configured for the base path mapping of the auth.saintsxctf.com REST API.
+        """
+        if self.prod_env:
+            domain_name = 'auth.saintsxctf.com'
+        else:
+            domain_name = 'dev.auth.saintsxctf.com'
+
+        base_path_mappings = self.apigateway.get_base_path_mappings(domainName=domain_name)
+        base_path_mapping_list: List[dict] = base_path_mappings.get('items')
+        self.assertEqual(1, len(base_path_mapping_list))
+
+        base_path_mapping = base_path_mapping_list[0]
+        self.assertEqual('(none)', base_path_mapping.get('basePath'))
