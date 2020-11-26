@@ -14,9 +14,9 @@ from boto3_type_annotations.iam import Client as IAMClient
 from boto3_type_annotations.cloudwatch import Client as CloudWatchClient
 from boto3_type_annotations.ec2 import Client as EC2Client
 
-from utils.IAM import IAM
-from utils.Lambda import Lambda
-from utils.VPC import VPC
+from aws_test_functions.IAM import IAM
+from aws_test_functions.Lambda import Lambda
+from aws_test_functions.VPC import VPC
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"

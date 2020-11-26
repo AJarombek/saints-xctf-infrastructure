@@ -12,7 +12,8 @@ import boto3
 from boto3_type_annotations.apigateway import Client as ApiGatewayClient
 from boto3_type_annotations.lambda_ import Client as LambdaClient
 
-from utils.APIGateway import APIGateway
+from aws_test_functions.APIGateway import APIGateway
+from aws_test_functions.Route53 import Route53
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
@@ -32,8 +33,10 @@ class TestSXCTFAuth(unittest.TestCase):
 
         if self.prod_env:
             self.api_name = 'saints-xctf-com-auth'
+            self.domain_name = 'auth.saintsxctf.com'
         else:
             self.api_name = 'saints-xctf-com-auth-dev'
+            self.domain_name = 'dev.auth.saintsxctf.com'
 
     @unittest.skipIf(prod_env, 'Production Auth API not running.')
     def test_auth_saintsxctf_com_api_exists(self) -> None:
@@ -90,3 +93,37 @@ class TestSXCTFAuth(unittest.TestCase):
 
         base_path_mapping = base_path_mapping_list[0]
         self.assertEqual('(none)', base_path_mapping.get('basePath'))
+
+    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    def test_auth_saintsxctf_com_api_route53_record_exists(self) -> None:
+        """
+        Determine if an 'A' record exists for 'auth.saintsxctf.com.' in Route53
+        """
+        try:
+            a_record = Route53.get_record(f'saintsxctf.com.', f'{self.domain_name}.', 'A')
+        except IndexError:
+            self.assertTrue(False)
+            return
+
+        self.assertTrue(a_record.get('Name') == f'{self.domain_name}.' and a_record.get('Type') == 'A')
+
+    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    def test_auth_saintsxctf_com_api_has_expected_endpoints(self) -> None:
+        """
+        Test that the expected endpoints exist in 'auth.saintsxctf.com.'.
+        """
+        pass
+
+    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    def test_auth_saintsxctf_com_api_token_endpoint(self) -> None:
+        """
+        Test that the '/token' endpoint exists in 'auth.saintsxctf.com.' as expected.
+        """
+        pass
+
+    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    def test_auth_saintsxctf_com_api_authenticate_endpoint(self) -> None:
+        """
+        Test that the '/authenticate' endpoint exists in 'auth.saintsxctf.com.' as expected.
+        """
+        pass

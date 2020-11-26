@@ -6,14 +6,15 @@ Date: 11/22/2020
 
 import unittest
 import os
-from typing import List
+from typing import List, Optional
 
 import boto3
 from boto3_type_annotations.apigateway import Client as ApiGatewayClient
 from boto3_type_annotations.lambda_ import Client as LambdaClient
 
-from utils.APIGateway import APIGateway
-from utils.IAM import IAM
+from aws_test_functions.APIGateway import APIGateway
+from aws_test_functions.IAM import IAM
+from aws_test_functions.Route53 import Route53
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
@@ -32,8 +33,10 @@ class TestSXCTFFn(unittest.TestCase):
         self.prod_env = prod_env
 
         if self.prod_env:
-            self.api_name = 'saints-xctf-com-fn-dev'
+            self.domain_name = 'fn.saintsxctf.com'
+            self.api_name = 'saints-xctf-com-fn'
         else:
+            self.domain_name = 'dev.fn.saintsxctf.com'
             self.api_name = 'saints-xctf-com-fn-dev'
 
     @unittest.skipIf(prod_env, 'Production Function API not running.')
@@ -88,12 +91,7 @@ class TestSXCTFFn(unittest.TestCase):
         """
         Test that a domain name is configured for the fn.saintsxctf.com REST API.
         """
-        if self.prod_env:
-            domain_name = 'fn.saintsxctf.com'
-        else:
-            domain_name = 'dev.fn.saintsxctf.com'
-
-        domain = self.apigateway.get_domain_name(domainName=domain_name)
+        domain = self.apigateway.get_domain_name(domainName=self.domain_name)
         self.assertEqual('AVAILABLE', domain.get('domainNameStatus'))
 
     @unittest.skipIf(prod_env, 'Production Function API not running.')
@@ -101,12 +99,7 @@ class TestSXCTFFn(unittest.TestCase):
         """
         Test that an empty string is configured for the base path mapping of the fn.saintsxctf.com REST API.
         """
-        if self.prod_env:
-            domain_name = 'fn.saintsxctf.com'
-        else:
-            domain_name = 'dev.fn.saintsxctf.com'
-
-        base_path_mappings = self.apigateway.get_base_path_mappings(domainName=domain_name)
+        base_path_mappings = self.apigateway.get_base_path_mappings(domainName=self.domain_name)
         base_path_mapping_list: List[dict] = base_path_mappings.get('items')
         self.assertEqual(1, len(base_path_mapping_list))
 
@@ -127,3 +120,71 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='api-gateway-auth-role',
             policy_name='api-gateway-auth-policy'
         ))
+
+    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    def test_fn_saintsxctf_com_api_route53_record_exists(self) -> None:
+        """
+        Determine if an 'A' record exists for 'fn.saintsxctf.com.' in Route53
+        """
+        try:
+            a_record = Route53.get_record(f'saintsxctf.com.', f'{self.domain_name}.', 'A')
+        except IndexError:
+            self.assertTrue(False)
+            return
+
+        print(a_record)
+        self.assertTrue(a_record.get('Name') == f'{self.domain_name}.' and a_record.get('Type') == 'A')
+
+    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    def test_fn_saintsxctf_com_api_has_expected_paths(self) -> None:
+        """
+        Test that the expected paths exist in 'fn.saintsxctf.com.'.
+        """
+        expected_paths = [
+            '/', '/email', '/email/forgot-password', '/email/welcome', '/uasset', '/uasset/group', '/uasset/user'
+        ]
+        APIGateway.api_has_expected_paths(self, self.api_name, expected_paths)
+
+    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    def test_fn_saintsxctf_com_api_email_forgot_password_endpoint(self) -> None:
+        """
+        Test that the '/email/forgot-password' endpoint exists in 'fn.saintsxctf.com.' as expected.
+        """
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFForgotPasswordEmailPROD'
+            validator_name = 'email-forgot-password-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFForgotPasswordEmailDEV'
+            validator_name = 'email-forgot-password-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/email/forgot-password',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False
+        )
+
+    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    def test_fn_saintsxctf_com_api_uasset_user_endpoint(self) -> None:
+        """
+        Test that the '/uasset/user' endpoint exists in 'fn.saintsxctf.com.' as expected.
+        """
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFUassetUserPROD'
+            validator_name = 'uasset-user-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFUassetUserDEV'
+            validator_name = 'uasset-user-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/uasset/user',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False
+        )

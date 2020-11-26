@@ -9,9 +9,9 @@ import os
 
 import boto3
 
-from utils.Lambda import Lambda
-from utils.IAM import IAM
-from utils.VPC import VPC
+from aws_test_functions.Lambda import Lambda
+from aws_test_functions.IAM import IAM
+from aws_test_functions.VPC import VPC
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
