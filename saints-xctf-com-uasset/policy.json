@@ -7,6 +7,15 @@
       "Principal": "*",
       "Action": "s3:GetObject",
       "Resource": "arn:aws:s3:::uasset.saintsxctf.com/*"
+    },
+    {
+      "Sid": "PrivatePutObject",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "739088120071"
+      },
+      "Action": ["s3:PutObject"],
+      "Resource": "arn:aws:s3:::uasset.saintsxctf.com/*"
     }
   ]
 }

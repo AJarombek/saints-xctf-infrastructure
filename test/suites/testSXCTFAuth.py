@@ -108,22 +108,53 @@ class TestSXCTFAuth(unittest.TestCase):
         self.assertTrue(a_record.get('Name') == f'{self.domain_name}.' and a_record.get('Type') == 'A')
 
     @unittest.skipIf(prod_env, 'Production Auth API not running.')
-    def test_auth_saintsxctf_com_api_has_expected_endpoints(self) -> None:
+    def test_auth_saintsxctf_com_api_has_expected_paths(self) -> None:
         """
-        Test that the expected endpoints exist in 'auth.saintsxctf.com.'.
+        Test that the expected paths exist in 'auth.saintsxctf.com.'.
         """
-        pass
+        expected_paths = ['/', '/authenticate', '/token']
+        APIGateway.api_has_expected_paths(self, self.api_name, expected_paths)
 
     @unittest.skipIf(prod_env, 'Production Auth API not running.')
     def test_auth_saintsxctf_com_api_token_endpoint(self) -> None:
         """
         Test that the '/token' endpoint exists in 'auth.saintsxctf.com.' as expected.
         """
-        pass
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFTokenPROD'
+            validator_name = 'auth-token-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFTokenDEV'
+            validator_name = 'auth-token-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/token',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False
+        )
 
     @unittest.skipIf(prod_env, 'Production Auth API not running.')
     def test_auth_saintsxctf_com_api_authenticate_endpoint(self) -> None:
         """
         Test that the '/authenticate' endpoint exists in 'auth.saintsxctf.com.' as expected.
         """
-        pass
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFAuthenticatePROD'
+            validator_name = 'auth-authenticate-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFAuthenticateDEV'
+            validator_name = 'auth-authenticate-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/authenticate',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False
+        )
