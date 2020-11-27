@@ -16,6 +16,7 @@ from aws_test_functions.APIGateway import APIGateway
 from aws_test_functions.IAM import IAM
 from aws_test_functions.Route53 import Route53
 from aws_test_functions.Lambda import Lambda
+from aws_test_functions.CloudWatchLogs import CloudWatchLogs
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
@@ -198,19 +199,18 @@ class TestSXCTFFn(unittest.TestCase):
         """
         if self.prod_env:
             function_name = 'SaintsXCTFForgotPasswordEmailPROD'
+            prefix = ''
         else:
             function_name = 'SaintsXCTFForgotPasswordEmailDEV'
+            prefix = 'dev.'
 
-        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
-        lambda_function: dict = lambda_function_response.get('Configuration')
-
-        self.assertEqual(function_name, lambda_function.get('FunctionName'))
-        self.assertEqual('Active', lambda_function.get('State'))
-        self.assertEqual('nodejs12.x', lambda_function.get('Runtime'))
-        self.assertEqual('sendEmailAWS.sendForgotPasswordEmail', lambda_function.get('Handler'))
-        self.assertEqual(128, lambda_function.get('MemorySize'))
-        self.assertEqual(10, lambda_function.get('Timeout'))
-        self.assertDictEqual({"PREFIX": "dev."}, lambda_function.get('Environment').get('Variables'))
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='sendEmailAWS.sendForgotPasswordEmail',
+            runtime='nodejs12.x',
+            env_vars={"PREFIX": prefix}
+        )
 
     def test_email_lambda_role_exists(self) -> None:
         """
@@ -243,12 +243,23 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='email-lambda-role'
         ))
 
+    @unittest.skipIf(prod_env, 'Production forgot password email AWS Lambda function not running.')
+    def test_forgot_password_email_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the forgot password email AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFForgotPasswordEmailPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFForgotPasswordEmailDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
     @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
     def test_uasset_user_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function exists for uploading a user's profile picture to the uasset.saintsxctf.com
         S3 bucket.
-        :return: True if the function exists, False otherwise
         """
         if self.prod_env:
             function_name = 'SaintsXCTFUassetUserPROD'
@@ -257,16 +268,13 @@ class TestSXCTFFn(unittest.TestCase):
             function_name = 'SaintsXCTFUassetUserDEV'
             env = 'dev'
 
-        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
-        lambda_function: dict = lambda_function_response.get('Configuration')
-
-        self.assertEqual(function_name, lambda_function.get('FunctionName'))
-        self.assertEqual('Active', lambda_function.get('State'))
-        self.assertEqual('nodejs12.x', lambda_function.get('Runtime'))
-        self.assertEqual('index.upload', lambda_function.get('Handler'))
-        self.assertEqual(128, lambda_function.get('MemorySize'))
-        self.assertEqual(10, lambda_function.get('Timeout'))
-        self.assertDictEqual({"ENV": env}, lambda_function.get('Environment').get('Variables'))
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='index.upload',
+            runtime='nodejs12.x',
+            env_vars={"ENV": env}
+        )
 
     def test_uasset_lambda_role_exists(self) -> None:
         """
@@ -298,3 +306,15 @@ class TestSXCTFFn(unittest.TestCase):
             function_name=function_name,
             role_name='uasset-lambda-role'
         ))
+
+    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    def test_uasset_user_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the uasset user AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetUserPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetUserDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)

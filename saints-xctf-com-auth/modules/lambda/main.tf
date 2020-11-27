@@ -47,6 +47,7 @@ resource "aws_lambda_function" "authorizer" {
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthorizer.zip")
   timeout = 10
+  memory_size = 128
 
   environment {
     variables = {
@@ -78,6 +79,7 @@ resource "aws_lambda_function" "rotate" {
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFRotate.zip")
   timeout = 10
+  memory_size = 128
 
   tags = {
     Name = "saints-xctf-com-lambda-rotate"

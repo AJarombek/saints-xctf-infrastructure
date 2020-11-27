@@ -14,6 +14,8 @@ from boto3_type_annotations.lambda_ import Client as LambdaClient
 
 from aws_test_functions.APIGateway import APIGateway
 from aws_test_functions.Route53 import Route53
+from aws_test_functions.Lambda import Lambda
+from aws_test_functions.CloudWatchLogs import CloudWatchLogs
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
@@ -158,3 +160,51 @@ class TestSXCTFAuth(unittest.TestCase):
             validate_request_body=True,
             validate_request_parameters=False
         )
+
+    @unittest.skipIf(prod_env, 'Production authorizer AWS Lambda function not running.')
+    def test_authorizer_lambda_function_exists(self) -> None:
+        """
+        Test that a SaintsXCTF auth authorizer AWS Lambda function exists.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFAuthorizerPROD'
+            env = 'prod'
+        else:
+            function_name = 'SaintsXCTFAuthorizerDEV'
+            env = 'dev'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='function.lambda_handler',
+            runtime='python3.8',
+            env_vars={"ENV": env}
+        )
+
+    @unittest.skipIf(prod_env, 'Production authorizer AWS Lambda function not running.')
+    def test_authorizer_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that a SaintsXCTF auth authorizer AWS Lambda function has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFAuthorizerPROD'
+        else:
+            function_name = 'SaintsXCTFAuthorizerDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='authorizer-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production authorizer AWS Lambda function not running.')
+    def test_authorizer_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the SaintsXCTF auth authorizer AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFAuthorizerPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFAuthorizerDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
