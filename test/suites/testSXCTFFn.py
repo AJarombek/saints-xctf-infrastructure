@@ -6,7 +6,7 @@ Date: 11/22/2020
 
 import unittest
 import os
-from typing import List, Optional
+from typing import List
 
 import boto3
 from boto3_type_annotations.apigateway import Client as ApiGatewayClient
@@ -15,6 +15,7 @@ from boto3_type_annotations.lambda_ import Client as LambdaClient
 from aws_test_functions.APIGateway import APIGateway
 from aws_test_functions.IAM import IAM
 from aws_test_functions.Route53 import Route53
+from aws_test_functions.Lambda import Lambda
 
 try:
     prod_env = os.environ['TEST_ENV'] == "prod"
@@ -29,7 +30,7 @@ class TestSXCTFFn(unittest.TestCase):
         Perform set-up logic before executing any unit tests
         """
         self.apigateway: ApiGatewayClient = boto3.client('apigateway', region_name='us-east-1')
-        self.lambda_: LambdaClient = boto3.client('lambda', region_name='us-east-1')
+        self.aws_lambda: LambdaClient = boto3.client('lambda', region_name='us-east-1')
         self.prod_env = prod_env
 
         if self.prod_env:
@@ -188,3 +189,112 @@ class TestSXCTFFn(unittest.TestCase):
             validate_request_body=True,
             validate_request_parameters=False
         )
+
+    @unittest.skipIf(prod_env, 'Production forgot password AWS Lambda function not running.')
+    def test_forgot_password_email_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for sending emails when a user forgets their SaintsXCTF password.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFForgotPasswordEmailPROD'
+        else:
+            function_name = 'SaintsXCTFForgotPasswordEmailDEV'
+
+        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
+        lambda_function: dict = lambda_function_response.get('Configuration')
+
+        self.assertEqual(function_name, lambda_function.get('FunctionName'))
+        self.assertEqual('Active', lambda_function.get('State'))
+        self.assertEqual('nodejs12.x', lambda_function.get('Runtime'))
+        self.assertEqual('sendEmailAWS.sendForgotPasswordEmail', lambda_function.get('Handler'))
+        self.assertEqual(128, lambda_function.get('MemorySize'))
+        self.assertEqual(10, lambda_function.get('Timeout'))
+        self.assertDictEqual({"PREFIX": "dev."}, lambda_function.get('Environment').get('Variables'))
+
+    def test_email_lambda_role_exists(self) -> None:
+        """
+        Test that the email-lambda-role IAM Role exists.
+        """
+        self.assertTrue(IAM.iam_role_exists(role_name='email-lambda-role'))
+
+    def test_email_lambda_policy_attached(self) -> None:
+        """
+        Test that the email-lambda-policy is attached to the email-lambda-role
+        """
+        self.assertTrue(IAM.iam_policy_attached_to_role(
+            role_name='email-lambda-role',
+            policy_name='email-lambda-policy'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production forgot password email AWS Lambda function not running.')
+    def test_forgot_password_email_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for sending emails when a user forgets their SaintsXCTF password has the
+        proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFForgotPasswordEmailPROD'
+        else:
+            function_name = 'SaintsXCTFForgotPasswordEmailDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='email-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    def test_uasset_user_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for uploading a user's profile picture to the uasset.saintsxctf.com
+        S3 bucket.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetUserPROD'
+            env = 'prod'
+        else:
+            function_name = 'SaintsXCTFUassetUserDEV'
+            env = 'dev'
+
+        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
+        lambda_function: dict = lambda_function_response.get('Configuration')
+
+        self.assertEqual(function_name, lambda_function.get('FunctionName'))
+        self.assertEqual('Active', lambda_function.get('State'))
+        self.assertEqual('nodejs12.x', lambda_function.get('Runtime'))
+        self.assertEqual('index.upload', lambda_function.get('Handler'))
+        self.assertEqual(128, lambda_function.get('MemorySize'))
+        self.assertEqual(10, lambda_function.get('Timeout'))
+        self.assertDictEqual({"ENV": env}, lambda_function.get('Environment').get('Variables'))
+
+    def test_uasset_lambda_role_exists(self) -> None:
+        """
+        Test that the uasset-lambda-role IAM Role exists.
+        """
+        self.assertTrue(IAM.iam_role_exists(role_name='uasset-lambda-role'))
+
+    def test_uasset_lambda_policy_attached(self) -> None:
+        """
+        Test that the uasset-lambda-policy is attached to the uasset-lambda-role
+        """
+        self.assertTrue(IAM.iam_policy_attached_to_role(
+            role_name='uasset-lambda-role',
+            policy_name='uasset-lambda-policy'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    def test_uasset_user_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for uploading a user's profile picture to the uasset.saintsxctf.com
+        S3 bucket has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetUserPROD'
+        else:
+            function_name = 'SaintsXCTFUassetUserDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='uasset-lambda-role'
+        ))

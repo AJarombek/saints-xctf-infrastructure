@@ -8,7 +8,7 @@ locals {
   env = var.prod ? "prod" : "dev"
 }
 
-resource "aws_lambda_function" "uasset-user-email" {
+resource "aws_lambda_function" "uasset-user" {
   function_name = "SaintsXCTFUassetUser${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFUassetUser.zip"
   handler = "index.upload"
@@ -16,6 +16,8 @@ resource "aws_lambda_function" "uasset-user-email" {
   runtime = "nodejs12.x"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFUassetUser.zip")
   timeout = 10
+  memory_size = 128
+  description = "Upload a user's profile picture to the uasset.saintsxctf.com S3 bucket"
 
   environment {
     variables = {

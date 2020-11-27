@@ -17,6 +17,8 @@ resource "aws_lambda_function" "forgot-password-email" {
   runtime = "nodejs12.x"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFForgotPasswordEmail.zip")
   timeout = 10
+  memory_size = 128
+  description = "Send an email with a forgot password code when a user forgets their SaintsXCTF password."
 
   environment {
     variables = {
