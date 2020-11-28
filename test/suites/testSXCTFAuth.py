@@ -15,6 +15,8 @@ from boto3_type_annotations.lambda_ import Client as LambdaClient
 from aws_test_functions.APIGateway import APIGateway
 from aws_test_functions.Route53 import Route53
 from aws_test_functions.Lambda import Lambda
+from aws_test_functions.IAM import IAM
+from aws_test_functions.VPC import VPC
 from aws_test_functions.CloudWatchLogs import CloudWatchLogs
 
 try:
@@ -160,6 +162,51 @@ class TestSXCTFAuth(unittest.TestCase):
             validate_request_body=True,
             validate_request_parameters=False
         )
+
+    def test_rotate_secret_lambda_role_exists(self) -> None:
+        """
+        Test that the rotate-secret-lambda-role IAM Role exists.
+        """
+        self.assertTrue(IAM.iam_role_exists(role_name='rotate-secret-lambda-role'))
+
+    def test_rotate_secret_lambda_policy_attached(self) -> None:
+        """
+        Test that the rotate-secret-lambda-policy is attached to the rotate-secret-lambda-role
+        """
+        self.assertTrue(IAM.iam_policy_attached_to_role(
+            role_name='rotate-secret-lambda-role',
+            policy_name='rotate-secret-lambda-policy'
+        ))
+
+    def test_token_lambda_role_exists(self) -> None:
+        """
+        Test that the token-lambda-role IAM Role exists.
+        """
+        self.assertTrue(IAM.iam_role_exists(role_name='token-lambda-role'))
+
+    def test_token_lambda_policy_attached(self) -> None:
+        """
+        Test that the token-lambda-policy is attached to the token-lambda-role
+        """
+        self.assertTrue(IAM.iam_policy_attached_to_role(
+            role_name='token-lambda-role',
+            policy_name='token-lambda-policy'
+        ))
+
+    def test_authorizer_lambda_role_exists(self) -> None:
+        """
+        Test that the authorizer-lambda-role IAM Role exists.
+        """
+        self.assertTrue(IAM.iam_role_exists(role_name='authorizer-lambda-role'))
+
+    def test_authorizer_lambda_policy_attached(self) -> None:
+        """
+        Test that the authorizer-lambda-policy is attached to the authorizer-lambda-role
+        """
+        self.assertTrue(IAM.iam_policy_attached_to_role(
+            role_name='authorizer-lambda-role',
+            policy_name='authorizer-lambda-policy'
+        ))
 
     @unittest.skipIf(prod_env, 'Production authorizer AWS Lambda function not running.')
     def test_authorizer_lambda_function_exists(self) -> None:
@@ -353,6 +400,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
+    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
     def test_token_lambda_function_provisioned_concurrency_config(self) -> None:
         if self.prod_env:
             function_name = 'SaintsXCTFTokenPROD'
@@ -364,3 +412,36 @@ class TestSXCTFAuth(unittest.TestCase):
             Qualifier='$LATEST'
         )
         print(prov_concurrency_config)
+
+    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    def test_token_lambda_function_in_vpc(self) -> None:
+        """
+        Test that a SaintsXCTF auth token AWS Lambda function exists in the proper VPC.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFTokenPROD'
+        else:
+            function_name = 'SaintsXCTFTokenDEV'
+
+        lambda_function = self.lambda_.get_function(FunctionName=function_name)
+        lambda_function_vpc_id = lambda_function.get('Configuration').get('VpcConfig').get('VpcId')
+
+        vpc = VPC.get_vpc('application-vpc')
+        vpc_id = vpc.get('VpcId')
+
+        self.assertTrue(vpc_id == lambda_function_vpc_id)
+
+    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    def test_token_lambda_function_in_subnets(self) -> None:
+        """
+        Test that a SaintsXCTF auth token AWS Lambda function exists in the proper subnets.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFTokenPROD'
+        else:
+            function_name = 'SaintsXCTFTokenDEV'
+
+        self.assertTrue(Lambda.lambda_function_in_subnets(
+            function_name=function_name,
+            subnets=['saints-xctf-com-lisag-public-subnet', 'saints-xctf-com-megank-public-subnet']
+        ))

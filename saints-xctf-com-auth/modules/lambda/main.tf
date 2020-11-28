@@ -148,8 +148,8 @@ resource "aws_lambda_function" "authenticate" {
 }
 
 resource "aws_lambda_alias" "authenticate-alias" {
-  function_name = aws_lambda_function.token.function_name
-  function_version = aws_lambda_function.token.version
+  function_name = aws_lambda_function.authenticate.function_name
+  function_version = aws_lambda_function.authenticate.version
   name = "SaintsXCTFAuthenticate${upper(local.env)}Current"
 }
 
