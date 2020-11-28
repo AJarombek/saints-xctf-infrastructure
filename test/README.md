@@ -7,6 +7,14 @@ be run independently or all at once.
 To run the test suite, execute the following command from this directory:
 
 ```bash
+# Test production
+unset TEST_ENV
+export AWS_DEFAULT_REGION=us-east-1
+python3 runner.py
+
+# Test development
+export TEST_ENV=dev
+export AWS_DEFAULT_REGION=us-east-1
 python3 runner.py
 ```
 

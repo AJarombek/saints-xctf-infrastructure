@@ -200,12 +200,14 @@ class TestDatabaseSnapshot(unittest.TestCase):
         """
         if self.prod_env:
             function_name = 'SaintsXCTFMySQLBackupPROD'
+            sg_name = 'saints-xctf-lambda-rds-backup-security-prod'
         else:
             function_name = 'SaintsXCTFMySQLBackupDEV'
+            sg_name = 'saints-xctf-lambda-rds-backup-security-dev'
 
         self.assertTrue(Lambda.lambda_function_has_security_group(
             function_name=function_name,
-            sg_name='saints-xctf-lambda-rds-backup-security'
+            sg_name=sg_name
         ))
 
     @unittest.skipIf(prod_env, 'SaintsXCTFMySQLRestorePROD lambda function not setup.')
@@ -215,12 +217,14 @@ class TestDatabaseSnapshot(unittest.TestCase):
         """
         if self.prod_env:
             function_name = 'SaintsXCTFMySQLRestorePROD'
+            sg_name = 'saints-xctf-lambda-rds-backup-security-prod'
         else:
             function_name = 'SaintsXCTFMySQLRestoreDEV'
+            sg_name = 'saints-xctf-lambda-rds-backup-security-dev'
 
         self.assertTrue(Lambda.lambda_function_has_security_group(
             function_name=function_name,
-            sg_name='saints-xctf-lambda-rds-backup-security'
+            sg_name=sg_name
         ))
 
     def test_secrets_manager_vpc_endpoint_exists(self) -> None:

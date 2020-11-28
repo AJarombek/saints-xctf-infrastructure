@@ -352,6 +352,25 @@ class TestSXCTFAuth(unittest.TestCase):
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
     @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    def test_authenticate_lambda_function_provisioned_concurrency_config(self) -> None:
+        if self.prod_env:
+            function_name = 'SaintsXCTFAuthenticatePROD'
+            qualifier = 'SaintsXCTFAuthenticatePRODCurrent'
+        else:
+            function_name = 'SaintsXCTFAuthenticateDEV'
+            qualifier = 'SaintsXCTFAuthenticateDEVCurrent'
+
+        prov_concurrency_config = self.lambda_.get_provisioned_concurrency_config(
+            FunctionName=function_name,
+            Qualifier=qualifier
+        )
+
+        self.assertEqual('READY', prov_concurrency_config.get('Status'))
+        self.assertEqual(1, prov_concurrency_config.get('RequestedProvisionedConcurrentExecutions'))
+        self.assertEqual(1, prov_concurrency_config.get('AvailableProvisionedConcurrentExecutions'))
+        self.assertEqual(1, prov_concurrency_config.get('AllocatedProvisionedConcurrentExecutions'))
+
+    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
     def test_token_lambda_function_exists(self) -> None:
         """
         Test that a SaintsXCTF auth token AWS Lambda function exists.
@@ -404,14 +423,20 @@ class TestSXCTFAuth(unittest.TestCase):
     def test_token_lambda_function_provisioned_concurrency_config(self) -> None:
         if self.prod_env:
             function_name = 'SaintsXCTFTokenPROD'
+            qualifier = 'SaintsXCTFTokenPRODCurrent'
         else:
             function_name = 'SaintsXCTFTokenDEV'
+            qualifier = 'SaintsXCTFTokenDEVCurrent'
 
         prov_concurrency_config = self.lambda_.get_provisioned_concurrency_config(
             FunctionName=function_name,
-            Qualifier='$LATEST'
+            Qualifier=qualifier
         )
-        print(prov_concurrency_config)
+
+        self.assertEqual('READY', prov_concurrency_config.get('Status'))
+        self.assertEqual(1, prov_concurrency_config.get('RequestedProvisionedConcurrentExecutions'))
+        self.assertEqual(1, prov_concurrency_config.get('AvailableProvisionedConcurrentExecutions'))
+        self.assertEqual(1, prov_concurrency_config.get('AllocatedProvisionedConcurrentExecutions'))
 
     @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
     def test_token_lambda_function_in_vpc(self) -> None:
