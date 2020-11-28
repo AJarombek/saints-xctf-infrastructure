@@ -208,3 +208,159 @@ class TestSXCTFAuth(unittest.TestCase):
             log_group_name = '/aws/lambda/SaintsXCTFAuthorizerDEV'
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
+    @unittest.skipIf(prod_env, 'Production rotate AWS Lambda function not running.')
+    def test_rotate_lambda_function_exists(self) -> None:
+        """
+        Test that a SaintsXCTF auth rotate AWS Lambda function exists.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFRotatePROD'
+        else:
+            function_name = 'SaintsXCTFRotateDEV'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='function.lambda_handler',
+            runtime='python3.8',
+            env_vars=None
+        )
+
+    @unittest.skipIf(prod_env, 'Production rotate AWS Lambda function not running.')
+    def test_rotate_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that a SaintsXCTF auth rotate AWS Lambda function has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFRotatePROD'
+        else:
+            function_name = 'SaintsXCTFRotateDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='rotate-secret-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production rotate AWS Lambda function not running.')
+    def test_rotate_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the SaintsXCTF auth rotate AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFRotatePROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFRotateDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
+    @unittest.skipIf(prod_env, 'Production authenticate AWS Lambda function not running.')
+    def test_authenticate_lambda_function_exists(self) -> None:
+        """
+        Test that a SaintsXCTF auth authenticate AWS Lambda function exists.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFAuthenticatePROD'
+            env = 'prod'
+        else:
+            function_name = 'SaintsXCTFAuthenticateDEV'
+            env = 'dev'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='function.lambda_handler',
+            runtime='python3.8',
+            memory_size=1792,
+            env_vars={"ENV": env}
+        )
+
+    @unittest.skipIf(prod_env, 'Production authenticate AWS Lambda function not running.')
+    def test_authenticate_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that a SaintsXCTF auth authenticate AWS Lambda function has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFAuthenticatePROD'
+        else:
+            function_name = 'SaintsXCTFAuthenticateDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='authorizer-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production authenticate AWS Lambda function not running.')
+    def test_authenticate_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the SaintsXCTF auth authenticate AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFAuthenticatePROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFAuthenticateDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
+    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    def test_token_lambda_function_exists(self) -> None:
+        """
+        Test that a SaintsXCTF auth token AWS Lambda function exists.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFTokenPROD'
+            env = 'prod'
+        else:
+            function_name = 'SaintsXCTFTokenDEV'
+            env = 'dev'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='function.lambda_handler',
+            runtime='python3.8',
+            memory_size=1792,
+            env_vars={"ENV": env}
+        )
+
+    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    def test_token_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that a SaintsXCTF auth token AWS Lambda function has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFTokenPROD'
+        else:
+            function_name = 'SaintsXCTFTokenDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='token-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    def test_token_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the SaintsXCTF auth token AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFTokenPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFTokenDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
+    def test_token_lambda_function_provisioned_concurrency_config(self) -> None:
+        if self.prod_env:
+            function_name = 'SaintsXCTFTokenPROD'
+        else:
+            function_name = 'SaintsXCTFTokenDEV'
+
+        prov_concurrency_config = self.lambda_.get_provisioned_concurrency_config(
+            FunctionName=function_name,
+            Qualifier='$LATEST'
+        )
+        print(prov_concurrency_config)
