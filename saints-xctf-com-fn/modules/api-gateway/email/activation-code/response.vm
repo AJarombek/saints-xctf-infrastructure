@@ -1,0 +1,11 @@
+#**
+ * HTTP Response for the email/activation-code REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 1/25/2021
+ *#
+
+#set($response = $input.path('$'))
+
+{
+    "result": $response
+}

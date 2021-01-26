@@ -1,0 +1,13 @@
+#**
+ * HTTP Request for the email/activation-code REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 1/25/2021
+ *#
+
+#set($email = $input.json('$.email'))
+#set($code = $input.json('$.code'))
+
+{
+    "email": $email,
+    "code": $code
+}

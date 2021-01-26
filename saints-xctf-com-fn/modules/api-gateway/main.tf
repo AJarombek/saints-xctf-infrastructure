@@ -128,6 +128,7 @@ resource "aws_route53_record" "saints-xctf-com-fn-record" {
 # -------------
 # /email/welcome
 # /email/forgot-password
+# /email/activation-code
 # /uasset/user
 # /uasset/group
 
@@ -151,6 +152,9 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-forgot-password-path" {
   parent_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
   path_part = "forgot-password"
 }
+
+# No difficult time will last forever, even if it feels like it at times.
+# You are so strong and there is so much love & support for you.
 
 # Resource for the API path /uasset
 resource "aws_api_gateway_resource" "saints-xctf-com-fn-uasset-path" {
@@ -235,6 +239,37 @@ resource "aws_api_gateway_integration_response" "email-forgot-password-integrati
 resource "aws_lambda_permission" "allow_api_gateway" {
   action = "lambda:InvokeFunction"
   function_name = var.email-lambda-name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}
+
+/* POST /email/activation-code */
+
+module "api-gateway-activation-code-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.6"
+
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
+  path = "activation-code"
+  request_validator_name = "email-activation-code-request-body-${local.env}"
+
+  request_template = file("${path.module}/email/activation-code/request.vm")
+  response_template = file("${path.module}/email/activation-code/response.vm")
+
+  lambda_invoke_arn = var.email-activation-code-lambda-invoke-arn
+
+  # Optional arguments
+  http_method = "POST"
+  validate_request_body = true
+  validate_request_parameters = false
+  content_handling = null
+}
+
+resource "aws_lambda_permission" "allow-api-gateway-email-activation-code" {
+  action = "lambda:InvokeFunction"
+  function_name = var.email-activation-code-lambda-name
   statement_id = "AllowExecutionFromApiGateway"
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"

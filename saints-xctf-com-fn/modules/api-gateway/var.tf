@@ -17,6 +17,14 @@ variable "email-lambda-invoke-arn" {
   description = "The Amazon Resource Name of the email Lambda function to use with API Gateway"
 }
 
+variable "email-activation-code-lambda-name" {
+  description = "The name of the activation code email Lambda function to use with API Gateway"
+}
+
+variable "email-activation-code-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the activation code email Lambda function to use with API Gateway"
+}
+
 variable "uasset-user-lambda-name" {
   description = "The name of the user asset 'user' Lambda function to use with API Gateway"
 }
