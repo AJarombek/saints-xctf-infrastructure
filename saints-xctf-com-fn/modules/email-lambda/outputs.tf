@@ -4,10 +4,24 @@
  * Date: 5/24/2020
  */
 
-output "function-name" {
-  value = aws_lambda_function.forgot-password-email.function_name
+output "forgot-password-function-name" {
+  value = local.lambda_functions.forgot_password.function_name
 }
 
-output "function-invoke-arn" {
-  value = aws_lambda_function.forgot-password-email.invoke_arn
+output "forgot-password-function-invoke-arn" {
+  value = [
+    for function in aws_lambda_function.email : function.function_name
+    if function.function_name == local.lambda_functions.forgot_password.function_name
+  ][0]
+}
+
+output "activation-code-function-name" {
+  value = local.lambda_functions.activation_code.function_name
+}
+
+output "activation-code-invoke-arn" {
+  value = [
+    for function in aws_lambda_function.email : function.function_name
+    if function.function_name == local.lambda_functions.activation_code.function_name
+  ][0]
 }

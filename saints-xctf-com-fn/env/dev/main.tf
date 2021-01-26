@@ -43,8 +43,10 @@ module "uasset-lambda" {
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = false
-  email-lambda-name = module.email-lambda.function-name
-  email-lambda-invoke-arn = module.email-lambda.function-invoke-arn
+  email-lambda-name = module.email-lambda.forgot-password-function-name
+  email-lambda-invoke-arn = module.email-lambda.forgot-password-function-invoke-arn
+  email-activation-code-lambda-name = module.email-lambda.activation-code-function-name
+  email-activation-code-lambda-invoke-arn = module.email-lambda.activation-code-invoke-arn
   uasset-user-lambda-invoke-arn = module.uasset-lambda.user-function-invoke-arn
   uasset-user-lambda-name = module.uasset-lambda.user-function-name
 }

@@ -7,18 +7,38 @@
 locals {
   env = var.prod ? "prod" : "dev"
   url_prefix = var.prod ? "" : "dev."
+
+  lambda_functions = {
+    forgot_password = {
+      function_name = "SaintsXCTFForgotPasswordEmail${upper(local.env)}"
+      filename = "${path.module}/SaintsXCTFForgotPasswordEmail.zip"
+      handler = "sendEmailAWS.sendForgotPasswordEmail"
+      source_code_hash = filebase64sha256("${path.module}/SaintsXCTFForgotPasswordEmail.zip")
+      description = "Send an email with a forgot password code when a user forgets their SaintsXCTF password."
+      tags_name = "saints-xctf-com-lambda-forgot-password-email"
+      log_group_name = "/aws/lambda/SaintsXCTFForgotPasswordEmail${upper(local.env)}"
+    },
+    activation_code = {
+      function_name = "SaintsXCTFActivationCodeEmail${upper(local.env)}"
+      filename = "${path.module}/SaintsXCTFActivationCodeEmail.zip"
+      handler = "sendEmailAWS.sendActivationCodeEmail"
+      source_code_hash = filebase64sha256("${path.module}/SaintsXCTFActivationCodeEmail.zip")
+      description = "Send an email with an activation code for a new user to SaintsXCTF."
+      tags_name = "saints-xctf-com-lambda-activation-code-email"
+      log_group_name = "/aws/lambda/SaintsXCTFActivationCodeEmail${upper(local.env)}"
+    }
+  }
 }
 
-resource "aws_lambda_function" "forgot-password-email" {
-  function_name = "SaintsXCTFForgotPasswordEmail${upper(local.env)}"
-  filename = "${path.module}/SaintsXCTFForgotPasswordEmail.zip"
-  handler = "sendEmailAWS.sendForgotPasswordEmail"
+# I was hoping for enough snow today to XC ski through Central Park, but unfortunately its too warm and there wasn't
+# enough precip.  They are saying this weekend there is a chance for snow too, so maybe I'll be able to go then.  Also
+# I want to remind you how wonderful you are.
+
+resource "aws_lambda_function" "email" {
   role = aws_iam_role.lambda-role.arn
   runtime = "nodejs12.x"
-  source_code_hash = filebase64sha256("${path.module}/SaintsXCTFForgotPasswordEmail.zip")
   timeout = 10
   memory_size = 128
-  description = "Send an email with a forgot password code when a user forgets their SaintsXCTF password."
 
   environment {
     variables = {
@@ -26,16 +46,27 @@ resource "aws_lambda_function" "forgot-password-email" {
     }
   }
 
+  for_each = local.lambda_functions
+
+  function_name = each.value.function_name
+  filename = each.value.filename
+  handler = each.value.handler
+  source_code_hash = each.value.source_code_hash
+  description = each.value.description
+
   tags = {
-    Name = "saints-xctf-com-lambda-forgot-password-email"
+    Name = each.value.tags_name
     Environment = local.env
     Application = "saints-xctf-com"
   }
 }
 
 resource "aws_cloudwatch_log_group" "welcome-email-log-group" {
-  name = "/aws/lambda/SaintsXCTFForgotPasswordEmail${upper(local.env)}"
   retention_in_days = 7
+
+  for_each = local.lambda_functions
+
+  name = each.value.log_group_name
 }
 
 resource "aws_iam_role" "lambda-role" {
