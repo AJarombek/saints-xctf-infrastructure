@@ -1,0 +1,15 @@
+#**
+ * HTTP Request for the uasset/group REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 1/27/2021
+ *#
+
+#set($groupId = $input.json('$.groupId'))
+#set($fileName = $input.json('$.fileName'))
+#set($base64Image = $input.body)
+
+{
+    "groupId": $groupId,
+    "fileName": $fileName,
+    "base64Image": $lastName
+}

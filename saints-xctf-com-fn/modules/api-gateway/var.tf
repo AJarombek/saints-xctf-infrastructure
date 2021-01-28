@@ -32,3 +32,11 @@ variable "uasset-user-lambda-name" {
 variable "uasset-user-lambda-invoke-arn" {
   description = "The Amazon Resource Name of the user asset 'user' Lambda function to use with API Gateway"
 }
+
+variable "uasset-group-lambda-name" {
+  description = "The name of the user asset 'group' Lambda function to use with API Gateway"
+}
+
+variable "uasset-group-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the user asset 'group' Lambda function to use with API Gateway"
+}

@@ -344,3 +344,34 @@ resource "aws_lambda_permission" "allow-api-gateway-uasset-user" {
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
 }
+
+/* POST /uasset/group */
+
+module "api-gateway-uasset-group-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.6"
+
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-path.id
+  path = "group"
+  request_validator_name = "uasset-group-request-body-${local.env}"
+
+  request_template = file("${path.module}/uasset/group/request.vm")
+  response_template = file("${path.module}/uasset/group/response.vm")
+
+  lambda_invoke_arn = var.uasset-group-lambda-invoke-arn
+
+  # Optional arguments
+  http_method = "POST"
+  validate_request_body = true
+  validate_request_parameters = false
+  content_handling = "CONVERT_TO_TEXT"
+}
+
+resource "aws_lambda_permission" "allow-api-gateway-uasset-group" {
+  action = "lambda:InvokeFunction"
+  function_name = var.uasset-group-lambda-name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}

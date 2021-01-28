@@ -4,10 +4,24 @@
  * Date: 11/21/2020
  */
 
-output "user-function-name" {
-  value = aws_lambda_function.uasset-user.function_name
+output "uasset-user-function-name" {
+  value = local.lambda_functions.uasset_user.function_name
 }
 
-output "user-function-invoke-arn" {
-  value = aws_lambda_function.uasset-user.invoke_arn
+output "uasset-user-function-invoke-arn" {
+  value = [
+    for function in aws_lambda_function.uasset : function.function_name
+    if function.function_name == local.lambda_functions.uasset_user.function_name
+  ][0]
+}
+
+output "uasset-group-function-name" {
+  value = local.lambda_functions.uasset_group.function_name
+}
+
+output "uasset-group-function-invoke-arn" {
+  value = [
+    for function in aws_lambda_function.uasset : function.function_name
+    if function.function_name == local.lambda_functions.uasset_group.function_name
+  ][0]
 }
