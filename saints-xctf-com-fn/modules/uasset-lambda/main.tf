@@ -27,12 +27,18 @@ locals {
   }
 }
 
+data "aws_lambda_layer_version" "upload-picture-layer" {
+  layer_name = "upload-picture-layer"
+}
+
 resource "aws_lambda_function" "uasset" {
-  handler = "index.upload"
+  handler = "index.handler"
   role = aws_iam_role.lambda-role.arn
   runtime = "nodejs12.x"
   timeout = 10
   memory_size = 128
+
+  layers = [data.aws_lambda_layer_version.upload-picture-layer.arn]
 
   environment {
     variables = {

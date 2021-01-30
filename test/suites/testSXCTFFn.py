@@ -143,7 +143,14 @@ class TestSXCTFFn(unittest.TestCase):
         Test that the expected paths exist in 'fn.saintsxctf.com.'.
         """
         expected_paths = [
-            '/', '/email', '/email/forgot-password', '/email/welcome', '/uasset', '/uasset/group', '/uasset/user'
+            '/',
+            '/email',
+            '/email/activation-code',
+            '/email/forgot-password',
+            '/email/welcome',
+            '/uasset',
+            '/uasset/group',
+            '/uasset/user'
         ]
         APIGateway.api_has_expected_paths(self, self.api_name, expected_paths)
 
@@ -170,6 +177,28 @@ class TestSXCTFFn(unittest.TestCase):
         )
 
     @unittest.skipIf(prod_env, 'Production Function API not running.')
+    def test_fn_saintsxctf_com_api_email_activation_code_endpoint(self) -> None:
+        """
+        Test that the '/email/activation-code' endpoint exists in 'fn.saintsxctf.com.' as expected.
+        """
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFSendActivationEmailPROD'
+            validator_name = 'email-activation-code-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFSendActivationEmailDEV'
+            validator_name = 'email-activation-code-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/email/activation-code',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False
+        )
+
+    @unittest.skipIf(prod_env, 'Production Function API not running.')
     def test_fn_saintsxctf_com_api_uasset_user_endpoint(self) -> None:
         """
         Test that the '/uasset/user' endpoint exists in 'fn.saintsxctf.com.' as expected.
@@ -185,6 +214,28 @@ class TestSXCTFFn(unittest.TestCase):
             test_case=self,
             api_name=self.api_name,
             path='/uasset/user',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False
+        )
+
+    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    def test_fn_saintsxctf_com_api_uasset_group_endpoint(self) -> None:
+        """
+        Test that the '/uasset/group' endpoint exists in 'fn.saintsxctf.com.' as expected.
+        """
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFUassetGroupPROD'
+            validator_name = 'uasset-group-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFUassetGroupDEV'
+            validator_name = 'uasset-group-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/uasset/group',
             validator_name=validator_name,
             lambda_function_name=lambda_function_name,
             validate_request_body=True,
