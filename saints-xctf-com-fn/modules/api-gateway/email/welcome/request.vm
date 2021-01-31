@@ -1,0 +1,15 @@
+#**
+ * HTTP Request for the email/welcome REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 1/30/2021
+ *#
+
+#set($to = $input.json('$.to'))
+#set($firstName = $input.json('$.firstName'))
+#set($lastName = $input.json('$.lastName'))
+
+{
+    "to": $to,
+    "firstName": $firstName,
+    "lastName": $lastName
+}

@@ -26,6 +26,15 @@ locals {
       description = "Send an email with an activation code for a new user to SaintsXCTF."
       tags_name = "saints-xctf-com-lambda-activation-code-email"
       log_group_name = "/aws/lambda/SaintsXCTFActivationCodeEmail${upper(local.env)}"
+    },
+    welcome = {
+      function_name = "SaintsXCTFWelcomeEmail${upper(local.env)}"
+      filename = "${path.module}/SaintsXCTFWelcomeEmail.zip"
+      handler = "sendEmailAWS.sendWelcomeEmail"
+      source_code_hash = filebase64sha256("${path.module}/SaintsXCTFWelcomeEmail.zip")
+      description = "Send an email to welcome a new user to SaintsXCTF."
+      tags_name = "saints-xctf-com-lambda-welcome-email"
+      log_group_name = "/aws/lambda/SaintsXCTFWelcomeEmail${upper(local.env)}"
     }
   }
 }

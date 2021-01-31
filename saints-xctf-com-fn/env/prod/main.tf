@@ -47,6 +47,8 @@ module "api-gateway" {
   email-lambda-invoke-arn = module.email-lambda.forgot-password-function-invoke-arn
   email-activation-code-lambda-name = module.email-lambda.activation-code-function-name
   email-activation-code-lambda-invoke-arn = module.email-lambda.activation-code-invoke-arn
+  email-welcome-lambda-name = module.email-lambda.welcome-function-name
+  email-welcome-lambda-invoke-arn = module.email-lambda.welcome-invoke-arn
   uasset-user-lambda-name = module.uasset-lambda.uasset-user-function-name
   uasset-user-lambda-invoke-arn = module.uasset-lambda.uasset-user-function-invoke-arn
   uasset-group-lambda-name = module.uasset-lambda.uasset-group-function-name

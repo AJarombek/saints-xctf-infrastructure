@@ -54,7 +54,11 @@ resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
 
   depends_on = [
     aws_api_gateway_integration.email-forgot-password-integration,
-    aws_api_gateway_integration_response.email-forgot-password-integration-response
+    aws_api_gateway_integration_response.email-forgot-password-integration-response,
+    aws_api_gateway_integration.uasset-user-integration,
+    aws_api_gateway_integration_response.uasset-user-integration-response,
+    module.api-gateway-activation-code-endpoint,
+    module.api-gateway-uasset-group-endpoint
   ]
 }
 
@@ -263,6 +267,37 @@ module "api-gateway-activation-code-endpoint" {
 resource "aws_lambda_permission" "allow-api-gateway-email-activation-code" {
   action = "lambda:InvokeFunction"
   function_name = var.email-activation-code-lambda-name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}
+
+/* POST /email/welcome */
+
+module "api-gateway-welcome-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.6"
+
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
+  path = "welcome"
+  request_validator_name = "email-activation-code-request-body-${local.env}"
+
+  request_template = file("${path.module}/email/welcome/request.vm")
+  response_template = file("${path.module}/email/welcome/response.vm")
+
+  lambda_invoke_arn = var.email-welcome-lambda-invoke-arn
+
+  # Optional arguments
+  http_method = "POST"
+  validate_request_body = true
+  validate_request_parameters = false
+  content_handling = null
+}
+
+resource "aws_lambda_permission" "allow-api-gateway-email-welcome" {
+  action = "lambda:InvokeFunction"
+  function_name = var.email-welcome-lambda-name
   statement_id = "AllowExecutionFromApiGateway"
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
