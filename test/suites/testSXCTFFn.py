@@ -354,6 +354,54 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
+    @unittest.skipIf(prod_env, 'Production welcome email AWS Lambda function not running.')
+    def test_welcome_email_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for sending a welcome email to a new user.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFWelcomeEmailPROD'
+            prefix = ''
+        else:
+            function_name = 'SaintsXCTFWelcomeEmailDEV'
+            prefix = 'dev.'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='sendEmailAWS.sendWelcomeEmail',
+            runtime='nodejs12.x',
+            env_vars={"PREFIX": prefix}
+        )
+
+    @unittest.skipIf(prod_env, 'Production welcome email AWS Lambda function not running.')
+    def test_welcome_email_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for sending a welcome email to a new user has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFWelcomeEmailPROD'
+        else:
+            function_name = 'SaintsXCTFWelcomeEmailDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='email-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production welcome email AWS Lambda function not running.')
+    def test_welcome_email_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the welcome email AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFWelcomeEmailPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFWelcomeEmailDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
     @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
     def test_uasset_user_lambda_function_exists(self) -> None:
         """

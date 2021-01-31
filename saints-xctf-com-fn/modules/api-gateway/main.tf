@@ -143,13 +143,6 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-email-path" {
   path_part = "email"
 }
 
-# Resource for the API path /email/welcome
-resource "aws_api_gateway_resource" "saints-xctf-com-fn-welcome-path" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  parent_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
-  path_part = "welcome"
-}
-
 # Resource for the API path /email/forgot-password
 resource "aws_api_gateway_resource" "saints-xctf-com-fn-forgot-password-path" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -281,7 +274,7 @@ module "api-gateway-welcome-endpoint" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
   path = "welcome"
-  request_validator_name = "email-activation-code-request-body-${local.env}"
+  request_validator_name = "email-welcome-request-body-${local.env}"
 
   request_template = file("${path.module}/email/welcome/request.vm")
   response_template = file("${path.module}/email/welcome/response.vm")
