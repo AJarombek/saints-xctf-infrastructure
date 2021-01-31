@@ -306,6 +306,54 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
+    @unittest.skipIf(prod_env, 'Production activation code AWS Lambda function not running.')
+    def test_activation_code_email_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for sending emails to new users with activation codes.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFActivationCodeEmailPROD'
+            prefix = ''
+        else:
+            function_name = 'SaintsXCTFActivationCodeEmailDEV'
+            prefix = 'dev.'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='sendEmailAWS.sendActivationCodeEmail',
+            runtime='nodejs12.x',
+            env_vars={"PREFIX": prefix}
+        )
+
+    @unittest.skipIf(prod_env, 'Production activation code email AWS Lambda function not running.')
+    def test_activation_code_email_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for sending emails to new users with activation codes has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFActivationCodeEmailPROD'
+        else:
+            function_name = 'SaintsXCTFActivationCodeEmailDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='email-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production activation code email AWS Lambda function not running.')
+    def test_activation_code_email_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the activation code email AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFActivationCodeEmailPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFActivationCodeEmailDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
     @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
     def test_uasset_user_lambda_function_exists(self) -> None:
         """
@@ -322,10 +370,33 @@ class TestSXCTFFn(unittest.TestCase):
         Lambda.lambda_function_as_expected(
             test_case=self,
             function_name=function_name,
-            handler='index.upload',
+            handler='index.handler',
             runtime='nodejs12.x',
             env_vars={"ENV": env}
         )
+
+    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    def test_uasset_user_lambda_function_uses_layers(self) -> None:
+        """
+        Test that the AWS Lambda function for uploading a user's profile picture to the uasset.saintsxctf.com S3 bucket
+        has a single Lambda layer with the name 'upload-picture-layer'.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetUserPROD'
+        else:
+            function_name = 'SaintsXCTFUassetUserDEV'
+
+        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
+        lambda_function_layers: List[dict] = lambda_function_response.get('Configuration').get('Layers')
+        self.assertEqual(1, len(lambda_function_layers))
+
+        layers_response: dict = self.aws_lambda.list_layers(CompatibleRuntime='nodejs')
+        layers: List[dict] = layers_response.get('Layers')
+        matching_layers = [layer for layer in layers if layer.get('LayerName') == 'upload-picture-layer']
+        self.assertEqual(1, len(matching_layers))
+
+        layer_arn: str = matching_layers[0].get('LayerArn')
+        self.assertEqual(layer_arn, lambda_function_layers[0].get('Arn'))
 
     def test_uasset_lambda_role_exists(self) -> None:
         """
@@ -367,5 +438,76 @@ class TestSXCTFFn(unittest.TestCase):
             log_group_name = '/aws/lambda/SaintsXCTFUassetUserPROD'
         else:
             log_group_name = '/aws/lambda/SaintsXCTFUassetUserDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
+    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    def test_uasset_group_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for uploading a group's picture to the uasset.saintsxctf.com S3 bucket.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetGroupPROD'
+            env = 'prod'
+        else:
+            function_name = 'SaintsXCTFUassetGroupDEV'
+            env = 'dev'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='index.handler',
+            runtime='nodejs12.x',
+            env_vars={"ENV": env}
+        )
+
+    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    def test_uasset_group_lambda_function_uses_layers(self) -> None:
+        """
+        Test that the AWS Lambda function for uploading a group's picture to the uasset.saintsxctf.com S3 bucket has a
+        single Lambda layer with the name 'upload-picture-layer'.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetGroupPROD'
+        else:
+            function_name = 'SaintsXCTFUassetGroupDEV'
+
+        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
+        lambda_function_layers: List[dict] = lambda_function_response.get('Configuration').get('Layers')
+        self.assertEqual(1, len(lambda_function_layers))
+
+        layers_response: dict = self.aws_lambda.list_layers(CompatibleRuntime='nodejs')
+        layers: List[dict] = layers_response.get('Layers')
+        matching_layers = [layer for layer in layers if layer.get('LayerName') == 'upload-picture-layer']
+        self.assertEqual(1, len(matching_layers))
+
+        layer_arn: str = matching_layers[0].get('LayerArn')
+        self.assertEqual(layer_arn, lambda_function_layers[0].get('Arn'))
+
+    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    def test_uasset_group_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for uploading a group's picture to the uasset.saintsxctf.com S3 bucket has the
+        proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetGroupPROD'
+        else:
+            function_name = 'SaintsXCTFUassetGroupDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='uasset-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    def test_uasset_group_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the uasset group AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetGroupPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetGroupDEV'
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)

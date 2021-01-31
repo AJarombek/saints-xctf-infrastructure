@@ -170,13 +170,6 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-user-path" {
   path_part = "user"
 }
 
-# Resource for the API path /uasset/group
-resource "aws_api_gateway_resource" "saints-xctf-com-fn-group-path" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  parent_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-path.id
-  path_part = "group"
-}
-
 /* POST /email/forgot-password */
 
 resource "aws_api_gateway_method" "email-forgot-password-method" {

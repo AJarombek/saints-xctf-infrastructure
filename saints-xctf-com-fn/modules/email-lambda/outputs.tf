@@ -10,7 +10,7 @@ output "forgot-password-function-name" {
 
 output "forgot-password-function-invoke-arn" {
   value = [
-    for function in aws_lambda_function.email : function.function_name
+    for function in aws_lambda_function.email : function.invoke_arn
     if function.function_name == local.lambda_functions.forgot_password.function_name
   ][0]
 }
@@ -21,7 +21,7 @@ output "activation-code-function-name" {
 
 output "activation-code-invoke-arn" {
   value = [
-    for function in aws_lambda_function.email : function.function_name
+    for function in aws_lambda_function.email : function.invoke_arn
     if function.function_name == local.lambda_functions.activation_code.function_name
   ][0]
 }
