@@ -48,6 +48,7 @@ resource "aws_lambda_function" "email" {
   runtime = "nodejs12.x"
   timeout = 10
   memory_size = 128
+  publish = true
 
   environment {
     variables = {

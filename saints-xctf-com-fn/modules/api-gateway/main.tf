@@ -47,18 +47,18 @@ resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
   description = "A REST API for AWS Lambda Functions in the fn.saintsxctf.com domain"
 
   binary_media_types = ["image/png", "image/jpeg"]
+  disable_execute_api_endpoint = true
 }
 
 resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
 
   depends_on = [
-    aws_api_gateway_integration.email-forgot-password-integration,
-    aws_api_gateway_integration_response.email-forgot-password-integration-response,
-    aws_api_gateway_integration.uasset-user-integration,
-    aws_api_gateway_integration_response.uasset-user-integration-response,
+    module.api-gateway-forgot-password-endpoint,
     module.api-gateway-activation-code-endpoint,
-    module.api-gateway-uasset-group-endpoint
+    module.api-gateway-welcome-endpoint,
+    module.api-gateway-uasset-group-endpoint,
+    module.api-gateway-uasset-user-endpoint
   ]
 }
 
@@ -143,15 +143,9 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-email-path" {
   path_part = "email"
 }
 
-# Resource for the API path /email/forgot-password
-resource "aws_api_gateway_resource" "saints-xctf-com-fn-forgot-password-path" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  parent_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
-  path_part = "forgot-password"
-}
-
 # No difficult time will last forever, even if it feels like it at times.
 # You are so strong and there is so much love & support for you.
+# I will.
 
 # Resource for the API path /uasset
 resource "aws_api_gateway_resource" "saints-xctf-com-fn-uasset-path" {
@@ -160,75 +154,34 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-uasset-path" {
   path_part = "uasset"
 }
 
-# Resource for the API path /uasset/user
-resource "aws_api_gateway_resource" "saints-xctf-com-fn-user-path" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  parent_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-path.id
-  path_part = "user"
-}
-
 /* POST /email/forgot-password */
 
-resource "aws_api_gateway_method" "email-forgot-password-method" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-forgot-password-path.id
-  request_validator_id = aws_api_gateway_request_validator.email-forgot-password-request-validator.id
+module "api-gateway-forgot-password-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
 
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
+  path = "forgot-password"
+  request_validator_name = "email-forgot-password-request-body-${local.env}"
+
+  request_template = file("${path.module}/email/forgot-password/request.vm")
+  response_template = file("${path.module}/email/forgot-password/response.vm")
+
+  lambda_invoke_arn = var.email-forgot-password-lambda-invoke-arn
+
+  # Optional arguments
   http_method = "POST"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_request_validator" "email-forgot-password-request-validator" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   validate_request_body = true
   validate_request_parameters = false
-  name = "email-forgot-password-request-body-${local.env}"
-}
-
-resource "aws_api_gateway_method_response" "email-forgot-password-method-response" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-forgot-password-path.id
-
-  http_method = aws_api_gateway_method.email-forgot-password-method.http_method
-  status_code = "200"
-}
-
-resource "aws_api_gateway_integration" "email-forgot-password-integration" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-forgot-password-path.id
-
-  http_method = aws_api_gateway_method.email-forgot-password-method.http_method
-
-  # Lambda functions can only be invoked via HTTP POST
-  integration_http_method = "POST"
-
-  type = "AWS"
-  uri = var.email-lambda-invoke-arn
-
-  request_templates = {
-    "application/json" = file("${path.module}/email/forgot-password/request.vm")
-  }
-}
-
-resource "aws_api_gateway_integration_response" "email-forgot-password-integration-response" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-forgot-password-path.id
-
-  http_method = aws_api_gateway_method.email-forgot-password-method.http_method
-  status_code = aws_api_gateway_method_response.email-forgot-password-method-response.status_code
-
-  response_templates = {
-    "application/json" = file("${path.module}/email/forgot-password/response.vm")
-  }
-
-  depends_on = [
-    aws_api_gateway_integration.email-forgot-password-integration
-  ]
+  content_handling = null
+  authorization = "NONE"
+  authorizer_id = null
 }
 
 resource "aws_lambda_permission" "allow_api_gateway" {
   action = "lambda:InvokeFunction"
-  function_name = var.email-lambda-name
+  function_name = var.email-forgot-password-lambda-name
   statement_id = "AllowExecutionFromApiGateway"
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
@@ -237,7 +190,7 @@ resource "aws_lambda_permission" "allow_api_gateway" {
 /* POST /email/activation-code */
 
 module "api-gateway-activation-code-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.6"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -255,6 +208,8 @@ module "api-gateway-activation-code-endpoint" {
   validate_request_body = true
   validate_request_parameters = false
   content_handling = null
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
 }
 
 resource "aws_lambda_permission" "allow-api-gateway-email-activation-code" {
@@ -268,7 +223,7 @@ resource "aws_lambda_permission" "allow-api-gateway-email-activation-code" {
 /* POST /email/welcome */
 
 module "api-gateway-welcome-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.6"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -286,6 +241,8 @@ module "api-gateway-welcome-endpoint" {
   validate_request_body = true
   validate_request_parameters = false
   content_handling = null
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
 }
 
 resource "aws_lambda_permission" "allow-api-gateway-email-welcome" {
@@ -298,64 +255,27 @@ resource "aws_lambda_permission" "allow-api-gateway-email-welcome" {
 
 /* POST /uasset/user */
 
-resource "aws_api_gateway_method" "uasset-user-method" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
-  request_validator_id = aws_api_gateway_request_validator.uasset-user-request-validator.id
+module "api-gateway-uasset-user-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
 
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-path.id
+  path = "user"
+  request_validator_name = "uasset-user-request-body-${local.env}"
+
+  request_template = file("${path.module}/uasset/user/request.vm")
+  response_template = file("${path.module}/uasset/user/response.vm")
+
+  lambda_invoke_arn = var.uasset-user-lambda-invoke-arn
+
+  # Optional arguments
   http_method = "POST"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_request_validator" "uasset-user-request-validator" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   validate_request_body = true
   validate_request_parameters = false
-  name = "uasset-user-request-body-${local.env}"
-}
-
-resource "aws_api_gateway_method_response" "uasset-user-method-response" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
-
-  http_method = aws_api_gateway_method.uasset-user-method.http_method
-  status_code = "200"
-}
-
-resource "aws_api_gateway_integration" "uasset-user-integration" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
-
-  http_method = aws_api_gateway_method.uasset-user-method.http_method
-
-  # Lambda functions can only be invoked via HTTP POST
-  integration_http_method = "POST"
-
-  type = "AWS"
-  uri = var.uasset-user-lambda-invoke-arn
-
-  # Convert the binary image to a base 64 encoded string.
   content_handling = "CONVERT_TO_TEXT"
-
-  request_templates = {
-    "application/json" = file("${path.module}/uasset/user/request.vm")
-  }
-}
-
-resource "aws_api_gateway_integration_response" "uasset-user-integration-response" {
-  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
-  resource_id = aws_api_gateway_resource.saints-xctf-com-fn-user-path.id
-
-  http_method = aws_api_gateway_method.uasset-user-method.http_method
-  status_code = aws_api_gateway_method_response.uasset-user-method-response.status_code
-
-  response_templates = {
-    "application/json" = file("${path.module}/uasset/user/response.vm")
-  }
-
-  depends_on = [
-    aws_api_gateway_integration.uasset-user-integration
-  ]
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
 }
 
 resource "aws_lambda_permission" "allow-api-gateway-uasset-user" {
@@ -369,7 +289,7 @@ resource "aws_lambda_permission" "allow-api-gateway-uasset-user" {
 /* POST /uasset/group */
 
 module "api-gateway-uasset-group-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.6"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -387,6 +307,8 @@ module "api-gateway-uasset-group-endpoint" {
   validate_request_body = true
   validate_request_parameters = false
   content_handling = "CONVERT_TO_TEXT"
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
 }
 
 resource "aws_lambda_permission" "allow-api-gateway-uasset-group" {

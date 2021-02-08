@@ -9,12 +9,12 @@ variable "prod" {
   default = true
 }
 
-variable "email-lambda-name" {
-  description = "The name of the email Lambda function to use with API Gateway"
+variable "email-forgot-password-lambda-name" {
+  description = "The name of the forgot password email Lambda function to use with API Gateway"
 }
 
-variable "email-lambda-invoke-arn" {
-  description = "The Amazon Resource Name of the email Lambda function to use with API Gateway"
+variable "email-forgot-password-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the forgot password email Lambda function to use with API Gateway"
 }
 
 variable "email-activation-code-lambda-name" {
