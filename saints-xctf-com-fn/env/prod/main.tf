@@ -14,7 +14,7 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      version = "~> 3.16.0"
+      version = "~> 3.27.0"
     }
     template = {
       source = "hashicorp/template"
@@ -43,8 +43,11 @@ module "uasset-lambda" {
 module "api-gateway" {
   source = "../../modules/api-gateway"
   prod = true
-  email-lambda-name = module.email-lambda.forgot-password-function-name
-  email-lambda-invoke-arn = module.email-lambda.forgot-password-function-invoke-arn
+
+  enable-xray-tracing = false
+
+  email-forgot-password-lambda-name = module.email-lambda.forgot-password-function-name
+  email-forgot-password-lambda-invoke-arn = module.email-lambda.forgot-password-function-invoke-arn
   email-activation-code-lambda-name = module.email-lambda.activation-code-function-name
   email-activation-code-lambda-invoke-arn = module.email-lambda.activation-code-invoke-arn
   email-welcome-lambda-name = module.email-lambda.welcome-function-name

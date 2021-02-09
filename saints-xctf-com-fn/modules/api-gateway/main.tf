@@ -66,6 +66,7 @@ resource "aws_api_gateway_stage" "saints-xctf-com-fn-stage" {
   deployment_id = aws_api_gateway_deployment.saints-xctf-com-fn-deployment.id
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   stage_name = local.env
+  xray_tracing_enabled = var.enable-xray-tracing
 }
 
 resource "aws_api_gateway_method_settings" "saints-xctf-com-fn-method-settings" {
