@@ -46,7 +46,7 @@ resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
   name = "saints-xctf-com-fn${local.env_suffix}"
   description = "A REST API for AWS Lambda Functions in the fn.saintsxctf.com domain"
 
-  binary_media_types = ["image/png", "image/jpeg"]
+  binary_media_types = ["multipart/form-data"]
   disable_execute_api_endpoint = true
 }
 
@@ -129,6 +129,14 @@ resource "aws_route53_record" "saints-xctf-com-fn-record" {
   }
 }
 
+resource "aws_lambda_permission" "allow_api_gateway-authorizer" {
+  action = "lambda:InvokeFunction"
+  function_name = data.aws_lambda_function.authorizer.function_name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}
+
 # API Endpoints
 # -------------
 # /email/welcome
@@ -158,7 +166,7 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-uasset-path" {
 /* POST /email/forgot-password */
 
 module "api-gateway-forgot-password-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -166,7 +174,10 @@ module "api-gateway-forgot-password-endpoint" {
   path = "forgot-password"
   request_validator_name = "email-forgot-password-request-body-${local.env}"
 
-  request_template = file("${path.module}/email/forgot-password/request.vm")
+  request_template = {
+    "application/json" = file("${path.module}/email/forgot-password/request.vm")
+  }
+
   response_template = file("${path.module}/email/forgot-password/response.vm")
 
   lambda_invoke_arn = var.email-forgot-password-lambda-invoke-arn
@@ -191,7 +202,7 @@ resource "aws_lambda_permission" "allow_api_gateway" {
 /* POST /email/activation-code */
 
 module "api-gateway-activation-code-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -199,7 +210,10 @@ module "api-gateway-activation-code-endpoint" {
   path = "activation-code"
   request_validator_name = "email-activation-code-request-body-${local.env}"
 
-  request_template = file("${path.module}/email/activation-code/request.vm")
+  request_template = {
+    "application/json" = file("${path.module}/email/activation-code/request.vm")
+  }
+
   response_template = file("${path.module}/email/activation-code/response.vm")
 
   lambda_invoke_arn = var.email-activation-code-lambda-invoke-arn
@@ -224,7 +238,7 @@ resource "aws_lambda_permission" "allow-api-gateway-email-activation-code" {
 /* POST /email/welcome */
 
 module "api-gateway-welcome-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -232,7 +246,10 @@ module "api-gateway-welcome-endpoint" {
   path = "welcome"
   request_validator_name = "email-welcome-request-body-${local.env}"
 
-  request_template = file("${path.module}/email/welcome/request.vm")
+  request_template = {
+    "application/json" = file("${path.module}/email/welcome/request.vm")
+  }
+
   response_template = file("${path.module}/email/welcome/response.vm")
 
   lambda_invoke_arn = var.email-welcome-lambda-invoke-arn
@@ -257,7 +274,7 @@ resource "aws_lambda_permission" "allow-api-gateway-email-welcome" {
 /* POST /uasset/user */
 
 module "api-gateway-uasset-user-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -265,7 +282,10 @@ module "api-gateway-uasset-user-endpoint" {
   path = "user"
   request_validator_name = "uasset-user-request-body-${local.env}"
 
-  request_template = file("${path.module}/uasset/user/request.vm")
+  request_template = {
+    "multipart/form-data" = file("${path.module}/uasset/user/request.vm")
+  }
+
   response_template = file("${path.module}/uasset/user/response.vm")
 
   lambda_invoke_arn = var.uasset-user-lambda-invoke-arn
@@ -290,7 +310,7 @@ resource "aws_lambda_permission" "allow-api-gateway-uasset-user" {
 /* POST /uasset/group */
 
 module "api-gateway-uasset-group-endpoint" {
-  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.7"
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
 
   # Mandatory arguments
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
@@ -298,7 +318,10 @@ module "api-gateway-uasset-group-endpoint" {
   path = "group"
   request_validator_name = "uasset-group-request-body-${local.env}"
 
-  request_template = file("${path.module}/uasset/group/request.vm")
+  request_template = {
+    "multipart/form-data" = file("${path.module}/uasset/group/request.vm")
+  }
+
   response_template = file("${path.module}/uasset/group/response.vm")
 
   lambda_invoke_arn = var.uasset-group-lambda-invoke-arn

@@ -42,6 +42,7 @@ data "aws_subnet" "application-vpc-public-subnet-1" {
 resource "aws_lambda_function" "authorizer" {
   function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFAuthorizer.zip"
+  description = "SaintsXCTF Lambda authorizer function"
   handler = "function.lambda_handler"
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.8"
@@ -74,6 +75,7 @@ resource "aws_cloudwatch_log_group" "authorizer-log-group" {
 resource "aws_lambda_function" "rotate" {
   function_name = "SaintsXCTFRotate${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFRotate.zip"
+  description = "SaintsXCTF function to rotate public and private keys used to sign JWT tokens"
   handler = "function.lambda_handler"
   role = aws_iam_role.rotate-lambda-role.arn
   runtime = "python3.8"
@@ -126,11 +128,12 @@ resource "aws_iam_role_policy_attachment" "rotate-lambda-policy-attachment" {
 resource "aws_lambda_function" "authenticate" {
   function_name = "SaintsXCTFAuthenticate${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFAuthenticate.zip"
+  description = "SaintsXCTF function to authenticate users with a JWT token"
   handler = "function.lambda_handler"
   role = aws_iam_role.lambda-role.arn
   runtime = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthenticate.zip")
-  memory_size = 1792
+  memory_size = 512
   timeout = 10
   publish = true
 
@@ -171,6 +174,7 @@ resource "aws_cloudwatch_log_group" "authenticate-log-group" {
 resource "aws_lambda_function" "token" {
   function_name = "SaintsXCTFToken${upper(local.env)}"
   filename = "${path.module}/SaintsXCTFToken.zip"
+  description = "SaintsXCTF function to get a JWT token for a user"
   handler = "function.lambda_handler"
   role = aws_iam_role.token-lambda-role.arn
   runtime = "python3.8"
