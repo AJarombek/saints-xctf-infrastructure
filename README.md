@@ -1,10 +1,23 @@
 # saints-xctf-infrastructure
 
+![Maintained Label](https://img.shields.io/badge/Maintained-Yes-brightgreen?style=for-the-badge)
+
 ### Overview
 
 This repository holds application specific infrastructure for the [saintsxctf.com](https://www.saintsxctf.com/) website.  The 
 VPCs for SaintsXCTF.com are configured in the [global-aws-infrastructure](https://github.com/AJarombek/global-aws-infrastructure) 
 repository.
+
+### Integration
+
+There are multiple Jenkins jobs for this infrastructure.  They are all located in the SaintsXCTF
+[`infrastructure`](http://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/) folder:
+
+[![Jenkins](https://img.shields.io/badge/Jenkins-%20saints--xctf--infrastructure--test--prod-blue?style=for-the-badge)](https://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/job/saints-xctf-infrastructure-test-prod/)
+> Runs tests on the production environment AWS infrastructure created with Terraform.
+
+[![Jenkins](https://img.shields.io/badge/Jenkins-%20saints--xctf--infrastructure--test--dev-blue?style=for-the-badge)](https://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/job/saints-xctf-infrastructure-test-dev/)
+> Runs tests on the development environment AWS infrastructure created with Terraform.
 
 ### Commands
 
@@ -17,12 +30,6 @@ brew install bazelbuild/tap/bazel
 # Confirm the installation was successful.
 bazel --version
 ```
-
-### Infrastructure Diagram
-
-![AWS Model](aws-model.png)
-
-*Last Updated: Feb 10th, 2019*
 
 ### Directories
 
@@ -46,6 +53,16 @@ bazel --version
 | `web-server`              | Infrastructure for the SaintsXCTF Web Server.                                       |
 | `web-app`                 | Setup for the websites application code.                                            |
 | `test`                    | Test code for the AWS infrastructure.                                               |
+
+### Versions
+
+**[v1.0.0](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v1.0.0) - First Release**
+
+> Release Date: February 13th, 2021
+
+First tag for the SaintsXCTF infrastructure repository.  Includes new infrastructure for version 2 of the application 
+and old infrastructure for the original website I made in college (which was lift and shifted to AWS from Linode in 
+2019).
 
 ### Resources
 

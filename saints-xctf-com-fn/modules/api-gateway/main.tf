@@ -174,7 +174,7 @@ module "api-gateway-forgot-password-endpoint" {
   path = "forgot-password"
   request_validator_name = "email-forgot-password-request-body-${local.env}"
 
-  request_template = {
+  request_templates = {
     "application/json" = file("${path.module}/email/forgot-password/request.vm")
   }
 
@@ -210,7 +210,7 @@ module "api-gateway-activation-code-endpoint" {
   path = "activation-code"
   request_validator_name = "email-activation-code-request-body-${local.env}"
 
-  request_template = {
+  request_templates = {
     "application/json" = file("${path.module}/email/activation-code/request.vm")
   }
 
@@ -246,7 +246,7 @@ module "api-gateway-welcome-endpoint" {
   path = "welcome"
   request_validator_name = "email-welcome-request-body-${local.env}"
 
-  request_template = {
+  request_templates = {
     "application/json" = file("${path.module}/email/welcome/request.vm")
   }
 
@@ -282,7 +282,7 @@ module "api-gateway-uasset-user-endpoint" {
   path = "user"
   request_validator_name = "uasset-user-request-body-${local.env}"
 
-  request_template = {
+  request_templates = {
     "multipart/form-data" = file("${path.module}/uasset/user/request.vm")
   }
 
@@ -318,7 +318,7 @@ module "api-gateway-uasset-group-endpoint" {
   path = "group"
   request_validator_name = "uasset-group-request-body-${local.env}"
 
-  request_template = {
+  request_templates = {
     "multipart/form-data" = file("${path.module}/uasset/group/request.vm")
   }
 

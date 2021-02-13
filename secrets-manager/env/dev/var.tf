@@ -11,5 +11,5 @@ variable "rds_secrets" {
     password = "password"
   }
 
-  type = map
+  type = map(any)
 }
