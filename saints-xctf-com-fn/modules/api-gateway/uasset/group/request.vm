@@ -6,10 +6,10 @@
 
 #set($groupId = $input.json('$.groupId'))
 #set($fileName = $input.json('$.fileName'))
-#set($base64Image = $input.body)
+#set($base64Image = $input.json('$.base64Image'))
 
 {
     "groupId": $groupId,
     "fileName": $fileName,
-    "base64Image": $lastName
+    "base64Image": $base64Image
 }

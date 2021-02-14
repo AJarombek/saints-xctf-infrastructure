@@ -6,10 +6,10 @@
 
 #set($username = $input.json('$.username'))
 #set($fileName = $input.json('$.fileName'))
-#set($base64Image = $input.body)
+#set($base64Image = $input.json('$.base64Image'))
 
 {
     "username": $username,
     "fileName": $fileName,
-    "base64Image": $lastName
+    "base64Image": $base64Image
 }

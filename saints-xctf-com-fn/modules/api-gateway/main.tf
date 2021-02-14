@@ -34,7 +34,7 @@ data "template_file" "api-gateway-auth-policy-file" {
   template = file("${path.module}/api-gateway-auth-policy.json")
 
   vars = {
-    lambda_arn = data.aws_lambda_function.authorizer.invoke_arn
+    lambda_arn = data.aws_lambda_function.authorizer.arn
   }
 }
 
@@ -46,7 +46,7 @@ resource "aws_api_gateway_rest_api" "saints-xctf-com-fn" {
   name = "saints-xctf-com-fn${local.env_suffix}"
   description = "A REST API for AWS Lambda Functions in the fn.saintsxctf.com domain"
 
-  binary_media_types = ["multipart/form-data"]
+  binary_media_types = []
   disable_execute_api_endpoint = true
 }
 
@@ -85,6 +85,8 @@ resource "aws_api_gateway_authorizer" "saints-xctf-com-fn-authorizer" {
   name = "saints-xctf-com-fn-auth"
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   authorizer_uri = data.aws_lambda_function.authorizer.invoke_arn
+  identity_source = "method.request.header.Authorization"
+  authorizer_credentials = aws_iam_role.auth-invocation-role.arn
 }
 
 resource "aws_iam_role" "auth-invocation-role" {
@@ -283,7 +285,7 @@ module "api-gateway-uasset-user-endpoint" {
   request_validator_name = "uasset-user-request-body-${local.env}"
 
   request_templates = {
-    "multipart/form-data" = file("${path.module}/uasset/user/request.vm")
+    "application/json" = file("${path.module}/uasset/user/request.vm")
   }
 
   response_template = file("${path.module}/uasset/user/response.vm")
@@ -319,7 +321,7 @@ module "api-gateway-uasset-group-endpoint" {
   request_validator_name = "uasset-group-request-body-${local.env}"
 
   request_templates = {
-    "multipart/form-data" = file("${path.module}/uasset/group/request.vm")
+    "application/json" = file("${path.module}/uasset/group/request.vm")
   }
 
   response_template = file("${path.module}/uasset/group/response.vm")
