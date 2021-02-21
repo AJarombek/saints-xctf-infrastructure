@@ -52,7 +52,8 @@ bazel --version
 | `secrets-manager`         | Secrets for the SaintsXCTF application and infrastructure.                          |
 | `web-server`              | Infrastructure for the SaintsXCTF Web Server.                                       |
 | `web-app`                 | Setup for the websites application code.                                            |
-| `test`                    | Test code for the AWS infrastructure.                                               |
+| `test`                    | Python AWS infrastructure test suite.                                               |
+| `test-k8s`                | Go Kubernetes infrastructure test suite.                                            |
 
 ### Versions
 
