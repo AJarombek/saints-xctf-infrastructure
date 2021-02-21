@@ -11,8 +11,8 @@ import (
 	"testing"
 )
 
-// TestSaintsXCTFComDeploymentExists determines if a deployment exists in the 'jenkins' namespace with the name
+// TestSaintsXCTFComDeploymentExists determines if a deployment exists in the 'saints-xctf' namespace with the name
 // 'saints-xctf-web-deployment'.
 func TestSaintsXCTFComDeploymentExists(t *testing.T) {
-	k8sfuncs.DeploymentExists(t, ClientSet, "saints-xctf-web-deployment", "saints-xctf-dev")
+	k8sfuncs.DeploymentExists(t, ClientSet, "saints-xctf-web-deployment", namespace)
 }

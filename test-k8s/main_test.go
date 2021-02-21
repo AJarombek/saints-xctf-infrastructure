@@ -14,9 +14,20 @@ import (
 
 var ClientSet *kubernetes.Clientset
 
+var env = os.Getenv("TEST_ENV")
+var namespace = GetNamespace()
+
 // Setup code for the test suite.
 func TestMain(m *testing.M) {
 	kubeconfig, inCluster := ParseCommandLineArguments()
 	ClientSet = GetClientSet(kubeconfig, inCluster)
 	os.Exit(m.Run())
+}
+
+func GetNamespace() string {
+	if env == "dev" {
+		return "saints-xctf-dev"
+	} else {
+		return "saints-xctf"
+	}
 }

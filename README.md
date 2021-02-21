@@ -8,6 +8,18 @@ This repository holds application specific infrastructure for the [saintsxctf.co
 VPCs for SaintsXCTF.com are configured in the [global-aws-infrastructure](https://github.com/AJarombek/global-aws-infrastructure) 
 repository.
 
+### SaintsXCTF Deployment Process
+
++ Run SaintsXCTF Database Deployment Scripts
+
++ Create Docker Images for SaintsXCTF API (Base & Nginx).  Bump up Image Versions.
+
++ Create Docker Images for SaintsXCTF Web (Base & Nginx).  Bump up Image Versions.
+
++ Build SaintsXCTF API Kubernetes Infrastructure.  Bump Up Deployment Versions to Match Docker Images.
+
++ Build SaintsXCTF Web Kubernetes Infrastructure.  Bump Up Deployment Versions to Match Docker Images.
+
 ### Integration
 
 There are multiple Jenkins jobs for this infrastructure.  They are all located in the SaintsXCTF
