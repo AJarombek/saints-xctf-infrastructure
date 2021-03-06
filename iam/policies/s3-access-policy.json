@@ -6,6 +6,15 @@
       "Effect": "Allow",
       "Action": "s3:GetObject",
       "Resource": "*"
+    },
+    {
+      "Sid": "SaintsXCTFRoute53Permission",
+      "Effect": "Allow",
+      "Action": [
+        "route53:ListHostedZonesByName",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": "*"
     }
   ]
 }

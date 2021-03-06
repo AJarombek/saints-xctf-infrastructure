@@ -183,7 +183,10 @@ resource "aws_lb" "saints-xctf-server-application-lb" {
   }
 }
 
+/* HTTPS target group has been disabled - all traffic is HTTPS after it reaches the load balancer */
 resource "aws_lb_target_group" "saints-xctf-server-lb-target-group" {
+  count = 0
+
   name = "saints-xctf-lb-target"
 
   health_check {
@@ -215,7 +218,7 @@ resource "aws_lb_listener" "saints-xctf-server-lb-listener-https" {
   certificate_arn = data.aws_acm_certificate.saints-xctf-certificate.arn
 
   default_action {
-    target_group_arn = aws_lb_target_group.saints-xctf-server-lb-target-group.arn
+    target_group_arn = aws_lb_target_group.saints-xctf-server-lb-target-group-http.arn
     type = "forward"
   }
 }
@@ -249,7 +252,10 @@ resource "aws_lb_target_group" "saints-xctf-server-lb-target-group-http" {
   }
 }
 
+/* HTTP listener has been disabled - only HTTPS traffic is allowed for saintsxctf.com */
 resource "aws_lb_listener" "saints-xctf-server-lb-listener-http" {
+  count = 0
+
   load_balancer_arn = aws_lb.saints-xctf-server-application-lb.arn
   port = 80
   protocol = "HTTP"
