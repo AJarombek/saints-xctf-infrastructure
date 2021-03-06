@@ -25,6 +25,26 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: saints-xctf-api-internal
+  namespace: saints-xctf
+  labels:
+    version: v1.0.0
+    environment: production
+    application: saints-xctf-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5001
+      targetPort: 80
+      protocol: TCP
+  selector:
+    application: saints-xctf-api
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
   name: saints-xctf-api-flask
   namespace: saints-xctf
   labels:

@@ -39,7 +39,13 @@ func TestSaintsXCTFAPIServiceExists(t *testing.T) {
 	k8sfuncs.ServiceExists(t, ClientSet, "saints-xctf-api", namespace, "NodePort")
 }
 
-// TestSaintsXCTFAPIFlaskServiceExists determines if a NodePort Service with the name 'jenkins-service' exists in the
+// TestSaintsXCTFAPIInternalServiceExists determines if a ClusterIP Service with the name 'saints-xctf-api-internal'
+// exists in the 'saints-xctf' (or 'saints-xctf-dev') namespace.
+func TestSaintsXCTFAPIInternalServiceExists(t *testing.T) {
+	k8sfuncs.ServiceExists(t, ClientSet, "saints-xctf-api-internal", namespace, "ClusterIP")
+}
+
+// TestSaintsXCTFAPIFlaskServiceExists determines if a ClusterIP Service with the name 'jenkins-service' exists in the
 //'saints-xctf' (or 'saints-xctf-dev') namespace.
 func TestSaintsXCTFAPIFlaskServiceExists(t *testing.T) {
 	k8sfuncs.ServiceExists(t, ClientSet, "saints-xctf-api-flask", namespace, "ClusterIP")

@@ -20,7 +20,7 @@ func TestSaintsXCTFNamespaceDeploymentCount(t *testing.T) {
 // TestSaintsXCTFNamespaceServiceCount determines if the expected number of Service objects exist in the 'saints-xctf'
 // (or 'saints-xctf-dev') namespace.
 func TestSaintsXCTFNamespaceServiceCount(t *testing.T) {
-	k8sfuncs.NamespaceServiceCount(t, ClientSet, namespace, 3)
+	k8sfuncs.NamespaceServiceCount(t, ClientSet, namespace, 4)
 }
 
 // TestSaintsXCTFNamespaceIngressCount determines if the number of 'Ingress' objects in the 'saints-xctf'

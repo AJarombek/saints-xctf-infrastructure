@@ -210,6 +210,34 @@ resource "kubernetes_service" "service" {
   }
 }
 
+resource "kubernetes_service" "internal-service" {
+  metadata {
+    name = "saints-xctf-api-internal"
+    namespace = local.namespace
+
+    labels = {
+      version = local.version
+      environment = local.env
+      application = "saints-xctf-api"
+    }
+  }
+
+  spec {
+    type = "ClusterIP"
+
+    port {
+      port = 5001
+      target_port = 80
+      protocol = "TCP"
+    }
+
+    selector = {
+      application = "saints-xctf-api"
+      task = "nginx"
+    }
+  }
+}
+
 resource "kubernetes_service" "flask-service" {
   metadata {
     name = "saints-xctf-api-flask"
