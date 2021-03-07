@@ -32,6 +32,18 @@ data "aws_subnet" "application-vpc-public-subnet-1" {
   }
 }
 
+data "aws_subnet" "application-vpc-public-subnet-2" {
+  tags = {
+    Name = "kubernetes-grandmas-blanket-public-subnet"
+  }
+}
+
+data "aws_subnet" "application-vpc-public-subnet-3" {
+  tags = {
+    Name = "kubernetes-dotty-public-subnet"
+  }
+}
+
 data "aws_subnet" "application-vpc-private-subnet-0" {
   tags = {
     Name = "saints-xctf-com-cassiah-private-subnet"
@@ -61,6 +73,8 @@ resource "aws_security_group" "saints-xctf-database-security" {
     cidr_blocks = [
       data.aws_subnet.application-vpc-public-subnet-0.cidr_block,
       data.aws_subnet.application-vpc-public-subnet-1.cidr_block,
+      data.aws_subnet.application-vpc-public-subnet-2.cidr_block,
+      data.aws_subnet.application-vpc-public-subnet-3.cidr_block,
       data.aws_subnet.application-vpc-private-subnet-0.cidr_block,
       data.aws_subnet.application-vpc-private-subnet-1.cidr_block
     ]
