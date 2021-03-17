@@ -4,6 +4,26 @@
  * Date: 3/16/2021
  */
 
+provider "aws" {
+  region = "us-east-1"
+}
+
+terraform {
+  required_version = ">= 0.14"
+
+  required_providers {
+    aws = ">= 3.32.0"
+    kubernetes = ">= 2.0.2"
+  }
+
+  backend "s3" {
+    bucket = "andrew-jarombek-terraform-state"
+    encrypt = true
+    key = "saints-xctf-infrastructure/database-client"
+    region = "us-east-1"
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 data "aws_eks_cluster" "cluster" {
@@ -59,7 +79,7 @@ locals {
 resource "kubernetes_deployment" "deployment" {
   metadata {
     name = "saints-xctf-database-client-deployment"
-    namespace = 'saints-xctf'
+    namespace = "saints-xctf"
 
     labels = {
       version = local.version
@@ -101,7 +121,7 @@ resource "kubernetes_deployment" "deployment" {
       spec {
         container {
           name = "saints-xctf-database-client"
-          image = "quantumobject/docker-mywebsql:latest"
+          image = "phpmyadmin/phpmyadmin:latest"
 
           readiness_probe {
             period_seconds = 5
@@ -111,6 +131,11 @@ resource "kubernetes_deployment" "deployment" {
               path = "/"
               port = 80
             }
+          }
+
+          env {
+            name = "PMA_ARBITRARY"
+            value = "1"
           }
 
           port {
@@ -180,7 +205,7 @@ resource "kubernetes_ingress" "ingress" {
 
   spec {
     rule {
-      host = 'db.saintsxctf.com'
+      host = "db.saintsxctf.com"
 
       http {
         path {

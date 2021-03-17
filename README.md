@@ -51,6 +51,7 @@ bazel --version
 | `bastion`                 | Bastion host for connecting to resources in the private subnets.                    |
 | `database`                | Infrastructure for the SaintsXCTF MySQL database.                                   |
 | `database-backup`         | S3 buckets for storing RDS database backups.                                        |
+| `database-client`         | MySQL database client for access to the RDS database from a web GUI.                |
 | `database-deployment`     | Lambda function for deploying scripts to RDS databases.                             |
 | `database-snapshot`       | Lambda functions for creating backups and restoring RDS databases.                  |
 | `iam`                     | IAM policies used in the SaintsXCTF VPC.                                            |

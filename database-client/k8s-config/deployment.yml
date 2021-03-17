@@ -1,0 +1,48 @@
+# Kubernetes deployment for the SaintsXCTF database client.
+# Author: Andrew Jarombek
+# Date: 3/17/2021
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saints-xctf-database-client-deployment
+  namespace: saints-xctf
+  labels:
+    version: v1.0.0
+    environment: all
+    application: saints-xctf-database-client
+spec:
+  replicas: 1
+  minReadySeconds: 10
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      version: v1.0.0
+      application: saints-xctf-database-client
+      environment: all
+  template:
+    metadata:
+      labels:
+        version: v1.0.0
+        environment: all
+        application: saints-xctf-database-client
+    spec:
+      containers:
+        - name: saints-xctf-database-client
+          image: phpmyadmin/phpmyadmin:latest
+          env:
+            - name: PMA_ARBITRARY
+              value: "1"
+          readinessProbe:
+            periodSeconds: 5
+            initialDelaySeconds: 20
+            httpGet:
+              path: /
+              port: 80
+          ports:
+            - containerPort: 80
+              protocol: TCP
