@@ -14,6 +14,29 @@ data "aws_eks_cluster_auth" "cluster" {
   name = "andrew-jarombek-eks-cluster"
 }
 
+data "aws_vpc" "application-vpc" {
+  tags = {
+    Name = "application-vpc"
+  }
+}
+
+data "aws_subnet" "kubernetes-dotty-public-subnet" {
+  tags = {
+    Name = "kubernetes-dotty-public-subnet"
+  }
+}
+
+data "aws_subnet" "kubernetes-grandmas-blanket-public-subnet" {
+  tags = {
+    Name = "kubernetes-grandmas-blanket-public-subnet"
+  }
+}
+
+data "aws_acm_certificate" "saintsxctf-cert" {
+  domain = "*.saintsxctf.com"
+  statuses = ["ISSUED"]
+}
+
 provider "kubernetes" {
   host = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
@@ -41,8 +64,7 @@ resource "kubernetes_deployment" "deployment" {
     labels = {
       version = local.version
       environment = "all"
-      application = "saints-xctf"
-      task = "database-client"
+      application = "saints-xctf-database-client"
     }
   }
 
@@ -63,8 +85,7 @@ resource "kubernetes_deployment" "deployment" {
       match_labels = {
         version = local.version
         environment = "all"
-        application = "saints-xctf"
-        task = "database-client"
+        application = "saints-xctf-database-client"
       }
     }
 
@@ -73,8 +94,7 @@ resource "kubernetes_deployment" "deployment" {
         labels = {
           version = local.version
           environment = "all"
-          application = "saints-xctf"
-          task = "database-client"
+          application = "saints-xctf-database-client"
         }
       }
 
@@ -105,14 +125,13 @@ resource "kubernetes_deployment" "deployment" {
 
 resource "kubernetes_service" "service" {
   metadata {
-    name = "saints-xctf-database-client"
+    name = "saints-xctf-database-client-service"
     namespace = "saints-xctf"
 
     labels = {
       version = local.version
       environment = "all"
-      application = "saints-xctf"
-      task = "database-client"
+      application = "saints-xctf-database-client"
     }
   }
 
@@ -126,8 +145,98 @@ resource "kubernetes_service" "service" {
     }
 
     selector = {
-      application = "saints-xctf"
-      task = "database-client"
+      application = "saints-xctf-database-client"
     }
+  }
+}
+
+resource "kubernetes_ingress" "ingress" {
+  metadata {
+    name = "saints-xctf-database-client-ingress"
+    namespace = "saints-xctf"
+
+    annotations = {
+      "kubernetes.io/ingress.class" = "alb"
+      "external-dns.alpha.kubernetes.io/hostname" = "db.saintsxctf.com"
+      "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\": \"redirect\", \"RedirectConfig\": {\"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
+      "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
+      "alb.ingress.kubernetes.io/certificate-arn" = data.aws_acm_certificate.saintsxctf-cert.arn
+      "alb.ingress.kubernetes.io/healthcheck-path" = "/"
+      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\":80}, {\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/healthcheck-protocol": "HTTP"
+      "alb.ingress.kubernetes.io/scheme" = "internet-facing"
+      "alb.ingress.kubernetes.io/security-groups" = aws_security_group.saints-xctf-database-client-lb-sg.id
+      "alb.ingress.kubernetes.io/subnets" = "${data.aws_subnet.kubernetes-dotty-public-subnet.id},${data.aws_subnet.kubernetes-grandmas-blanket-public-subnet.id}"
+      "alb.ingress.kubernetes.io/target-type" = "instance"
+      "alb.ingress.kubernetes.io/tags" = "Name=saints-xctf-database-client-load-balancer,Application=saints-xctf-database-client,Environment=all"
+    }
+
+    labels = {
+      version = local.version
+      environment = "all"
+      application = "saints-xctf-database-client"
+    }
+  }
+
+  spec {
+    rule {
+      host = 'db.saintsxctf.com'
+
+      http {
+        path {
+          path = "/*"
+
+          backend {
+            service_name = "ssl-redirect"
+            service_port = "use-annotation"
+          }
+        }
+
+        path {
+          path = "/*"
+
+          backend {
+            service_name = "saints-xctf-database-client-service"
+            service_port = 80
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "aws_security_group" "saints-xctf-database-client-lb-sg" {
+  name = "saints-xctf-database-client-lb-security-group"
+  vpc_id = data.aws_vpc.application-vpc.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  ingress {
+    protocol = "tcp"
+    from_port = 80
+    to_port = 80
+    cidr_blocks = [var.db_client_access_cidr]
+  }
+
+  ingress {
+    protocol = "tcp"
+    from_port = 443
+    to_port = 443
+    cidr_blocks = [var.db_client_access_cidr]
+  }
+
+  egress {
+    protocol = "-1"
+    from_port = 0
+    to_port = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "saints-xctf-database-client-lb-security-group"
+    Application = "saints-xctf-database-client"
+    Environment = "all"
   }
 }
