@@ -27,6 +27,15 @@ locals {
       tags_name = "saints-xctf-com-lambda-activation-code-email"
       log_group_name = "/aws/lambda/SaintsXCTFActivationCodeEmail${upper(local.env)}"
     },
+    report = {
+      function_name = "SaintsXCTFReportEmail${upper(local.env)}"
+      filename = "${path.module}/SaintsXCTFReportEmail.zip"
+      handler = "sendEmailAWS.sendReportEmail"
+      source_code_hash = filebase64sha256("${path.module}/SaintsXCTFReportEmail.zip")
+      description = "Send an email to me when a user writes a report or sends feedback."
+      tags_name = "saints-xctf-com-lambda-report-email"
+      log_group_name = "/aws/lambda/SaintsXCTFReportEmail${upper(local.env)}"
+    },
     welcome = {
       function_name = "SaintsXCTFWelcomeEmail${upper(local.env)}"
       filename = "${path.module}/SaintsXCTFWelcomeEmail.zip"

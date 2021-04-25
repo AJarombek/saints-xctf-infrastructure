@@ -354,6 +354,54 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
+    @unittest.skipIf(prod_env, 'Production report email AWS Lambda function not running.')
+    def test_report_email_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for sending an email to me when a user writes a report.
+        :return: True if the function exists, False otherwise
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFReportEmailPROD'
+            prefix = ''
+        else:
+            function_name = 'SaintsXCTFReportEmailDEV'
+            prefix = 'dev.'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='sendEmailAWS.sendReportEmail',
+            runtime='nodejs12.x',
+            env_vars={"PREFIX": prefix}
+        )
+
+    @unittest.skipIf(prod_env, 'Production report email AWS Lambda function not running.')
+    def test_report_email_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for sending an email to me when a user writes a report has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFReportEmailPROD'
+        else:
+            function_name = 'SaintsXCTFReportEmailDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='email-lambda-role'
+        ))
+
+    @unittest.skipIf(prod_env, 'Production report email AWS Lambda function not running.')
+    def test_report_email_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the report email AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFReportEmailPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFReportEmailDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
     @unittest.skipIf(prod_env, 'Production welcome email AWS Lambda function not running.')
     def test_welcome_email_lambda_function_exists(self) -> None:
         """

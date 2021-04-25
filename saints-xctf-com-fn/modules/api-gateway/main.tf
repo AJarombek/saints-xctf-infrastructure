@@ -142,6 +142,7 @@ resource "aws_lambda_permission" "allow_api_gateway-authorizer" {
 # API Endpoints
 # -------------
 # /email/welcome
+# /email/report
 # /email/forgot-password
 # /email/activation-code
 # /uasset/user
@@ -232,6 +233,42 @@ module "api-gateway-activation-code-endpoint" {
 resource "aws_lambda_permission" "allow-api-gateway-email-activation-code" {
   action = "lambda:InvokeFunction"
   function_name = var.email-activation-code-lambda-name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}
+
+/* POST /email/report */
+
+module "api-gateway-report-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
+
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-email-path.id
+  path = "report"
+  request_validator_name = "email-report-request-body-${local.env}"
+
+  request_templates = {
+    "application/json" = file("${path.module}/email/report/request.vm")
+  }
+
+  response_template = file("${path.module}/email/report/response.vm")
+
+  lambda_invoke_arn = var.email-report-lambda-invoke-arn
+
+  # Optional arguments
+  http_method = "POST"
+  validate_request_body = true
+  validate_request_parameters = false
+  content_handling = null
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
+}
+
+resource "aws_lambda_permission" "allow-api-gateway-email-report" {
+  action = "lambda:InvokeFunction"
+  function_name = var.email-report-lambda-name
   statement_id = "AllowExecutionFromApiGateway"
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"

@@ -70,13 +70,13 @@ func TestSaintsXCTFIngressAnnotations(t *testing.T) {
 
 	if expectedAnnotationsLength == annotationLength {
 		t.Logf(
-			"Jenkins Ingress has the expected number of annotations.  Expected %v, got %v.",
+			"SaintsXCTF Ingress has the expected number of annotations.  Expected %v, got %v.",
 			expectedAnnotationsLength,
 			annotationLength,
 		)
 	} else {
 		t.Errorf(
-			"Jenkins Ingress does not have the expected number of annotations.  Expected %v, got %v.",
+			"SaintsXCTF Ingress does not have the expected number of annotations.  Expected %v, got %v.",
 			expectedAnnotationsLength,
 			annotationLength,
 		)

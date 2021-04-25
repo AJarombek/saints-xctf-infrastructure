@@ -1,0 +1,15 @@
+#**
+ * HTTP Request for the email/report REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 4/24/2021
+ *#
+
+#set($firstName = $input.json('$.firstName'))
+#set($lastName = $input.json('$.lastName'))
+#set($report = $input.json('$.report'))
+
+{
+    "firstName": $firstName,
+    "lastName": $lastName,
+    "report": $report
+}

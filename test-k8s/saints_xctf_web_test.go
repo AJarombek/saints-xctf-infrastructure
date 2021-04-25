@@ -22,8 +22,8 @@ func TestSaintsXCTFComDeploymentErrorFree(t *testing.T) {
 	k8sfuncs.DeploymentStatusCheck(t, ClientSet, "saints-xctf-web-deployment", namespace, true, true, 1, 1, 1, 0)
 }
 
-// TestSaintsXCTFComServiceExists determines if a NodePort Service with the name 'jenkins-service' exists in the 'jenkins'
-// namespace.
+// TestSaintsXCTFComServiceExists determines if a NodePort Service with the name 'saints-xctf-web-service' exists in
+// the 'saints-xctf' namespace.
 func TestSaintsXCTFComServiceExists(t *testing.T) {
 	k8sfuncs.ServiceExists(t, ClientSet, "saints-xctf-web-service", namespace, "NodePort")
 }

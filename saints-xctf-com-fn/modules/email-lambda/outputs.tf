@@ -26,6 +26,17 @@ output "activation-code-invoke-arn" {
   ][0]
 }
 
+output "report-function-name" {
+  value = local.lambda_functions.report.function_name
+}
+
+output "report-invoke-arn" {
+  value = [
+    for function in aws_lambda_function.email : function.invoke_arn
+    if function.function_name == local.lambda_functions.report.function_name
+  ][0]
+}
+
 output "welcome-function-name" {
   value = local.lambda_functions.welcome.function_name
 }

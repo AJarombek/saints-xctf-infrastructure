@@ -1,0 +1,11 @@
+#**
+ * HTTP Response for the email/report REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 4/24/2021
+ *#
+
+#set($response = $input.path('$'))
+
+{
+    "result": $response
+}

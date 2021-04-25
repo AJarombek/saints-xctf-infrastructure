@@ -60,6 +60,26 @@ variable "email-activation-code-lambda-invoke-arn" {
   }
 }
 
+variable "email-report-lambda-name" {
+  description = "The name of the report email Lambda function to use with API Gateway"
+  type = string
+
+  validation {
+    condition = length(var.email-report-lambda-name) >= 1
+    error_message = "The report email lambda name must be of length greater than 1."
+  }
+}
+
+variable "email-report-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the report email Lambda function to use with API Gateway"
+  type = string
+
+  validation {
+    condition = substr(var.email-report-lambda-invoke-arn, 0, 19) == "arn:aws:apigateway:"
+    error_message = "The email report lambda arn is not formatted properly."
+  }
+}
+
 variable "email-welcome-lambda-name" {
   description = "The name of the welcome email Lambda function to use with API Gateway"
   type = string
