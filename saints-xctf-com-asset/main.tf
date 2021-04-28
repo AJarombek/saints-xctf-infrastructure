@@ -10,7 +10,11 @@ provider "aws" {
 }
 
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.13.6"
+
+  required_providers {
+    aws = ">= 3.37.0"
+  }
 
   backend "s3" {
     bucket = "andrew-jarombek-terraform-state"
@@ -91,15 +95,16 @@ resource "aws_cloudfront_distribution" "asset-saintsxctf-distribution" {
 
   default_cache_behavior {
     # Which HTTP verbs CloudFront processes
-    allowed_methods = ["HEAD", "GET"]
+    allowed_methods = ["HEAD", "GET", "OPTIONS"]
 
     # Which HTTP verbs CloudFront caches responses to requests
-    cached_methods = ["HEAD", "GET"]
+    cached_methods = ["HEAD", "GET", "OPTIONS"]
 
     forwarded_values {
       cookies {
         forward = "none"
       }
+      headers = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       query_string = false
     }
 
@@ -166,15 +171,16 @@ resource "aws_cloudfront_distribution" "www-asset-saintsxctf-distribution" {
 
   default_cache_behavior {
     # Which HTTP verbs CloudFront processes
-    allowed_methods = ["HEAD", "GET"]
+    allowed_methods = ["HEAD", "GET", "OPTIONS"]
 
     # Which HTTP verbs CloudFront caches responses to requests
-    cached_methods = ["HEAD", "GET"]
+    cached_methods = ["HEAD", "GET", "OPTIONS"]
 
     forwarded_values {
       cookies {
         forward = "none"
       }
+      headers = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       query_string = false
     }
 

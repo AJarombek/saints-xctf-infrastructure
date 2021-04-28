@@ -147,6 +147,7 @@ class TestSXCTFFn(unittest.TestCase):
             '/email',
             '/email/activation-code',
             '/email/forgot-password',
+            '/email/report',
             '/email/welcome',
             '/uasset',
             '/uasset/group',
@@ -195,7 +196,8 @@ class TestSXCTFFn(unittest.TestCase):
             validator_name=validator_name,
             lambda_function_name=lambda_function_name,
             validate_request_body=True,
-            validate_request_parameters=False
+            validate_request_parameters=False,
+            authorization_type='CUSTOM'
         )
 
     @unittest.skipIf(prod_env, 'Production Function API not running.')
@@ -217,7 +219,8 @@ class TestSXCTFFn(unittest.TestCase):
             validator_name=validator_name,
             lambda_function_name=lambda_function_name,
             validate_request_body=True,
-            validate_request_parameters=False
+            validate_request_parameters=False,
+            authorization_type='CUSTOM'
         )
 
     @unittest.skipIf(prod_env, 'Production Function API not running.')
@@ -239,7 +242,8 @@ class TestSXCTFFn(unittest.TestCase):
             validator_name=validator_name,
             lambda_function_name=lambda_function_name,
             validate_request_body=True,
-            validate_request_parameters=False
+            validate_request_parameters=False,
+            authorization_type='CUSTOM'
         )
 
     @unittest.skipIf(prod_env, 'Production forgot password AWS Lambda function not running.')

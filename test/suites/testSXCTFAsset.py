@@ -61,13 +61,24 @@ class TestSXCTFAsset(unittest.TestCase):
         """
         distributions = self.cloudfront.list_distributions()
         dist_list = distributions.get('DistributionList').get('Items')
-        dist = [item for item in dist_list if item.get('Aliases').get('Items')[0] == 'asset.saintsxctf.com'][0]
+        dists = [
+            item for item in dist_list
+            if item.get('Aliases').get('Items')[0] in ['asset.saintsxctf.com', 'www.asset.saintsxctf.com']
+        ]
 
-        self.assertTrue(all([
-            dist.get('Status') == 'Deployed',
-            dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Quantity') == 2,
-            dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[0] == 'HEAD',
-            dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[1] == 'GET',
-            dist.get('Restrictions').get('GeoRestriction').get('RestrictionType') == 'none',
-            dist.get('HttpVersion') == 'HTTP2'
-        ]))
+        self.assertEqual(2, len(dists))
+
+        for dist in dists:
+            self.assertTrue(all([
+                dist.get('Status') == 'Deployed',
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Quantity') == 3,
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[0] == 'HEAD',
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[1] == 'GET',
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[2] == 'OPTIONS',
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Quantity') == 3,
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Items')[0] == 'HEAD',
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Items')[1] == 'GET',
+                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Items')[2] == 'OPTIONS',
+                dist.get('Restrictions').get('GeoRestriction').get('RestrictionType') == 'none',
+                dist.get('HttpVersion') == 'HTTP2'
+            ]))

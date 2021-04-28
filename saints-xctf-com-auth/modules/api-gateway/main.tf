@@ -49,6 +49,12 @@ resource "aws_api_gateway_stage" "saints-xctf-com-auth-stage" {
   deployment_id = aws_api_gateway_deployment.saints-xctf-com-auth-deployment.id
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-auth.id
   stage_name = local.env
+
+  tags = {
+    Name = "saints-xctf-com-auth-api"
+    Application = "saints-xctf"
+    Environment = local.env
+  }
 }
 
 resource "aws_api_gateway_domain_name" "saints-xctf-com-auth-domain" {

@@ -56,6 +56,7 @@ resource "aws_api_gateway_deployment" "saints-xctf-com-fn-deployment" {
   depends_on = [
     module.api-gateway-forgot-password-endpoint,
     module.api-gateway-activation-code-endpoint,
+    module.api-gateway-report-endpoint,
     module.api-gateway-welcome-endpoint,
     module.api-gateway-uasset-group-endpoint,
     module.api-gateway-uasset-user-endpoint
@@ -67,6 +68,12 @@ resource "aws_api_gateway_stage" "saints-xctf-com-fn-stage" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   stage_name = local.env
   xray_tracing_enabled = var.enable-xray-tracing
+
+  tags = {
+    Name = "saints-xctf-com-fn-api"
+    Application = "saints-xctf"
+    Environment = local.env
+  }
 }
 
 resource "aws_api_gateway_method_settings" "saints-xctf-com-fn-method-settings" {

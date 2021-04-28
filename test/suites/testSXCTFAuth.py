@@ -320,7 +320,7 @@ class TestSXCTFAuth(unittest.TestCase):
             function_name=function_name,
             handler='function.lambda_handler',
             runtime='python3.8',
-            memory_size=1792,
+            memory_size=512,
             env_vars={"ENV": env}
         )
 
