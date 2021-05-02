@@ -496,7 +496,7 @@ class TestSXCTFFn(unittest.TestCase):
         self.assertEqual(1, len(matching_layers))
 
         layer_arn: str = matching_layers[0].get('LayerArn')
-        self.assertEqual(layer_arn, lambda_function_layers[0].get('Arn'))
+        self.assertTrue(layer_arn in lambda_function_layers[0].get('Arn'))
 
     def test_uasset_lambda_role_exists(self) -> None:
         """
@@ -582,7 +582,7 @@ class TestSXCTFFn(unittest.TestCase):
         self.assertEqual(1, len(matching_layers))
 
         layer_arn: str = matching_layers[0].get('LayerArn')
-        self.assertEqual(layer_arn, lambda_function_layers[0].get('Arn'))
+        self.assertTrue(layer_arn in lambda_function_layers[0].get('Arn'))
 
     @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
     def test_uasset_group_lambda_function_has_iam_role(self) -> None:
