@@ -103,17 +103,17 @@ resource "aws_cloudwatch_log_group" "rotate-log-group" {
 }
 
 resource "aws_iam_role" "rotate-lambda-role" {
-  name = "rotate-secret-lambda-role"
+  name = "rotate-secret-lambda-role-${local.env}"
   path = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/rotate-lambda-role.json")
-  description = "IAM role for a SecretsManager secret rotation AWS Lambda function"
+  description = "IAM role for a SecretsManager secret rotation AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_policy" "rotate-lambda-policy" {
-  name = "rotate-secret-lambda-policy"
+  name = "rotate-secret-lambda-policy-${local.env}"
   path = "/saints-xctf-com/"
   policy = file("${path.module}/rotate-lambda-policy.json")
-  description = "IAM policy for a SecretsManager secret rotation AWS Lambda function"
+  description = "IAM policy for a SecretsManager secret rotation AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "rotate-lambda-policy-attachment" {
@@ -220,8 +220,8 @@ module "lambda-auth-token-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
-  name = "saints-xctf-auth-token-lambda-security"
-  tag_name = "saints-xctf-auth-token-lambda-security"
+  name = "saints-xctf-auth-token-lambda-security-${local.env}"
+  tag_name = "saints-xctf-auth-token-lambda-security-${local.env}"
   vpc_id = data.aws_vpc.application-vpc.id
 
   # Optional arguments
@@ -244,7 +244,7 @@ module "lambda-auth-token-security-group" {
     }
   ]
 
-  description = "SaintsXCTF Auth Token Lambda Function Security Group"
+  description = "SaintsXCTF Auth Token Lambda Function Security Group in the ${upper(local.env)} environment"
 }
 
 resource "aws_cloudwatch_log_group" "token-log-group" {
@@ -253,17 +253,17 @@ resource "aws_cloudwatch_log_group" "token-log-group" {
 }
 
 resource "aws_iam_role" "token-lambda-role" {
-  name = "token-lambda-role"
+  name = "token-lambda-role-${local.env}"
   path = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/token-lambda-role.json")
-  description = "IAM role for a JWT request AWS Lambda function"
+  description = "IAM role for a JWT request AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_policy" "token-lambda-policy" {
-  name = "token-lambda-policy"
+  name = "token-lambda-policy-${local.env}"
   path = "/saints-xctf-com/"
   policy = file("${path.module}/token-lambda-policy.json")
-  description = "IAM policy for a JWT request AWS Lambda function"
+  description = "IAM policy for a JWT request AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "token-lambda-policy-attachment" {
@@ -276,17 +276,17 @@ resource "aws_iam_role_policy_attachment" "token-lambda-policy-attachment" {
 # ----------------
 
 resource "aws_iam_role" "lambda-role" {
-  name = "authorizer-lambda-role"
+  name = "authorizer-lambda-role-${local.env}"
   path = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/lambda-role.json")
-  description = "IAM role for logging and accessing secrets from an AWS Lambda function"
+  description = "IAM role for logging and accessing secrets from an AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_policy" "lambda-policy" {
-  name = "authorizer-lambda-policy"
+  name = "authorizer-lambda-policy-${local.env}"
   path = "/saints-xctf-com/"
   policy = file("${path.module}/lambda-policy.json")
-  description = "IAM policy for logging and accessing secrets from an AWS Lambda function"
+  description = "IAM policy for logging and accessing secrets from an AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-policy-attachment" {
