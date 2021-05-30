@@ -305,8 +305,8 @@ module "api-gateway-welcome-endpoint" {
   validate_request_body = true
   validate_request_parameters = false
   content_handling = null
-  authorization = "CUSTOM"
-  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
+  authorization = "NONE"
+  authorizer_id = null
 }
 
 resource "aws_lambda_permission" "allow-api-gateway-email-welcome" {

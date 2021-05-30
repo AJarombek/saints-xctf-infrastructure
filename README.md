@@ -16,6 +16,12 @@ repository.
 
 + Create Docker Images for SaintsXCTF Web (Base & Nginx).  Bump up Image Versions.
 
++ Build SaintsXCTF Auth API [If Necessary]
+
++ Build SaintsXCTF Function API [If Necessary]
+
++ Build SaintsXCTF Ingress Kubernetes Infrastructure [If Necessary]
+
 + Build SaintsXCTF API Kubernetes Infrastructure.  Bump Up Deployment Versions to Match Docker Images.
 
 + Build SaintsXCTF Web Kubernetes Infrastructure.  Bump Up Deployment Versions to Match Docker Images.

@@ -33,7 +33,7 @@ locals {
   env = var.prod ? "production" : "development"
   short_env = var.prod ? "prod" : "dev"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
-  short_version = "1.1.3"
+  short_version = "1.1.4"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
 }

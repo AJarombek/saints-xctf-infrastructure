@@ -6,6 +6,7 @@
 
 locals {
   env = var.prod ? "prod" : "dev"
+  environment = var.prod ? "production" : "development"
   public_cidr = "0.0.0.0/0"
 }
 
@@ -57,6 +58,7 @@ data "aws_iam_role" "lambda-role" {
 
 resource "aws_lambda_function" "rds-restore-lambda-function" {
   function_name = "SaintsXCTFMySQLRestore${upper(local.env)}"
+  description = "MySQL RDS database restoration in the ${local.environment} environment"
   filename = "${path.module}/dist/restore-lambda-${local.env}.zip"
   handler = "lambda.restore"
   role = data.aws_iam_role.lambda-role.arn
@@ -103,6 +105,7 @@ resource "aws_cloudwatch_log_group" "rds-restore-log-group" {
 
 resource "aws_lambda_function" "rds-backup-lambda-function" {
   function_name = "SaintsXCTFMySQLBackup${upper(local.env)}"
+  description = "MySQL RDS database backup in the ${local.environment} environment"
   filename = "${path.module}/dist/backup-lambda-${local.env}.zip"
   handler = "lambda.create_backup"
   role = data.aws_iam_role.lambda-role.arn
