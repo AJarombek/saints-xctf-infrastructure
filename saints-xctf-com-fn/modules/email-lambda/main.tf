@@ -89,17 +89,17 @@ resource "aws_cloudwatch_log_group" "welcome-email-log-group" {
 }
 
 resource "aws_iam_role" "lambda-role" {
-  name = "email-lambda-role"
+  name = "email-lambda-role-${local.env}"
   path = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/lambda-role.json")
-  description = "IAM role for logging & secrets for an AWS Lambda function"
+  description = "IAM role for logging & secrets for an AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_policy" "lambda-policy" {
-  name = "email-lambda-policy"
+  name = "email-lambda-policy-${local.env}"
   path = "/saints-xctf-com/"
   policy = file("${path.module}/lambda-policy.json")
-  description = "IAM policy for logging & secrets for an AWS Lambda function"
+  description = "IAM policy for logging & secrets for an AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-logging-policy-attachment" {

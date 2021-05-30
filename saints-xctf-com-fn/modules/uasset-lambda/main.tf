@@ -81,10 +81,10 @@ data "aws_iam_policy_document" "lambda-assume-role-policy" {
 }
 
 resource "aws_iam_role" "lambda-role" {
-  name = "uasset-lambda-role"
+  name = "uasset-lambda-role-${local.env}"
   path = "/saints-xctf-com/"
   assume_role_policy = data.aws_iam_policy_document.lambda-assume-role-policy.json
-  description = "IAM role for an AWS Lambda function that interacts with the uasset.saintsxctf.com S3 bucket"
+  description = "IAM role for an AWS Lambda function that interacts with the uasset.saintsxctf.com S3 bucket in the ${upper(local.env)} environment"
 }
 
 data "aws_iam_policy_document" "lambda-policy" {
@@ -112,10 +112,10 @@ data "aws_iam_policy_document" "lambda-policy" {
 }
 
 resource "aws_iam_policy" "lambda-policy" {
-  name = "uasset-lambda-policy"
+  name = "uasset-lambda-policy-${local.env}"
   path = "/saints-xctf-com/"
   policy = data.aws_iam_policy_document.lambda-policy.json
-  description = "IAM policy for an AWS Lambda function that interacts with the uasset.saintsxctf.com S3 bucket"
+  description = "IAM policy for an AWS Lambda function that interacts with the uasset.saintsxctf.com S3 bucket in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-logging-policy-attachment" {

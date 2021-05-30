@@ -97,17 +97,17 @@ resource "aws_api_gateway_authorizer" "saints-xctf-com-fn-authorizer" {
 }
 
 resource "aws_iam_role" "auth-invocation-role" {
-  name = "api-gateway-auth-role"
+  name = "api-gateway-auth-role-${local.env_short}"
   path = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/api-gateway-auth-role.json")
-  description = "IAM Role for invoking an authentication Lambda function from API Gateway"
+  description = "IAM Role for invoking an authentication Lambda function from API Gateway in the ${local.env} environment"
 }
 
 resource "aws_iam_policy" "auth-invocation-policy" {
-  name = "api-gateway-auth-policy"
+  name = "api-gateway-auth-policy-${local.env_short}"
   path = "/saints-xctf-com/"
   policy = data.template_file.api-gateway-auth-policy-file.rendered
-  description = "IAM Policy for invoking an authentication Lambda function from API Gateway"
+  description = "IAM Policy for invoking an authentication Lambda function from API Gateway in the ${local.env} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "auth-invocation-role-policy-attachment" {
