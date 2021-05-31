@@ -38,6 +38,11 @@ data "aws_acm_certificate" "saintsxctf-cert" {
   statuses = ["ISSUED"]
 }
 
+data "aws_acm_certificate" "saintsxctf-wildcard-cert" {
+  domain = local.domain_wildcard_cert
+  statuses = ["ISSUED"]
+}
+
 data "aws_acm_certificate" "saintsxctf-dev-cert" {
   domain = local.dev_domain_cert
   statuses = ["ISSUED"]
@@ -77,15 +82,19 @@ locals {
   host3 = var.prod ? "api.saintsxctf.com" : "dev.api.saintsxctf.com"
   host4 = var.prod ? "www.api.saintsxctf.com" : "www.dev.api.saintsxctf.com"
   hostname = "${local.host1},${local.host2},${local.host3},${local.host4}"
-  certificates = "${local.cert_arn},${local.dev_cert_arn},${local.api_cert_arn},${local.dev_api_cert_arn}"
+  dev_certificates = "${local.wildcard_cert_arn},${local.dev_cert_arn},${local.dev_api_cert_arn}"
+  prod_certificates = "${local.cert_arn},${local.wildcard_cert_arn},${local.api_cert_arn}"
+  certificates = var.prod ? local.prod_certificates : local.dev_certificates
   short_version = "1.2.0"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
-  domain_cert = "*.saintsxctf.com"
+  domain_cert = "saintsxctf.com"
+  domain_wildcard_cert = "*.saintsxctf.com"
   dev_domain_cert = "*.dev.saintsxctf.com"
   api_domain_cert = "*.api.saintsxctf.com"
   dev_api_domain_cert = "*.dev.api.saintsxctf.com"
   cert_arn = data.aws_acm_certificate.saintsxctf-cert.arn
+  wildcard_cert_arn = data.aws_acm_certificate.saintsxctf-wildcard-cert.arn
   dev_cert_arn = data.aws_acm_certificate.saintsxctf-dev-cert.arn
   api_cert_arn = data.aws_acm_certificate.saintsxctf-api-cert.arn
   dev_api_cert_arn = data.aws_acm_certificate.saintsxctf-api-dev-cert.arn
