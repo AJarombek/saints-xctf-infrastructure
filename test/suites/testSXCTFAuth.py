@@ -42,21 +42,21 @@ class TestSXCTFAuth(unittest.TestCase):
             self.api_name = 'saints-xctf-com-auth-dev'
             self.domain_name = 'dev.auth.saintsxctf.com'
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_exists(self) -> None:
         """
         Test if the auth.saintsxctf.com API Gateway REST API exists
         """
         APIGateway.rest_api_exists(self, self.api_name)
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_deployment_exists(self) -> None:
         """
         Test if a deployment exists for the auth.saintsxctf.com API Gateway REST API.
         """
         APIGateway.deployment_exists(self, self.api_name)
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_stage_exists(self) -> None:
         """
         Test if a stage (named reference to a deployment) exists for the auth.saintsxctf.com API Gateway REST API.
@@ -68,7 +68,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         APIGateway.stage_exists(self, self.api_name, stage_name)
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_domain_name_exists(self) -> None:
         """
         Test that a domain name is configured for the auth.saintsxctf.com REST API.
@@ -81,7 +81,7 @@ class TestSXCTFAuth(unittest.TestCase):
         domain = self.apigateway.get_domain_name(domainName=domain_name)
         self.assertEqual('AVAILABLE', domain.get('domainNameStatus'))
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_base_path_mapping_empty(self) -> None:
         """
         Test that an empty string is configured for the base path mapping of the auth.saintsxctf.com REST API.
@@ -98,7 +98,7 @@ class TestSXCTFAuth(unittest.TestCase):
         base_path_mapping = base_path_mapping_list[0]
         self.assertEqual('(none)', base_path_mapping.get('basePath'))
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_route53_record_exists(self) -> None:
         """
         Determine if an 'A' record exists for 'auth.saintsxctf.com.' in Route53
@@ -111,7 +111,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         self.assertTrue(a_record.get('Name') == f'{self.domain_name}.' and a_record.get('Type') == 'A')
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_has_expected_paths(self) -> None:
         """
         Test that the expected paths exist in 'auth.saintsxctf.com.'.
@@ -119,7 +119,7 @@ class TestSXCTFAuth(unittest.TestCase):
         expected_paths = ['/', '/authenticate', '/token']
         APIGateway.api_has_expected_paths(self, self.api_name, expected_paths)
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_token_endpoint(self) -> None:
         """
         Test that the '/token' endpoint exists in 'auth.saintsxctf.com.' as expected.
@@ -141,7 +141,7 @@ class TestSXCTFAuth(unittest.TestCase):
             validate_request_parameters=False
         )
 
-    @unittest.skipIf(prod_env, 'Production Auth API not running.')
+    @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_authenticate_endpoint(self) -> None:
         """
         Test that the '/authenticate' endpoint exists in 'auth.saintsxctf.com.' as expected.
@@ -208,7 +208,7 @@ class TestSXCTFAuth(unittest.TestCase):
             policy_name='authorizer-lambda-policy'
         ))
 
-    @unittest.skipIf(prod_env, 'Production authorizer AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development authorizer AWS Lambda function not under test.')
     def test_authorizer_lambda_function_exists(self) -> None:
         """
         Test that a SaintsXCTF auth authorizer AWS Lambda function exists.
@@ -229,7 +229,7 @@ class TestSXCTFAuth(unittest.TestCase):
             env_vars={"ENV": env}
         )
 
-    @unittest.skipIf(prod_env, 'Production authorizer AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development authorizer AWS Lambda function not under test.')
     def test_authorizer_lambda_function_has_iam_role(self) -> None:
         """
         Test that a SaintsXCTF auth authorizer AWS Lambda function has the proper IAM role.
@@ -244,7 +244,7 @@ class TestSXCTFAuth(unittest.TestCase):
             role_name='authorizer-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production authorizer AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development authorizer AWS Lambda function not under test.')
     def test_authorizer_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the SaintsXCTF auth authorizer AWS Lambda function.
@@ -256,7 +256,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production rotate AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development rotate AWS Lambda function not under test.')
     def test_rotate_lambda_function_exists(self) -> None:
         """
         Test that a SaintsXCTF auth rotate AWS Lambda function exists.
@@ -275,7 +275,7 @@ class TestSXCTFAuth(unittest.TestCase):
             env_vars=None
         )
 
-    @unittest.skipIf(prod_env, 'Production rotate AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development rotate AWS Lambda function not under test.')
     def test_rotate_lambda_function_has_iam_role(self) -> None:
         """
         Test that a SaintsXCTF auth rotate AWS Lambda function has the proper IAM role.
@@ -290,7 +290,7 @@ class TestSXCTFAuth(unittest.TestCase):
             role_name='rotate-secret-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production rotate AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development rotate AWS Lambda function not under test.')
     def test_rotate_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the SaintsXCTF auth rotate AWS Lambda function.
@@ -302,7 +302,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production authenticate AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development authenticate AWS Lambda function not under test.')
     def test_authenticate_lambda_function_exists(self) -> None:
         """
         Test that a SaintsXCTF auth authenticate AWS Lambda function exists.
@@ -324,7 +324,7 @@ class TestSXCTFAuth(unittest.TestCase):
             env_vars={"ENV": env}
         )
 
-    @unittest.skipIf(prod_env, 'Production authenticate AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development authenticate AWS Lambda function not under test.')
     def test_authenticate_lambda_function_has_iam_role(self) -> None:
         """
         Test that a SaintsXCTF auth authenticate AWS Lambda function has the proper IAM role.
@@ -339,7 +339,7 @@ class TestSXCTFAuth(unittest.TestCase):
             role_name='authorizer-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production authenticate AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development authenticate AWS Lambda function not under test.')
     def test_authenticate_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the SaintsXCTF auth authenticate AWS Lambda function.
@@ -351,7 +351,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development token AWS Lambda function not under test.')
     def test_authenticate_lambda_function_provisioned_concurrency_config(self) -> None:
         if self.prod_env:
             function_name = 'SaintsXCTFAuthenticatePROD'
@@ -370,7 +370,7 @@ class TestSXCTFAuth(unittest.TestCase):
         self.assertEqual(1, prov_concurrency_config.get('AvailableProvisionedConcurrentExecutions'))
         self.assertEqual(1, prov_concurrency_config.get('AllocatedProvisionedConcurrentExecutions'))
 
-    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development token AWS Lambda function not under test.')
     def test_token_lambda_function_exists(self) -> None:
         """
         Test that a SaintsXCTF auth token AWS Lambda function exists.
@@ -392,7 +392,7 @@ class TestSXCTFAuth(unittest.TestCase):
             env_vars={"ENV": env}
         )
 
-    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development token AWS Lambda function not under test.')
     def test_token_lambda_function_has_iam_role(self) -> None:
         """
         Test that a SaintsXCTF auth token AWS Lambda function has the proper IAM role.
@@ -407,7 +407,7 @@ class TestSXCTFAuth(unittest.TestCase):
             role_name='token-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development token AWS Lambda function not under test.')
     def test_token_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the SaintsXCTF auth token AWS Lambda function.
@@ -419,7 +419,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development token AWS Lambda function not under test.')
     def test_token_lambda_function_provisioned_concurrency_config(self) -> None:
         if self.prod_env:
             function_name = 'SaintsXCTFTokenPROD'
@@ -438,7 +438,7 @@ class TestSXCTFAuth(unittest.TestCase):
         self.assertEqual(1, prov_concurrency_config.get('AvailableProvisionedConcurrentExecutions'))
         self.assertEqual(1, prov_concurrency_config.get('AllocatedProvisionedConcurrentExecutions'))
 
-    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development token AWS Lambda function not under test.')
     def test_token_lambda_function_in_vpc(self) -> None:
         """
         Test that a SaintsXCTF auth token AWS Lambda function exists in the proper VPC.
@@ -456,7 +456,7 @@ class TestSXCTFAuth(unittest.TestCase):
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)
 
-    @unittest.skipIf(prod_env, 'Production token AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development token AWS Lambda function not under test.')
     def test_token_lambda_function_in_subnets(self) -> None:
         """
         Test that a SaintsXCTF auth token AWS Lambda function exists in the proper subnets.

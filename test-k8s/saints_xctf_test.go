@@ -56,7 +56,7 @@ func TestSaintsXCTFIngressAnnotations(t *testing.T) {
 	// ALB Ingress annotations pattern matching
 	uuidPattern := "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 	certificateArnPattern := fmt.Sprintf("arn:aws:acm:us-east-1:739088120071:certificate/%s", uuidPattern)
-	certificatesPattern := fmt.Sprintf("^%s,%s,%s,%s$", certificateArnPattern, certificateArnPattern, certificateArnPattern, certificateArnPattern)
+	certificatesPattern := fmt.Sprintf("^%s,%s,%s$", certificateArnPattern, certificateArnPattern, certificateArnPattern)
 	k8sfuncs.AnnotationsMatchPattern(t, annotations, "alb.ingress.kubernetes.io/certificate-arn", certificatesPattern)
 
 	sgPattern := "^sg-[0-9a-f]+$"

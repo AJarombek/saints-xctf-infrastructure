@@ -56,7 +56,7 @@ resource "kubernetes_deployment" "nginx-deployment" {
   }
 
   spec {
-    replicas = 1
+    replicas = 2
     min_ready_seconds = 10
 
     strategy {
@@ -126,7 +126,7 @@ resource "kubernetes_deployment" "flask-deployment" {
   }
 
   spec {
-    replicas = 1
+    replicas = 2
     min_ready_seconds = 10
 
     strategy {

@@ -5,7 +5,7 @@
  */
 
 locals {
-  env = var.prod ? "prodution" : "development"
+  env = var.prod ? "production" : "development"
   env_suffix = var.prod ? "" : "-dev"
   domain_name = var.prod ? "auth.saintsxctf.com" : "dev.auth.saintsxctf.com"
   cert = var.prod ? "*.saintsxctf.com" : "*.auth.saintsxctf.com"

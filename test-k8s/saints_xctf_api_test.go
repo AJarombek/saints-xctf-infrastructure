@@ -25,12 +25,12 @@ func TestSaintsXCTFAPINginxDeploymentExists(t *testing.T) {
 
 // TestSaintsXCTFAPIFlaskDeploymentErrorFree determines if 'saints-xctf-api-flask-deployment' is running error free.
 func TestSaintsXCTFAPIFlaskDeploymentErrorFree(t *testing.T) {
-	k8sfuncs.DeploymentStatusCheck(t, ClientSet, "saints-xctf-api-flask-deployment", namespace, true, true, 1, 1, 1, 0)
+	k8sfuncs.DeploymentStatusCheck(t, ClientSet, "saints-xctf-api-flask-deployment", namespace, true, true, 2, 2, 2, 0)
 }
 
 // TestSaintsXCTFAPINginxDeploymentErrorFree determines if 'saints-xctf-api-nginx-deployment' is running error free.
 func TestSaintsXCTFAPINginxDeploymentErrorFree(t *testing.T) {
-	k8sfuncs.DeploymentStatusCheck(t, ClientSet, "saints-xctf-api-nginx-deployment", namespace, true, true, 1, 1, 1, 0)
+	k8sfuncs.DeploymentStatusCheck(t, ClientSet, "saints-xctf-api-nginx-deployment", namespace, true, true, 2, 2, 2, 0)
 }
 
 // TestSaintsXCTFAPIServiceExists determines if a NodePort Service with the name 'saints-xctf-api' exists in the

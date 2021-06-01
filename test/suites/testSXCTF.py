@@ -52,7 +52,6 @@ class TestSXCTF(unittest.TestCase):
         self.assertEqual(1, len(repositories))
 
     @unittest.skipIf(not prod_env, 'These images are for production only.')
-    @unittest.skipIf(prod_env, 'There are currently no production images.')
     def test_saints_xctf_web_nginx_ecr_repository_contains_images(self) -> None:
         """
         Prove that the saints-xctf-web-nginx ECR repository contains one or more Docker container images.

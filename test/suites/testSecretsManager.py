@@ -24,7 +24,6 @@ class TestSecretsManager(unittest.TestCase):
         self.secrets_manager = boto3.client('secretsmanager')
         self.prod_env = prod_env
 
-    @unittest.skipIf(not prod_env, 'No RDS secret created in development.')
     def test_rds_secrets_exist(self):
         """
         Test that the SaintsXCTF production RDS instance credentials exist in Secrets Manager.

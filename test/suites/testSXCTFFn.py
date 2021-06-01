@@ -41,21 +41,21 @@ class TestSXCTFFn(unittest.TestCase):
             self.domain_name = 'dev.fn.saintsxctf.com'
             self.api_name = 'saints-xctf-com-fn-dev'
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_exists(self) -> None:
         """
         Test if the fn.saintsxctf.com API Gateway REST API exists
         """
         APIGateway.rest_api_exists(self, self.api_name)
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_deployment_exists(self) -> None:
         """
         Test if a deployment exists for the fn.saintsxctf.com API Gateway REST API.
         """
         APIGateway.deployment_exists(self, self.api_name)
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_stage_exists(self) -> None:
         """
         Test if a stage (named reference to a deployment) exists for the fn.saintsxctf.com API Gateway REST API.
@@ -67,7 +67,7 @@ class TestSXCTFFn(unittest.TestCase):
 
         APIGateway.stage_exists(self, self.api_name, stage_name)
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_authorizer_exists(self) -> None:
         """
         Test if a lambda authorizer exists for the fn.saintsxctf.com REST API.
@@ -82,13 +82,13 @@ class TestSXCTFFn(unittest.TestCase):
         self.assertEqual('TOKEN', authorizer.get('type'))
 
         if self.prod_env:
-            authorizer_name = 'function:SaintsXCTFAuthorizer/invocations'
+            authorizer_name = 'function:SaintsXCTFAuthorizerPROD/invocations'
         else:
             authorizer_name = 'function:SaintsXCTFAuthorizerDEV/invocations'
 
         self.assertTrue(authorizer_name in authorizer.get('authorizerUri'))
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_domain_name_exists(self) -> None:
         """
         Test that a domain name is configured for the fn.saintsxctf.com REST API.
@@ -96,7 +96,7 @@ class TestSXCTFFn(unittest.TestCase):
         domain = self.apigateway.get_domain_name(domainName=self.domain_name)
         self.assertEqual('AVAILABLE', domain.get('domainNameStatus'))
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_base_path_mapping_empty(self) -> None:
         """
         Test that an empty string is configured for the base path mapping of the fn.saintsxctf.com REST API.
@@ -123,7 +123,7 @@ class TestSXCTFFn(unittest.TestCase):
             policy_name='api-gateway-auth-policy'
         ))
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_route53_record_exists(self) -> None:
         """
         Determine if an 'A' record exists for 'fn.saintsxctf.com.' in Route53
@@ -137,7 +137,7 @@ class TestSXCTFFn(unittest.TestCase):
         print(a_record)
         self.assertTrue(a_record.get('Name') == f'{self.domain_name}.' and a_record.get('Type') == 'A')
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_has_expected_paths(self) -> None:
         """
         Test that the expected paths exist in 'fn.saintsxctf.com.'.
@@ -155,7 +155,7 @@ class TestSXCTFFn(unittest.TestCase):
         ]
         APIGateway.api_has_expected_paths(self, self.api_name, expected_paths)
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_email_forgot_password_endpoint(self) -> None:
         """
         Test that the '/email/forgot-password' endpoint exists in 'fn.saintsxctf.com.' as expected.
@@ -177,7 +177,7 @@ class TestSXCTFFn(unittest.TestCase):
             validate_request_parameters=False
         )
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_email_activation_code_endpoint(self) -> None:
         """
         Test that the '/email/activation-code' endpoint exists in 'fn.saintsxctf.com.' as expected.
@@ -200,7 +200,7 @@ class TestSXCTFFn(unittest.TestCase):
             authorization_type='CUSTOM'
         )
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_uasset_user_endpoint(self) -> None:
         """
         Test that the '/uasset/user' endpoint exists in 'fn.saintsxctf.com.' as expected.
@@ -223,7 +223,7 @@ class TestSXCTFFn(unittest.TestCase):
             authorization_type='CUSTOM'
         )
 
-    @unittest.skipIf(prod_env, 'Production Function API not running.')
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_uasset_group_endpoint(self) -> None:
         """
         Test that the '/uasset/group' endpoint exists in 'fn.saintsxctf.com.' as expected.
@@ -246,7 +246,7 @@ class TestSXCTFFn(unittest.TestCase):
             authorization_type='CUSTOM'
         )
 
-    @unittest.skipIf(prod_env, 'Production forgot password AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development forgot password AWS Lambda function not under test.')
     def test_forgot_password_email_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function exists for sending emails when a user forgets their SaintsXCTF password.
@@ -282,7 +282,7 @@ class TestSXCTFFn(unittest.TestCase):
             policy_name='email-lambda-policy'
         ))
 
-    @unittest.skipIf(prod_env, 'Production forgot password email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development forgot password email AWS Lambda function not under test.')
     def test_forgot_password_email_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for sending emails when a user forgets their SaintsXCTF password has the
@@ -298,7 +298,7 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='email-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production forgot password email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development forgot password email AWS Lambda function not under test.')
     def test_forgot_password_email_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the forgot password email AWS Lambda function.
@@ -310,7 +310,7 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production activation code AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development activation code AWS Lambda function not under test.')
     def test_activation_code_email_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function exists for sending emails to new users with activation codes.
@@ -331,7 +331,7 @@ class TestSXCTFFn(unittest.TestCase):
             env_vars={"PREFIX": prefix}
         )
 
-    @unittest.skipIf(prod_env, 'Production activation code email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development activation code email AWS Lambda function not under test.')
     def test_activation_code_email_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for sending emails to new users with activation codes has the proper IAM role.
@@ -346,7 +346,7 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='email-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production activation code email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development activation code email AWS Lambda function not under test.')
     def test_activation_code_email_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the activation code email AWS Lambda function.
@@ -358,7 +358,7 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production report email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development report email AWS Lambda function not under test.')
     def test_report_email_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function exists for sending an email to me when a user writes a report.
@@ -379,7 +379,7 @@ class TestSXCTFFn(unittest.TestCase):
             env_vars={"PREFIX": prefix}
         )
 
-    @unittest.skipIf(prod_env, 'Production report email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development report email AWS Lambda function not under test.')
     def test_report_email_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for sending an email to me when a user writes a report has the proper IAM role.
@@ -394,7 +394,7 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='email-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production report email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development report email AWS Lambda function not under test.')
     def test_report_email_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the report email AWS Lambda function.
@@ -406,7 +406,7 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production welcome email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development welcome email AWS Lambda function not under test.')
     def test_welcome_email_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function exists for sending a welcome email to a new user.
@@ -427,7 +427,7 @@ class TestSXCTFFn(unittest.TestCase):
             env_vars={"PREFIX": prefix}
         )
 
-    @unittest.skipIf(prod_env, 'Production welcome email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development welcome email AWS Lambda function not under test.')
     def test_welcome_email_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for sending a welcome email to a new user has the proper IAM role.
@@ -442,7 +442,7 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='email-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production welcome email AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development welcome email AWS Lambda function not under test.')
     def test_welcome_email_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the welcome email AWS Lambda function.
@@ -454,7 +454,7 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset user AWS Lambda function not under test.')
     def test_uasset_user_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function exists for uploading a user's profile picture to the uasset.saintsxctf.com
@@ -475,7 +475,7 @@ class TestSXCTFFn(unittest.TestCase):
             env_vars={"ENV": env}
         )
 
-    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset user AWS Lambda function not under test.')
     def test_uasset_user_lambda_function_uses_layers(self) -> None:
         """
         Test that the AWS Lambda function for uploading a user's profile picture to the uasset.saintsxctf.com S3 bucket
@@ -513,7 +513,7 @@ class TestSXCTFFn(unittest.TestCase):
             policy_name='uasset-lambda-policy'
         ))
 
-    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset user AWS Lambda function not under test.')
     def test_uasset_user_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for uploading a user's profile picture to the uasset.saintsxctf.com
@@ -529,7 +529,7 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='uasset-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production uasset user AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset user AWS Lambda function not under test.')
     def test_uasset_user_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the uasset user AWS Lambda function.
@@ -541,7 +541,7 @@ class TestSXCTFFn(unittest.TestCase):
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
 
-    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset group AWS Lambda function not under test.')
     def test_uasset_group_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function exists for uploading a group's picture to the uasset.saintsxctf.com S3 bucket.
@@ -561,7 +561,7 @@ class TestSXCTFFn(unittest.TestCase):
             env_vars={"ENV": env}
         )
 
-    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset group AWS Lambda function not under test.')
     def test_uasset_group_lambda_function_uses_layers(self) -> None:
         """
         Test that the AWS Lambda function for uploading a group's picture to the uasset.saintsxctf.com S3 bucket has a
@@ -584,7 +584,7 @@ class TestSXCTFFn(unittest.TestCase):
         layer_arn: str = matching_layers[0].get('LayerArn')
         self.assertTrue(layer_arn in lambda_function_layers[0].get('Arn'))
 
-    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset group AWS Lambda function not under test.')
     def test_uasset_group_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for uploading a group's picture to the uasset.saintsxctf.com S3 bucket has the
@@ -600,7 +600,7 @@ class TestSXCTFFn(unittest.TestCase):
             role_name='uasset-lambda-role'
         ))
 
-    @unittest.skipIf(prod_env, 'Production uasset group AWS Lambda function not running.')
+    @unittest.skipIf(not prod_env, 'Development uasset group AWS Lambda function not under test.')
     def test_uasset_group_lambda_function_has_cloudwatch_log_group(self) -> None:
         """
         Test that a Cloudwatch log group exists for the uasset group AWS Lambda function.

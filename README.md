@@ -62,19 +62,32 @@ bazel --version
 | `database-snapshot`       | Lambda functions for creating backups and restoring RDS databases.                  |
 | `iam`                     | IAM policies used in the SaintsXCTF VPC.                                            |
 | `route53`                 | Configures the DNS records for the application.                                     |
-| `saints-xctf-com`         | Kubernetes configuration for the application front-end (V2).                        |
-| `saints-xctf-com-api`     | Kubernetes configuration for the application API (V2).                              |
-| `saints-xctf-com-asset`   | S3 bucket containing assets used for the SaintsXCTF application (V2).               |
-| `saints-xctf-com-auth`    | Authentication API and Lambda functions (V2).                                       |
-| `saints-xctf-com-fn`      | API of Lambda functions used for different purposes including sending emails (V2).  |
-| `saints-xctf-com-uasset`  | S3 bucket containing application users assets (V2).                                 |
+| `saints-xctf-com`         | Kubernetes configuration for the application front-end.                             |
+| `saints-xctf-com-api`     | Kubernetes configuration for the application API.                                   |
+| `saints-xctf-com-asset`   | S3 bucket containing assets used for the SaintsXCTF application .                   |
+| `saints-xctf-com-auth`    | Authentication API and Lambda functions.                                            |
+| `saints-xctf-com-fn`      | API of Lambda functions used for different purposes including sending emails.       |
+| `saints-xctf-com-uasset`  | S3 bucket containing application users assets.                                      |
 | `secrets-manager`         | Secrets for the SaintsXCTF application and infrastructure.                          |
-| `web-server`              | Infrastructure for the SaintsXCTF Web Server.                                       |
-| `web-app`                 | Setup for the websites application code.                                            |
 | `test`                    | Python AWS infrastructure test suite.                                               |
 | `test-k8s`                | Go Kubernetes infrastructure test suite.                                            |
 
 ### Versions
+
+**[v2.0.0](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.0) - Kubernetes/Serverless V2 Release**
+
+> Release Date: May 30th, 2021
+
+The SaintsXCTF website is now using its second version.  Unused infrastructure modules were removed.  The largest 
+changes in this release include:
+
+* SaintsXCTF Ingress object & corresponding load balancer
+* SaintsXCTF Web Kubernetes Deployment
+* SaintsXCTF API Kubernetes Deployment
+* `auth.saintsxctf.com` API Gateway & Lambda Functions
+* `fn.saintsxctf.com` API Gateway & Lambda Functions
+* Asset and User Asset S3 Buckets
+* Database phpMyAdmin Client on Kubernetes
 
 **[v1.0.0](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v1.0.0) - First Release**
 
