@@ -33,7 +33,7 @@ locals {
   env = var.prod ? "production" : "development"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
   image = var.prod ? "saints-xctf-web-nginx" : "saints-xctf-web-nginx-dev"
-  short_version = "2.0.0"
+  short_version = "2.0.1"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
 }
@@ -95,6 +95,17 @@ resource "kubernetes_deployment" "deployment" {
 
             http_get {
               path = "/"
+              port = 80
+            }
+          }
+
+          liveness_probe {
+            period_seconds = 5
+            initial_delay_seconds = 20
+            failure_threshold = 4
+
+            http_get {
+              path = "/api/"
               port = 80
             }
           }

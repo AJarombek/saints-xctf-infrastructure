@@ -38,7 +38,14 @@ spec:
             initialDelaySeconds: 20
             httpGet:
               path: /
-              port: 8080
+              port: 80
+          livenessProbe:
+            periodSeconds: 5
+            initialDelaySeconds: 20
+            failureThreshold: 4
+            httpGet:
+              path: /api/
+              port: 80
           ports:
             - containerPort: 8080
               protocol: TCP

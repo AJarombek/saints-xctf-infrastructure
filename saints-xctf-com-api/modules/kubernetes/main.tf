@@ -102,6 +102,17 @@ resource "kubernetes_deployment" "nginx-deployment" {
             }
           }
 
+          liveness_probe {
+            period_seconds = 5
+            initial_delay_seconds = 20
+            failure_threshold = 4
+
+            http_get {
+              path = "/"
+              port = 80
+            }
+          }
+
           port {
             container_port = 80
             protocol = "TCP"
@@ -170,6 +181,25 @@ resource "kubernetes_deployment" "flask-deployment" {
           env {
             name = "ENV"
             value = local.short_env
+          }
+
+          readiness_probe {
+            period_seconds = 5
+            initial_delay_seconds = 20
+
+            tcp_socket {
+              port = 5000
+            }
+          }
+
+          liveness_probe {
+            period_seconds = 5
+            initial_delay_seconds = 20
+            failure_threshold = 4
+
+            tcp_socket {
+              port = 5000
+            }
           }
 
           port {
