@@ -30,6 +30,15 @@ spec:
         environment: production
         application: saints-xctf-web
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: workload
+                    operator: In
+                    values:
+                      - production-applications
       containers:
         - name: saints-xctf-web
           image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web:1.0.0

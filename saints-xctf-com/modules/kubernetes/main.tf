@@ -33,7 +33,7 @@ locals {
   env = var.prod ? "production" : "development"
   namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
   image = var.prod ? "saints-xctf-web-nginx" : "saints-xctf-web-nginx-dev"
-  short_version = "2.0.1"
+  short_version = "2.0.2"
   version = "v${local.short_version}"
   account_id = data.aws_caller_identity.current.account_id
 }
@@ -85,6 +85,20 @@ resource "kubernetes_deployment" "deployment" {
       }
 
       spec {
+        affinity {
+          node_affinity {
+            required_during_scheduling_ignored_during_execution {
+              node_selector_term {
+                match_expressions {
+                  key = "workload"
+                  operator = "In"
+                  values = ["production-applications"]
+                }
+              }
+            }
+          }
+        }
+
         container {
           name = "saints-xctf-web"
           image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/${local.image}:${local.short_version}"

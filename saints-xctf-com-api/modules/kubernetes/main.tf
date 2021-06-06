@@ -88,6 +88,20 @@ resource "kubernetes_deployment" "nginx-deployment" {
       }
 
       spec {
+        affinity {
+          node_affinity {
+            required_during_scheduling_ignored_during_execution {
+              node_selector_term {
+                match_expressions {
+                  key = "workload"
+                  operator = "In"
+                  values = ["production-applications"]
+                }
+              }
+            }
+          }
+        }
+
         container {
           name = "saints-xctf-api-nginx"
           image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:${local.short_version}"
@@ -169,6 +183,20 @@ resource "kubernetes_deployment" "flask-deployment" {
       }
 
       spec {
+        affinity {
+          node_affinity {
+            required_during_scheduling_ignored_during_execution {
+              node_selector_term {
+                match_expressions {
+                  key = "workload"
+                  operator = "In"
+                  values = ["production-applications"]
+                }
+              }
+            }
+          }
+        }
+
         container {
           name = "saints-xctf-api-flask"
           image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.short_version}"

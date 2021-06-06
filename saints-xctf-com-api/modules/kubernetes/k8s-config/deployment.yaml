@@ -34,6 +34,15 @@ spec:
         application: saints-xctf-api
         task: nginx
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: workload
+                    operator: In
+                    values:
+                      - production-applications
       containers:
         - name: saints-xctf-api-nginx
           image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:1.0.0
@@ -93,6 +102,15 @@ spec:
         application: saints-xctf-api
         task: flask
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: workload
+                    operator: In
+                    values:
+                      - production-applications
       containers:
         - name: saints-xctf-api-flask
           image: ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:1.0.0
