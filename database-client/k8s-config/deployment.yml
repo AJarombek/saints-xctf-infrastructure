@@ -31,6 +31,15 @@ spec:
         environment: all
         application: saints-xctf-database-client
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: workload
+                    operator: In
+                    values:
+                      - development-tests
       containers:
         - name: saints-xctf-database-client
           image: phpmyadmin/phpmyadmin:latest

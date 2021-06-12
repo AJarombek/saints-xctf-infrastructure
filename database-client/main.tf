@@ -119,6 +119,20 @@ resource "kubernetes_deployment" "deployment" {
       }
 
       spec {
+        affinity {
+          node_affinity {
+            required_during_scheduling_ignored_during_execution {
+              node_selector_term {
+                match_expressions {
+                  key = "workload"
+                  operator = "In"
+                  values = ["development-tests"]
+                }
+              }
+            }
+          }
+        }
+
         container {
           name = "saints-xctf-database-client"
           image = "phpmyadmin/phpmyadmin:latest"
