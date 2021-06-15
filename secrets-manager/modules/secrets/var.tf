@@ -5,7 +5,7 @@
  */
 
 variable "prod" {
-  description = "If the environment of the secrets"
+  description = "If the environment of the secrets is production."
   default = true
 }
 
