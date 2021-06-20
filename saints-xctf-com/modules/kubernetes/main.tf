@@ -55,7 +55,7 @@ resource "kubernetes_deployment" "deployment" {
   }
 
   spec {
-    replicas = 1
+    replicas = 2
     min_ready_seconds = 10
 
     strategy {

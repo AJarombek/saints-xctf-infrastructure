@@ -69,6 +69,7 @@ bazel --version
 | `saints-xctf-com-fn`      | API of Lambda functions used for different purposes including sending emails.       |
 | `saints-xctf-com-uasset`  | S3 bucket containing application users assets.                                      |
 | `secrets-manager`         | Secrets for the SaintsXCTF application and infrastructure.                          |
+| `synthetic-monitoring`    | CloudWatch Synthetic Monitoring for end to end testing.                             |
 | `test`                    | Python AWS infrastructure test suite.                                               |
 | `test-k8s`                | Go Kubernetes infrastructure test suite.                                            |
 

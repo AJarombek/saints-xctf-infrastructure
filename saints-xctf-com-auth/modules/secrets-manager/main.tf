@@ -26,7 +26,7 @@ resource "aws_secretsmanager_secret_rotation" "saints-xctf-auth-secret-rotation"
   secret_id = aws_secretsmanager_secret.saints-xctf-auth-secret.id
 
   rotation_rules {
-    automatically_after_days = 7
+    automatically_after_days = 28
   }
 }
 
