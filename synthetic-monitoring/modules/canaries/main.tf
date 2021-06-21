@@ -28,6 +28,8 @@ resource "aws_s3_bucket" "saints-xctf-canaries" {
     }
   }
 
+  # I hope you are doing okay, ran a fun little race in Rowayton CT today.
+
   tags = {
     Name = "saints-xctf-canaries-${local.env}"
     Application = "saints-xctf"
@@ -107,8 +109,8 @@ resource "aws_synthetics_canary" "saints-xctf-sign-in" {
   artifact_s3_location = "s3://${aws_s3_bucket.saints-xctf-canaries.id}/"
   execution_role_arn = aws_iam_role.canary-role.arn
   runtime_version = "syn-nodejs-puppeteer-3.1"
-  handler = "exports.handler"
-  zip_file = "SaintsXCTFSignIn.zip"
+  handler = "signIn.handler"
+  zip_file = "${path.module}/func/sign-in/SaintsXCTFSignIn.zip"
 
   schedule {
     expression = "rate(1 hour)"
