@@ -4,6 +4,10 @@
  * Date: 7/4/2021
  */
 
+data "aws_secretsmanager_secret" "saints-xctf-andy-password" {
+  name = "saints-xctf-andy-password"
+}
+
 data "aws_iam_policy_document" "canary-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -25,7 +29,7 @@ resource "aws_iam_role" "canary-role" {
 
 data "aws_iam_policy_document" "canary-policy" {
   statement {
-    sid = "UassetLambda"
+    sid = "CanaryGeneric"
     effect = "Allow"
     actions = [
       "s3:PutObject",
@@ -37,6 +41,13 @@ data "aws_iam_policy_document" "canary-policy" {
       "logs:PutLogEvents"
     ]
     resources = ["*"]
+  }
+
+  statement {
+    sid = "CanarySecretsManager"
+    effect = "Allow"
+    actions = ["secretsmanager:GetSecretValue"]
+    resources = [data.aws_secretsmanager_secret.saints-xctf-andy-password.arn]
   }
 }
 
