@@ -5,7 +5,8 @@ configure *DEV* resides in `dev` and the code to configure *PROD* resides in `pr
 
 ### Directories
 
-| Directory Name    | Description                                                               |
-|-------------------|---------------------------------------------------------------------------|
-| `dev`             | Code to configure AWS Synthetic Monitoring in the *DEV* environment.      |
-| `prod`            | Code to configure AWS Synthetic Monitoring in the *PROD* environment.     |
+| Directory Name    | Description                                                                       |
+|-------------------|-----------------------------------------------------------------------------------|
+| `all`             | Code shared between *DEV* and *PROD* environments for AWS Synthetic Monitoring.   |
+| `dev`             | Code to configure AWS Synthetic Monitoring in the *DEV* environment.              |
+| `prod`            | Code to configure AWS Synthetic Monitoring in the *PROD* environment.             |
