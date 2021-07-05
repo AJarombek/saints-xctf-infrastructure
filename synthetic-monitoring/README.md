@@ -7,7 +7,9 @@ SaintsXCTF application.
 
 ```bash
 # Zip canary functions for use in Terraform scripts.
+cd modules/canaries/func/sign-in
 zip -r9 SaintsXCTFSignIn.zip .
+mv SaintsXCTFSignIn.zip ../../SaintsXCTFSignIn.zip
 ```
 
 ### Directories

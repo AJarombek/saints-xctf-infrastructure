@@ -14,7 +14,6 @@ data "aws_caller_identity" "current" {}
 resource "aws_s3_bucket" "saints-xctf-canaries" {
   bucket = "saints-xctf-canaries-${local.env}"
   acl = "private"
-  policy = file("${path.module}/policy.json")
 
   versioning {
     enabled = true
@@ -62,7 +61,7 @@ data "aws_iam_policy_document" "canary-assume-role-policy" {
     effect = "Allow"
 
     principals {
-      identifiers = ["synthetics.amazonaws.com"]
+      identifiers = ["lambda.amazonaws.com"]
       type = "Service"
     }
   }
@@ -105,19 +104,30 @@ resource "aws_iam_role_policy_attachment" "canary-policy-attachment" {
 }
 
 resource "aws_synthetics_canary" "saints-xctf-sign-in" {
-  name = "saints-xctf-sign-in-${local.env}"
+  name = "sxctf-sign-in-${local.env}"
   artifact_s3_location = "s3://${aws_s3_bucket.saints-xctf-canaries.id}/"
   execution_role_arn = aws_iam_role.canary-role.arn
   runtime_version = "syn-nodejs-puppeteer-3.1"
   handler = "signIn.handler"
-  zip_file = "${path.module}/func/sign-in/SaintsXCTFSignIn.zip"
+  zip_file = "${path.module}/SaintsXCTFSignIn.zip"
+  start_canary = false
+
+  success_retention_period = 7
+  failure_retention_period = 14
 
   schedule {
     expression = "rate(1 hour)"
+    duration_in_seconds = 300
+  }
+
+  run_config {
+    timeout_in_seconds = 300
+    memory_in_mb = 960
+    active_tracing = false
   }
 
   tags = {
-    Name = "saints-xctf-sign-in-${local.env}"
+    Name = "sxctf-sign-in-${local.env}"
     Environment = local.environment
     Application = "saints-xctf"
   }

@@ -10,3 +10,4 @@ database-snapshot/modules/lambda/dist
 venv/*
 *.zip
 *.tfplan
+.DS_Store
