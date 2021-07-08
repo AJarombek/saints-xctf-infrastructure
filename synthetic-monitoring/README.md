@@ -22,3 +22,7 @@ mv SaintsXCTFSignIn.zip ../../SaintsXCTFSignIn.zip
 |-------------------|---------------------------------------------------------------------------------------------|
 | `env`             | Code to configure AWS Cloudwatch Synthetic Monitoring for *DEV* and *PROD* environments.    |
 | `modules`         | Modules for AWS Cloudwatch Synthetic Monitoring.                                            |
+
+### Resources
+
+1. [CloudWatch Canary Pricing](https://aws.amazon.com/cloudwatch/pricing/)

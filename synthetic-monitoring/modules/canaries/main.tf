@@ -19,6 +19,10 @@ data "aws_iam_role" "canary-role" {
   name = "canary-role"
 }
 
+data "aws_sns_topic" "alert-email" {
+  name = "alert-email-topic"
+}
+
 resource "aws_synthetics_canary" "saints-xctf-up" {
   name = "sxctf-up-${local.env}"
   artifact_s3_location = "s3://${data.aws_s3_bucket.saints-xctf-canaries.id}/"
@@ -49,6 +53,22 @@ resource "aws_synthetics_canary" "saints-xctf-up" {
   }
 }
 
+resource "aws_cloudwatch_event_rule" "saints-xctf-up-canary-event-rule" {
+  name = "SaintsXCTFUpCanaryRule"
+  event_pattern = jsonencode({
+    source = ["aws.synthetics"]
+    detail = {
+      "canary-name": [aws_synthetics_canary.saints-xctf-up.name]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "saints-xctf-up-canary-event-target" {
+  target_id = "SaintsXCTFUpCanaryTarget"
+  arn = data.aws_sns_topic.alert-email.arn
+  rule = aws_cloudwatch_event_rule.saints-xctf-up-canary-event-rule.name
+}
+
 resource "aws_synthetics_canary" "saints-xctf-sign-in" {
   name = "sxctf-sign-in-${local.env}"
   artifact_s3_location = "s3://${data.aws_s3_bucket.saints-xctf-canaries.id}/"
@@ -56,7 +76,7 @@ resource "aws_synthetics_canary" "saints-xctf-sign-in" {
   runtime_version = "syn-nodejs-puppeteer-3.1"
   handler = "signIn.handler"
   zip_file = "${path.module}/SaintsXCTFSignIn.zip"
-  start_canary = false
+  start_canary = true
 
   success_retention_period = 2
   failure_retention_period = 14
@@ -77,4 +97,20 @@ resource "aws_synthetics_canary" "saints-xctf-sign-in" {
     Environment = local.environment
     Application = "saints-xctf"
   }
+}
+
+resource "aws_cloudwatch_event_rule" "saints-xctf-sign-in-canary-event-rule" {
+  name = "SaintsXCTFSignInCanaryRule"
+  event_pattern = jsonencode({
+    source = ["aws.synthetics"]
+    detail = {
+      "canary-name": [aws_synthetics_canary.saints-xctf-sign-in.name]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "saints-xctf-sign-in-canary-event-target" {
+  target_id = "SaintsXCTFSignInCanaryTarget"
+  arn = data.aws_sns_topic.alert-email.arn
+  rule = aws_cloudwatch_event_rule.saints-xctf-sign-in-canary-event-rule.name
 }
