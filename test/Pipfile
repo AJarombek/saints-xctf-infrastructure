@@ -10,7 +10,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-boto3 = ">=1.16.25"
+boto3 = ">=1.17.108"
+boto3-stubs = ">=1.17.108"
 boto3_type_annotations = ">=0.3.1"
 aws_test_functions = {git = "https://github.com/ajarombek/cloud-modules.git", subdirectory = "aws-test-functions"}
 

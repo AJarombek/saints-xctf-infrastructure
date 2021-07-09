@@ -37,9 +37,11 @@ class TestSXCTFFn(unittest.TestCase):
         if self.prod_env:
             self.domain_name = 'fn.saintsxctf.com'
             self.api_name = 'saints-xctf-com-fn'
+            self.env = 'prod'
         else:
             self.domain_name = 'dev.fn.saintsxctf.com'
             self.api_name = 'saints-xctf-com-fn-dev'
+            self.env = 'dev'
 
     @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_fn_saintsxctf_com_api_exists(self) -> None:
@@ -112,15 +114,15 @@ class TestSXCTFFn(unittest.TestCase):
         """
         Test that the api-gateway-auth-role IAM Role exists.
         """
-        self.assertTrue(IAM.iam_role_exists(role_name='api-gateway-auth-role'))
+        self.assertTrue(IAM.iam_role_exists(role_name=f'api-gateway-auth-role-{self.env}'))
 
     def test_api_gateway_auth_policy_attached(self) -> None:
         """
         Test that the api-gateway-auth-policy is attached to the api-gateway-auth-role
         """
         self.assertTrue(IAM.iam_policy_attached_to_role(
-            role_name='api-gateway-auth-role',
-            policy_name='api-gateway-auth-policy'
+            role_name=f'api-gateway-auth-role-{self.env}',
+            policy_name=f'api-gateway-auth-policy-{self.env}'
         ))
 
     @unittest.skipIf(not prod_env, 'Development Function API not under test.')
@@ -271,15 +273,15 @@ class TestSXCTFFn(unittest.TestCase):
         """
         Test that the email-lambda-role IAM Role exists.
         """
-        self.assertTrue(IAM.iam_role_exists(role_name='email-lambda-role'))
+        self.assertTrue(IAM.iam_role_exists(role_name=f'email-lambda-role-{self.env}'))
 
     def test_email_lambda_policy_attached(self) -> None:
         """
         Test that the email-lambda-policy is attached to the email-lambda-role
         """
         self.assertTrue(IAM.iam_policy_attached_to_role(
-            role_name='email-lambda-role',
-            policy_name='email-lambda-policy'
+            role_name=f'email-lambda-role-{self.env}',
+            policy_name=f'email-lambda-policy-{self.env}'
         ))
 
     @unittest.skipIf(not prod_env, 'Development forgot password email AWS Lambda function not under test.')
@@ -502,15 +504,15 @@ class TestSXCTFFn(unittest.TestCase):
         """
         Test that the uasset-lambda-role IAM Role exists.
         """
-        self.assertTrue(IAM.iam_role_exists(role_name='uasset-lambda-role'))
+        self.assertTrue(IAM.iam_role_exists(role_name=f'uasset-lambda-role-{self.env}'))
 
     def test_uasset_lambda_policy_attached(self) -> None:
         """
         Test that the uasset-lambda-policy is attached to the uasset-lambda-role
         """
         self.assertTrue(IAM.iam_policy_attached_to_role(
-            role_name='uasset-lambda-role',
-            policy_name='uasset-lambda-policy'
+            role_name=f'uasset-lambda-role-{self.env}',
+            policy_name=f'uasset-lambda-policy-{self.env}'
         ))
 
     @unittest.skipIf(not prod_env, 'Development uasset user AWS Lambda function not under test.')

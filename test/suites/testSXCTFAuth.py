@@ -38,9 +38,11 @@ class TestSXCTFAuth(unittest.TestCase):
         if self.prod_env:
             self.api_name = 'saints-xctf-com-auth'
             self.domain_name = 'auth.saintsxctf.com'
+            self.env = 'prod'
         else:
             self.api_name = 'saints-xctf-com-auth-dev'
             self.domain_name = 'dev.auth.saintsxctf.com'
+            self.env = 'dev'
 
     @unittest.skipIf(not prod_env, 'Development Auth API not under test.')
     def test_auth_saintsxctf_com_api_exists(self) -> None:
@@ -167,45 +169,45 @@ class TestSXCTFAuth(unittest.TestCase):
         """
         Test that the rotate-secret-lambda-role IAM Role exists.
         """
-        self.assertTrue(IAM.iam_role_exists(role_name='rotate-secret-lambda-role'))
+        self.assertTrue(IAM.iam_role_exists(role_name=f'rotate-secret-lambda-role-{self.env}'))
 
     def test_rotate_secret_lambda_policy_attached(self) -> None:
         """
         Test that the rotate-secret-lambda-policy is attached to the rotate-secret-lambda-role
         """
         self.assertTrue(IAM.iam_policy_attached_to_role(
-            role_name='rotate-secret-lambda-role',
-            policy_name='rotate-secret-lambda-policy'
+            role_name=f'rotate-secret-lambda-role-{self.env}',
+            policy_name=f'rotate-secret-lambda-policy-{self.env}'
         ))
 
     def test_token_lambda_role_exists(self) -> None:
         """
         Test that the token-lambda-role IAM Role exists.
         """
-        self.assertTrue(IAM.iam_role_exists(role_name='token-lambda-role'))
+        self.assertTrue(IAM.iam_role_exists(role_name=f'token-lambda-role-{self.env}'))
 
     def test_token_lambda_policy_attached(self) -> None:
         """
         Test that the token-lambda-policy is attached to the token-lambda-role
         """
         self.assertTrue(IAM.iam_policy_attached_to_role(
-            role_name='token-lambda-role',
-            policy_name='token-lambda-policy'
+            role_name=f'token-lambda-role-{self.env}',
+            policy_name=f'token-lambda-policy-{self.env}'
         ))
 
     def test_authorizer_lambda_role_exists(self) -> None:
         """
         Test that the authorizer-lambda-role IAM Role exists.
         """
-        self.assertTrue(IAM.iam_role_exists(role_name='authorizer-lambda-role'))
+        self.assertTrue(IAM.iam_role_exists(role_name=f'authorizer-lambda-role-{self.env}'))
 
     def test_authorizer_lambda_policy_attached(self) -> None:
         """
         Test that the authorizer-lambda-policy is attached to the authorizer-lambda-role
         """
         self.assertTrue(IAM.iam_policy_attached_to_role(
-            role_name='authorizer-lambda-role',
-            policy_name='authorizer-lambda-policy'
+            role_name=f'authorizer-lambda-role-{self.env}',
+            policy_name=f'authorizer-lambda-policy-{self.env}'
         ))
 
     @unittest.skipIf(not prod_env, 'Development authorizer AWS Lambda function not under test.')
