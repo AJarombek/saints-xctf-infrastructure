@@ -54,7 +54,7 @@ resource "aws_synthetics_canary" "saints-xctf-up" {
 }
 
 resource "aws_cloudwatch_event_rule" "saints-xctf-up-canary-event-rule" {
-  name = "SaintsXCTFUpCanaryRule"
+  name = "saints-xctf-up-canary-rule"
   event_pattern = jsonencode({
     source = ["aws.synthetics"]
     detail = {
@@ -100,7 +100,7 @@ resource "aws_synthetics_canary" "saints-xctf-sign-in" {
 }
 
 resource "aws_cloudwatch_event_rule" "saints-xctf-sign-in-canary-event-rule" {
-  name = "SaintsXCTFSignInCanaryRule"
+  name = "saints-xctf-sign-in-canary-rule"
   event_pattern = jsonencode({
     source = ["aws.synthetics"]
     detail = {
