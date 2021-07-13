@@ -7,6 +7,10 @@ SaintsXCTF application.
 
 ```bash
 # Zip canary functions for use in Terraform scripts.
+cd modules/canaries/func/forgot-password
+zip -r9 SaintsXCTFForgotPassword.zip .
+mv SaintsXCTFForgotPassword.zip ../../SaintsXCTFForgotPassword.zip
+
 cd modules/canaries/func/up
 zip -r9 SaintsXCTFUp.zip .
 mv SaintsXCTFUp.zip ../../SaintsXCTFUp.zip
