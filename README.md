@@ -75,6 +75,13 @@ bazel --version
 
 ### Versions
 
+**[v2.0.1](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.1) - Synthetic Monitoring Canaries Release**
+
+> Release Date: July 14th, 2021
+
+This release added Canary functions, which provide automated tests for the SaintsXCTF website.  These functions test 
+critical paths of the application on a schedule, and notify me if any errors are detected.
+
 **[v2.0.0](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.0) - Kubernetes/Serverless V2 Release**
 
 > Release Date: May 30th, 2021

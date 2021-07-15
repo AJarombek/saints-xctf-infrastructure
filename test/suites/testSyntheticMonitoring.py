@@ -96,6 +96,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(canary.get('Code').get('Handler'), 'up.handler')
         self.assertEqual(canary.get('Schedule').get('Expression'), 'rate(1 hour)')
 
+    @unittest.skipIf(not prod_env, 'Development SaintsXCTF Up canary function not under test.')
     def test_sxctf_up_canary_event_rule_exists(self):
         """
         Test if a CloudWatch Event Rule exists for the sxctf-up Synthetics Canary function.
@@ -115,7 +116,11 @@ class TestSyntheticMonitoring(unittest.TestCase):
         event_pattern: Dict[str, Any] = json.loads(matching_event.get('EventPattern'))
         canary_names: List[str] = event_pattern.get('detail').get('canary-name')
         self.assertEqual(1, len(canary_names))
-        self.assertEqual('sxctf-up-prod', canary_names[0])
+        self.assertEqual(f'sxctf-up-{self.env}', canary_names[0])
+
+        test_statuses: List[str] = event_pattern.get('detail').get('test-run-status')
+        self.assertEqual(1, len(test_statuses))
+        self.assertEqual('FAILED', test_statuses[0])
 
         sources: List[str] = event_pattern.get('source')
         self.assertEqual(1, len(sources))
@@ -151,6 +156,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(canary.get('Code').get('Handler'), 'signIn.handler')
         self.assertEqual(canary.get('Schedule').get('Expression'), 'rate(1 hour)')
 
+    @unittest.skipIf(not prod_env, 'Development SaintsXCTF Sign In canary function not under test.')
     def test_sxctf_sign_in_canary_event_rule_exists(self):
         """
         Test if a CloudWatch Event Rule exists for the sxctf-sign-in Synthetics Canary function.
@@ -170,7 +176,11 @@ class TestSyntheticMonitoring(unittest.TestCase):
         event_pattern: Dict[str, Any] = json.loads(matching_event.get('EventPattern'))
         canary_names: List[str] = event_pattern.get('detail').get('canary-name')
         self.assertEqual(1, len(canary_names))
-        self.assertEqual('sxctf-sign-in-prod', canary_names[0])
+        self.assertEqual(f'sxctf-sign-in-{self.env}', canary_names[0])
+
+        test_statuses: List[str] = event_pattern.get('detail').get('test-run-status')
+        self.assertEqual(1, len(test_statuses))
+        self.assertEqual('FAILED', test_statuses[0])
 
         sources: List[str] = event_pattern.get('source')
         self.assertEqual(1, len(sources))
@@ -188,4 +198,64 @@ class TestSyntheticMonitoring(unittest.TestCase):
 
         event_target = event_targets[0]
         self.assertEqual('SaintsXCTFSignInCanaryTarget', event_target.get('Id'))
+        self.assertEqual(f'arn:aws:sns:us-east-1:{account_id}:alert-email-topic', event_target.get('Arn'))
+
+    @unittest.skipIf(not prod_env, 'Development SaintsXCTF Forgot Password canary function not under test.')
+    def test_sxctf_forgot_password_canary_function_exists(self):
+        """
+        Test if a CloudWatch Synthetics Canary function exists called sxctf-forgot-pw.
+        """
+        response = self.synthetics.get_canary(Name=f'sxctf-forgot-pw-{self.env}')
+        canary: Dict[str, Any] = response.get('Canary')
+
+        self.assertEqual(canary.get('Name'), f'sxctf-forgot-pw-{self.env}')
+        self.assertEqual(canary.get('RuntimeVersion'), 'syn-python-selenium-1.0')
+        self.assertEqual(canary.get('ArtifactS3Location'), 'saints-xctf-canaries/')
+        self.assertEqual(canary.get('SuccessRetentionPeriodInDays'), 2)
+        self.assertEqual(canary.get('FailureRetentionPeriodInDays'), 14)
+        self.assertEqual(canary.get('Code').get('Handler'), 'forgot_password.handler')
+        self.assertEqual(canary.get('Schedule').get('Expression'), 'rate(1 hour)')
+
+    @unittest.skipIf(not prod_env, 'Development SaintsXCTF Forgot Password canary function not under test.')
+    def test_sxctf_forgot_password_canary_event_rule_exists(self):
+        """
+        Test if a CloudWatch Event Rule exists for the sxctf-forgot-pw Synthetics Canary function.
+        """
+        event_rules_response = self.events.list_rules()
+        event_rules: List[Dict[str, str]] = event_rules_response.get('Rules')
+        matching_event_rules = [
+            rule for rule in event_rules
+            if rule.get('Name') == 'saints-xctf-forgot-password-canary-rule'
+        ]
+
+        self.assertEqual(1, len(matching_event_rules))
+
+        matching_event: Dict[str, str] = matching_event_rules[0]
+        self.assertEqual('ENABLED', matching_event.get('State'))
+
+        event_pattern: Dict[str, Any] = json.loads(matching_event.get('EventPattern'))
+        canary_names: List[str] = event_pattern.get('detail').get('canary-name')
+        self.assertEqual(1, len(canary_names))
+        self.assertEqual(f'sxctf-forgot-pw-{self.env}', canary_names[0])
+
+        test_statuses: List[str] = event_pattern.get('detail').get('test-run-status')
+        self.assertEqual(1, len(test_statuses))
+        self.assertEqual('FAILED', test_statuses[0])
+
+        sources: List[str] = event_pattern.get('source')
+        self.assertEqual(1, len(sources))
+        self.assertEqual('aws.synthetics', sources[0])
+
+    def test_sxctf_forgot_password_canary_event_target_exists(self):
+        """
+        Test if a CloudWatch Event Rule Target exists for the sxctf-forgot-pw Synthetics Canary function.
+        """
+        account_id = self.sts.get_caller_identity().get('Account')
+
+        event_targets_response = self.events.list_targets_by_rule(Rule='saints-xctf-forgot-password-canary-rule')
+        event_targets = event_targets_response.get('Targets')
+        self.assertEqual(1, len(event_targets))
+
+        event_target = event_targets[0]
+        self.assertEqual('SaintsXCTFForgotPasswordCanaryTarget', event_target.get('Id'))
         self.assertEqual(f'arn:aws:sns:us-east-1:{account_id}:alert-email-topic', event_target.get('Arn'))

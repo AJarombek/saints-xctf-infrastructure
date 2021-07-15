@@ -61,7 +61,8 @@ resource "aws_cloudwatch_event_rule" "saints-xctf-forgot-password-canary-event-r
   event_pattern = jsonencode({
     source = ["aws.synthetics"]
     detail = {
-      "canary-name": [aws_synthetics_canary.saints-xctf-forgot-password.name]
+      "canary-name": [aws_synthetics_canary.saints-xctf-forgot-password.name],
+      "test-run-status": ["FAILED"]
     }
   })
 }
@@ -107,7 +108,8 @@ resource "aws_cloudwatch_event_rule" "saints-xctf-up-canary-event-rule" {
   event_pattern = jsonencode({
     source = ["aws.synthetics"]
     detail = {
-      "canary-name": [aws_synthetics_canary.saints-xctf-up.name]
+      "canary-name": [aws_synthetics_canary.saints-xctf-up.name],
+      "test-run-status": ["FAILED"]
     }
   })
 }
@@ -132,7 +134,7 @@ resource "aws_synthetics_canary" "saints-xctf-sign-in" {
 
   schedule {
     expression = "rate(1 hour)"
-    duration_in_seconds = 300
+    duration_in_seconds = 0
   }
 
   run_config {
@@ -153,7 +155,8 @@ resource "aws_cloudwatch_event_rule" "saints-xctf-sign-in-canary-event-rule" {
   event_pattern = jsonencode({
     source = ["aws.synthetics"]
     detail = {
-      "canary-name": [aws_synthetics_canary.saints-xctf-sign-in.name]
+      "canary-name": [aws_synthetics_canary.saints-xctf-sign-in.name],
+      "test-run-status": ["FAILED"]
     }
   })
 }
