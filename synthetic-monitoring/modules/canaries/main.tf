@@ -9,8 +9,6 @@ locals {
   environment = var.prod ? "production" : "development"
 }
 
-data "aws_caller_identity" "current" {}
-
 data "aws_s3_bucket" "saints-xctf-canaries" {
   bucket = "saints-xctf-canaries"
 }

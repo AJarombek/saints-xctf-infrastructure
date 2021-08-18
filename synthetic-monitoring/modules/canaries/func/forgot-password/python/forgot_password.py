@@ -14,12 +14,14 @@ from selenium.webdriver.common.by import By
 
 
 def forgot_password():
+    # 1) Navigate to the SaintsXCTF website homepage.
     browser: ChromeWebDriver = webdriver.Chrome()
     browser.get('https://saintsxctf.com/')
 
     logger.info('Loaded SaintsXCTF')
     browser.save_screenshot('home_page.png')
 
+    # 2) Click on the 'Sign In' button.
     button_condition = EC.element_to_be_clickable((By.CSS_SELECTOR, '.signInButton'))
     WebDriverWait(browser, 5).until(button_condition, message='Sign In Button Never Loaded').click()
 
@@ -28,6 +30,7 @@ def forgot_password():
 
     browser.save_screenshot('sign_in_page.png')
 
+    # 3) Click on the 'Forgot Password' link.
     forgot_password_link_condition = EC.element_to_be_clickable((By.LINK_TEXT, 'Forgot Password?'))
     WebDriverWait(browser, 5).until(forgot_password_link_condition, message='Forgot Password Link Never Loaded').click()
 
@@ -39,12 +42,14 @@ def forgot_password():
 
     browser.save_screenshot('forgot_password_page.png')
 
+    # 4) Type an email address into the 'Forgot Password' input field.
     forgot_password_input = browser.find_element_by_css_selector('.sxctf-image-input input')
     forgot_password_input.clear()
     forgot_password_input.send_keys('andrew@jarombek.com')
 
     browser.save_screenshot('forgot_password_email_typed.png')
 
+    # 5) Click on the 'Send' button.
     forgot_password_button_condition = EC.element_to_be_clickable(
         (By.CSS_SELECTOR, '.form-buttons > .aj-contained-button > button')
     )
@@ -53,6 +58,7 @@ def forgot_password():
         .until(forgot_password_button_condition, message='Forgot Password Button Not Clickable') \
         .click()
 
+    # 6) Confirm that the 'Forgot Password' email was sent.
     success_text_condition = EC.text_to_be_present_in_element(
         (By.CSS_SELECTOR, '.sxctf-forgot-password-body h5'),
         'An email was sent to your email address with a forgot password code.'

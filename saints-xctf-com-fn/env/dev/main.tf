@@ -58,6 +58,10 @@ module "api-gateway" {
   uasset-user-lambda-invoke-arn = module.uasset-lambda.uasset-user-function-invoke-arn
   uasset-group-lambda-name = module.uasset-lambda.uasset-group-function-name
   uasset-group-lambda-invoke-arn = module.uasset-lambda.uasset-group-function-invoke-arn
+  uasset-user-signed-url-lambda-name = module.uasset-lambda.uasset-signed-url-user-function-name
+  uasset-user-signed-url-lambda-invoke-arn = module.uasset-lambda.uasset-signed-url-user-function-invoke-arn
+  uasset-group-signed-url-lambda-name = module.uasset-lambda.uasset-signed-url-group-function-name
+  uasset-group-signed-url-lambda-invoke-arn = module.uasset-lambda.uasset-signed-url-group-function-invoke-arn
 
   depends_on = [module.email-lambda, module.uasset-lambda]
 }

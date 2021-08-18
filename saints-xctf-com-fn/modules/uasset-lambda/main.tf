@@ -23,6 +23,22 @@ locals {
       description = "Upload a group's picture to the uasset.saintsxctf.com S3 bucket."
       tags_name = "saints-xctf-com-lambda-uasset-group"
       log_group_name = "/aws/lambda/SaintsXCTFUassetGroup${upper(local.env)}"
+    },
+    uasset_signed_url_user = {
+      function_name = "SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
+      filename = "${path.module}/SaintsXCTFUassetSignedUrlUser.zip"
+      source_code_hash = filebase64sha256("${path.module}/SaintsXCTFUassetSignedUrlUser.zip")
+      description = "Retrieve a URL used to upload a user's profile picture to the uasset.saintsxctf.com S3 bucket."
+      tags_name = "saints-xctf-com-lambda-uasset-signed-url-user"
+      log_group_name = "/aws/lambda/SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
+    },
+    uasset_signed_url_group = {
+      function_name = "SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
+      filename = "${path.module}/SaintsXCTFUassetSignedUrlGroup.zip"
+      source_code_hash = filebase64sha256("${path.module}/SaintsXCTFUassetSignedUrlGroup.zip")
+      description = "Retrieve a URL used to upload a group's picture to the uasset.saintsxctf.com S3 bucket."
+      tags_name = "saints-xctf-com-lambda-uasset-signed-url-group"
+      log_group_name = "/aws/lambda/SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
     }
   }
 }

@@ -154,6 +154,8 @@ resource "aws_lambda_permission" "allow_api_gateway-authorizer" {
 # /email/activation-code
 # /uasset/user
 # /uasset/group
+# /uasset/signed-url/user
+# /uasset/signed-url/group
 
 # Resource for the API path /email
 resource "aws_api_gateway_resource" "saints-xctf-com-fn-email-path" {
@@ -171,6 +173,13 @@ resource "aws_api_gateway_resource" "saints-xctf-com-fn-uasset-path" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   parent_id = aws_api_gateway_rest_api.saints-xctf-com-fn.root_resource_id
   path_part = "uasset"
+}
+
+# Resource for the API path /uasset/signed-url
+resource "aws_api_gateway_resource" "saints-xctf-com-fn-uasset-signed-url-path" {
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-path.id
+  path_part = "signed-url"
 }
 
 /* POST /email/forgot-password */

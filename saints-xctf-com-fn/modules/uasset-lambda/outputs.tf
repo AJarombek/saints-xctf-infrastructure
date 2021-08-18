@@ -25,3 +25,25 @@ output "uasset-group-function-invoke-arn" {
     if function.function_name == local.lambda_functions.uasset_group.function_name
   ][0]
 }
+
+output "uasset-signed-url-user-function-name" {
+  value = local.lambda_functions.uasset_signed_url_user.function_name
+}
+
+output "uasset-signed-url-user-function-invoke-arn" {
+  value = [
+    for function in aws_lambda_function.uasset : function.invoke_arn
+    if function.function_name == local.lambda_functions.uasset_signed_url_user.function_name
+  ][0]
+}
+
+output "uasset-signed-url-group-function-name" {
+  value = local.lambda_functions.uasset_signed_url_group.function_name
+}
+
+output "uasset-signed-url-group-function-invoke-arn" {
+  value = [
+    for function in aws_lambda_function.uasset : function.invoke_arn
+    if function.function_name == local.lambda_functions.uasset_signed_url_group.function_name
+  ][0]
+}

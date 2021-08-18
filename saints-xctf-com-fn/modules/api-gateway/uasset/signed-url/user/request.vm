@@ -1,0 +1,13 @@
+#**
+ * HTTP Request for the uasset/signed-url/user REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 8/17/2021
+ *#
+
+#set($username = $input.json('$.username'))
+#set($contentType = $input.json('$.contentType'))
+
+{
+    "username": $username,
+    "contentType": $contentType
+}
