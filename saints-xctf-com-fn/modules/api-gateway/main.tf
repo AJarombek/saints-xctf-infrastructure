@@ -397,3 +397,75 @@ resource "aws_lambda_permission" "allow-api-gateway-uasset-group" {
   principal = "apigateway.amazonaws.com"
   source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
 }
+
+/* POST /uasset/signed-url/user */
+
+module "api-gateway-uasset-signed-url-user-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
+
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-signed-url-path.id
+  path = "user"
+  request_validator_name = "uasset-signed-url-user-request-body-${local.env}"
+
+  request_templates = {
+    "application/json" = file("${path.module}/uasset/signed-url/user/request.vm")
+  }
+
+  response_template = file("${path.module}/uasset/signed-url/user/response.vm")
+
+  lambda_invoke_arn = var.uasset-user-signed-url-lambda-invoke-arn
+
+  # Optional arguments
+  http_method = "POST"
+  validate_request_body = true
+  validate_request_parameters = false
+  content_handling = null
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
+}
+
+resource "aws_lambda_permission" "allow-api-gateway-uasset-signed-url-user" {
+  action = "lambda:InvokeFunction"
+  function_name = var.uasset-user-signed-url-lambda-name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}
+
+/* POST /uasset/signed-url/group */
+
+module "api-gateway-uasset-signed-url-group-endpoint" {
+  source = "github.com/ajarombek/cloud-modules//terraform-modules/api-gateway-endpoint?ref=v0.2.8"
+
+  # Mandatory arguments
+  rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
+  parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-signed-url-path.id
+  path = "group"
+  request_validator_name = "uasset-group-request-body-${local.env}"
+
+  request_templates = {
+    "application/json" = file("${path.module}/uasset/signed-url/group/request.vm")
+  }
+
+  response_template = file("${path.module}/uasset/signed-url/group/response.vm")
+
+  lambda_invoke_arn = var.uasset-group-signed-url-lambda-invoke-arn
+
+  # Optional arguments
+  http_method = "POST"
+  validate_request_body = true
+  validate_request_parameters = false
+  content_handling = null
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.saints-xctf-com-fn-authorizer.id
+}
+
+resource "aws_lambda_permission" "allow-api-gateway-uasset-signed-url-group" {
+  action = "lambda:InvokeFunction"
+  function_name = var.uasset-group-signed-url-lambda-name
+  statement_id = "AllowExecutionFromApiGateway"
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.saints-xctf-com-fn.execution_arn}/*/*/*"
+}

@@ -139,3 +139,43 @@ variable "uasset-group-lambda-invoke-arn" {
     error_message = "The uasset group lambda arn is not formatted properly."
   }
 }
+
+variable "uasset-user-signed-url-lambda-name" {
+  description = "The name of the user asset signed url 'user' Lambda function to use with API Gateway"
+  type = string
+
+  validation {
+    condition = length(var.uasset-user-signed-url-lambda-name) >= 1
+    error_message = "The uasset signed url user lambda name must be of length greater than 1."
+  }
+}
+
+variable "uasset-user-signed-url-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the user asset signed url 'user' Lambda function to use with API Gateway"
+  type = string
+
+  validation {
+    condition = substr(var.uasset-user-signed-url-lambda-invoke-arn, 0, 19) == "arn:aws:apigateway:"
+    error_message = "The uasset signed url user lambda arn is not formatted properly."
+  }
+}
+
+variable "uasset-group-signed-url-lambda-name" {
+  description = "The name of the user asset signed url 'group' Lambda function to use with API Gateway"
+  type = string
+
+  validation {
+    condition = length(var.uasset-group-signed-url-lambda-name) >= 1
+    error_message = "The uasset signed url group lambda name must be of length greater than 1."
+  }
+}
+
+variable "uasset-group-signed-url-lambda-invoke-arn" {
+  description = "The Amazon Resource Name of the user asset signed url 'group' Lambda function to use with API Gateway"
+  type = string
+
+  validation {
+    condition = substr(var.uasset-group-signed-url-lambda-invoke-arn, 0, 19) == "arn:aws:apigateway:"
+    error_message = "The uasset signed url group lambda arn is not formatted properly."
+  }
+}

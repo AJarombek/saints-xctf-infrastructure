@@ -1,0 +1,13 @@
+#**
+ * HTTP Request for the uasset/signed-url/group REST endpoint
+ * Author: Andrew Jarombek
+ * Date: 8/20/2021
+ *#
+
+#set($groupId = $input.json('$.groupId'))
+#set($contentType = $input.json('$.contentType'))
+
+{
+    "groupId": $groupId,
+    "contentType": $contentType
+}
