@@ -51,6 +51,7 @@ class TestACM(unittest.TestCase):
 
         self.assertTrue(False)
 
+    @unittest.skip('*.auth.saintsxctf.com certificate inactive.')
     def test_acm_auth_wildcard_cert_issued(self) -> None:
         """
         Test that the auth wildcard ACM certificate exists
@@ -74,6 +75,7 @@ class TestACM(unittest.TestCase):
 
         self.assertTrue(False)
 
+    @unittest.skip('*.fn.saintsxctf.com certificate inactive.')
     def test_acm_fn_wildcard_cert_issued(self) -> None:
         """
         Test that the fn wildcard ACM certificate exists

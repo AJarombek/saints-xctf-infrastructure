@@ -110,12 +110,14 @@ class TestSXCTFFn(unittest.TestCase):
         base_path_mapping = base_path_mapping_list[0]
         self.assertEqual('(none)', base_path_mapping.get('basePath'))
 
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_api_gateway_auth_role_exists(self) -> None:
         """
         Test that the api-gateway-auth-role IAM Role exists.
         """
         self.assertTrue(IAM.iam_role_exists(role_name=f'api-gateway-auth-role-{self.env}'))
 
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
     def test_api_gateway_auth_policy_attached(self) -> None:
         """
         Test that the api-gateway-auth-policy is attached to the api-gateway-auth-role
@@ -153,6 +155,9 @@ class TestSXCTFFn(unittest.TestCase):
             '/email/welcome',
             '/uasset',
             '/uasset/group',
+            '/uasset/signed-url',
+            '/uasset/signed-url/group',
+            '/uasset/signed-url/user',
             '/uasset/user'
         ]
         APIGateway.api_has_expected_paths(self, self.api_name, expected_paths)
@@ -269,12 +274,14 @@ class TestSXCTFFn(unittest.TestCase):
             env_vars={"PREFIX": prefix}
         )
 
+    @unittest.skipIf(not prod_env, 'Development email AWS Lambda functions not under test.')
     def test_email_lambda_role_exists(self) -> None:
         """
         Test that the email-lambda-role IAM Role exists.
         """
         self.assertTrue(IAM.iam_role_exists(role_name=f'email-lambda-role-{self.env}'))
 
+    @unittest.skipIf(not prod_env, 'Development email AWS Lambda functions not under test.')
     def test_email_lambda_policy_attached(self) -> None:
         """
         Test that the email-lambda-policy is attached to the email-lambda-role
@@ -500,12 +507,14 @@ class TestSXCTFFn(unittest.TestCase):
         layer_arn: str = matching_layers[0].get('LayerArn')
         self.assertTrue(layer_arn in lambda_function_layers[0].get('Arn'))
 
+    @unittest.skipIf(not prod_env, 'Development uasset AWS Lambda functions not under test.')
     def test_uasset_lambda_role_exists(self) -> None:
         """
         Test that the uasset-lambda-role IAM Role exists.
         """
         self.assertTrue(IAM.iam_role_exists(role_name=f'uasset-lambda-role-{self.env}'))
 
+    @unittest.skipIf(not prod_env, 'Development uasset AWS Lambda functions not under test.')
     def test_uasset_lambda_policy_attached(self) -> None:
         """
         Test that the uasset-lambda-policy is attached to the uasset-lambda-role

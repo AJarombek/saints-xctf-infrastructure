@@ -31,3 +31,9 @@ func GetNamespace() string {
 		return "saints-xctf"
 	}
 }
+
+func skipDev(t *testing.T) {
+    if env == "dev" {
+        t.Skip("Skipping " + t.Name() + " test in DEV environment")
+    }
+}

@@ -165,12 +165,14 @@ class TestSXCTFAuth(unittest.TestCase):
             validate_request_parameters=False
         )
 
+    @unittest.skipIf(not prod_env, 'Rotate secret AWS Lambda function not under test.')
     def test_rotate_secret_lambda_role_exists(self) -> None:
         """
         Test that the rotate-secret-lambda-role IAM Role exists.
         """
         self.assertTrue(IAM.iam_role_exists(role_name=f'rotate-secret-lambda-role-{self.env}'))
 
+    @unittest.skipIf(not prod_env, 'Rotate secret AWS Lambda function not under test.')
     def test_rotate_secret_lambda_policy_attached(self) -> None:
         """
         Test that the rotate-secret-lambda-policy is attached to the rotate-secret-lambda-role
@@ -180,12 +182,14 @@ class TestSXCTFAuth(unittest.TestCase):
             policy_name=f'rotate-secret-lambda-policy-{self.env}'
         ))
 
+    @unittest.skipIf(not prod_env, 'Token AWS Lambda function not under test.')
     def test_token_lambda_role_exists(self) -> None:
         """
         Test that the token-lambda-role IAM Role exists.
         """
         self.assertTrue(IAM.iam_role_exists(role_name=f'token-lambda-role-{self.env}'))
 
+    @unittest.skipIf(not prod_env, 'Token AWS Lambda function not under test.')
     def test_token_lambda_policy_attached(self) -> None:
         """
         Test that the token-lambda-policy is attached to the token-lambda-role
@@ -195,12 +199,14 @@ class TestSXCTFAuth(unittest.TestCase):
             policy_name=f'token-lambda-policy-{self.env}'
         ))
 
+    @unittest.skipIf(not prod_env, 'Development authorizer AWS Lambda function not under test.')
     def test_authorizer_lambda_role_exists(self) -> None:
         """
         Test that the authorizer-lambda-role IAM Role exists.
         """
         self.assertTrue(IAM.iam_role_exists(role_name=f'authorizer-lambda-role-{self.env}'))
 
+    @unittest.skipIf(not prod_env, 'Development authorizer AWS Lambda function not under test.')
     def test_authorizer_lambda_policy_attached(self) -> None:
         """
         Test that the authorizer-lambda-policy is attached to the authorizer-lambda-role

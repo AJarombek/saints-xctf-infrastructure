@@ -16,11 +16,13 @@ import (
 // TestSaintsXCTFIngressExists determines if an ingress object exists in the 'saints-xctf' (or 'saints-xctf-dev')
 // namespace with the name 'saints-xctf-com-ingress'.
 func TestSaintsXCTFIngressExists(t *testing.T) {
+	skipDev(t)
 	k8sfuncs.IngressExists(t, ClientSet, namespace, "saints-xctf-com-ingress")
 }
 
 // TestSaintsXCTFIngressAnnotations determines if the 'saints-xctf-com-ingress' Ingress object contains the expected annotations.
 func TestSaintsXCTFIngressAnnotations(t *testing.T) {
+	skipDev(t)
 	ingress, err := ClientSet.NetworkingV1beta1().Ingresses(namespace).Get("saints-xctf-com-ingress", v1meta.GetOptions{})
 
 	if err != nil {

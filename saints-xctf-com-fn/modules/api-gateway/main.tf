@@ -443,7 +443,7 @@ module "api-gateway-uasset-signed-url-group-endpoint" {
   rest_api_id = aws_api_gateway_rest_api.saints-xctf-com-fn.id
   parent_path_id = aws_api_gateway_resource.saints-xctf-com-fn-uasset-signed-url-path.id
   path = "group"
-  request_validator_name = "uasset-group-request-body-${local.env}"
+  request_validator_name = "uasset-signed-url-group-request-body-${local.env}"
 
   request_templates = {
     "application/json" = file("${path.module}/uasset/signed-url/group/request.vm")
