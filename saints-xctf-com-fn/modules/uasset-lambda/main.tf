@@ -15,6 +15,7 @@ locals {
       description = "Upload a user's profile picture to the uasset.saintsxctf.com S3 bucket."
       tags_name = "saints-xctf-com-lambda-uasset-user"
       log_group_name = "/aws/lambda/SaintsXCTFUassetUser${upper(local.env)}"
+      layers = [data.aws_lambda_layer_version.upload-picture-layer.arn]
     },
     uasset_group = {
       function_name = "SaintsXCTFUassetGroup${upper(local.env)}"
@@ -23,6 +24,7 @@ locals {
       description = "Upload a group's picture to the uasset.saintsxctf.com S3 bucket."
       tags_name = "saints-xctf-com-lambda-uasset-group"
       log_group_name = "/aws/lambda/SaintsXCTFUassetGroup${upper(local.env)}"
+      layers = [data.aws_lambda_layer_version.upload-picture-layer.arn]
     },
     uasset_signed_url_user = {
       function_name = "SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
@@ -31,6 +33,7 @@ locals {
       description = "Retrieve a URL used to upload a user's profile picture to the uasset.saintsxctf.com S3 bucket."
       tags_name = "saints-xctf-com-lambda-uasset-signed-url-user"
       log_group_name = "/aws/lambda/SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
+      layers = []
     },
     uasset_signed_url_group = {
       function_name = "SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
@@ -39,6 +42,7 @@ locals {
       description = "Retrieve a URL used to upload a group's picture to the uasset.saintsxctf.com S3 bucket."
       tags_name = "saints-xctf-com-lambda-uasset-signed-url-group"
       log_group_name = "/aws/lambda/SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
+      layers = []
     }
   }
 }
@@ -54,7 +58,7 @@ resource "aws_lambda_function" "uasset" {
   timeout = 10
   memory_size = 128
 
-  layers = [data.aws_lambda_layer_version.upload-picture-layer.arn]
+  layers = each.value.layers
 
   environment {
     variables = {

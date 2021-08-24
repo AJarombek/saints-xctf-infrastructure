@@ -253,6 +253,52 @@ class TestSXCTFFn(unittest.TestCase):
             authorization_type='CUSTOM'
         )
 
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
+    def test_fn_saintsxctf_com_api_uasset_signed_url_user_endpoint(self) -> None:
+        """
+        Test that the '/uasset/signed-url/user' endpoint exists in 'fn.saintsxctf.com.' as expected.
+        """
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFUassetSignedUrlUserPROD'
+            validator_name = 'uasset-signed-url-user-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFUassetSignedUrlUserDEV'
+            validator_name = 'uasset-signed-url-user-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/uasset/signed-url/user',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False,
+            authorization_type='CUSTOM'
+        )
+
+    @unittest.skipIf(not prod_env, 'Development Function API not under test.')
+    def test_fn_saintsxctf_com_api_uasset_signed_url_group_endpoint(self) -> None:
+        """
+        Test that the '/uasset/signed-url/group' endpoint exists in 'fn.saintsxctf.com.' as expected.
+        """
+        if self.prod_env:
+            lambda_function_name = 'SaintsXCTFUassetSignedUrlGroupPROD'
+            validator_name = 'uasset-signed-url-group-request-body-production'
+        else:
+            lambda_function_name = 'SaintsXCTFUassetSignedUrlGroupDEV'
+            validator_name = 'uasset-signed-url-group-request-body-development'
+
+        APIGateway.api_endpoint_as_expected(
+            test_case=self,
+            api_name=self.api_name,
+            path='/uasset/signed-url/group',
+            validator_name=validator_name,
+            lambda_function_name=lambda_function_name,
+            validate_request_body=True,
+            validate_request_parameters=False,
+            authorization_type='CUSTOM'
+        )
+
     @unittest.skipIf(not prod_env, 'Development forgot password AWS Lambda function not under test.')
     def test_forgot_password_email_lambda_function_exists(self) -> None:
         """
@@ -620,5 +666,133 @@ class TestSXCTFFn(unittest.TestCase):
             log_group_name = '/aws/lambda/SaintsXCTFUassetGroupPROD'
         else:
             log_group_name = '/aws/lambda/SaintsXCTFUassetGroupDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url user AWS Lambda function not under test.')
+    def test_uasset_signed_url_user_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for retrieving a signed URL used for uploading a user's profile picture
+        to the uasset.saintsxctf.com S3 bucket.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetSignedUrlUserPROD'
+            env = 'prod'
+        else:
+            function_name = 'SaintsXCTFUassetSignedUrlUserDEV'
+            env = 'dev'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='index.handler',
+            runtime='nodejs12.x',
+            env_vars={"ENV": env}
+        )
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url user AWS Lambda function not under test.')
+    def test_uasset_signed_url_user_lambda_function_uses_no_layers(self) -> None:
+        """
+        Test that the AWS Lambda function for retrieving a signed URL used for uploading a user's profile picture to
+        the uasset.saintsxctf.com S3 bucket has no Lambda layers.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetSignedUrlUserPROD'
+        else:
+            function_name = 'SaintsXCTFUassetSignedUrlUserDEV'
+
+        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
+        lambda_function_layers: List[dict] = lambda_function_response.get('Configuration').get('Layers')
+        self.assertEqual(0, len(lambda_function_layers))
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url user AWS Lambda function not under test.')
+    def test_uasset_signed_url_user_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for retrieving a signed URL used for uploading a user's profile picture to the
+        uasset.saintsxctf.com S3 bucket has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetSignedUrlUserPROD'
+        else:
+            function_name = 'SaintsXCTFUassetSignedUrlUserDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='uasset-lambda-role'
+        ))
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url user AWS Lambda function not under test.')
+    def test_uasset_signed_url_user_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the uasset user AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetSignedUrlUserPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetSignedUrlUserDEV'
+
+        CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url group AWS Lambda function not under test.')
+    def test_uasset_signed_url_group_lambda_function_exists(self) -> None:
+        """
+        Test that an AWS Lambda function exists for retrieving a signed URL used for uploading a group's picture to
+        the uasset.saintsxctf.com S3 bucket.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetSignedUrlGroupPROD'
+            env = 'prod'
+        else:
+            function_name = 'SaintsXCTFUassetSignedUrlGroupDEV'
+            env = 'dev'
+
+        Lambda.lambda_function_as_expected(
+            test_case=self,
+            function_name=function_name,
+            handler='index.handler',
+            runtime='nodejs12.x',
+            env_vars={"ENV": env}
+        )
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url group AWS Lambda function not under test.')
+    def test_uasset_signed_url_group_lambda_function_uses_layers(self) -> None:
+        """
+        Test that the AWS Lambda function for retrieving a signed URL used for uploading a group's picture to the
+        uasset.saintsxctf.com S3 bucket has no Lambda layers.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetSignedUrlGroupPROD'
+        else:
+            function_name = 'SaintsXCTFUassetSignedUrlGroupDEV'
+
+        lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
+        lambda_function_layers: List[dict] = lambda_function_response.get('Configuration').get('Layers')
+        self.assertEqual(0, len(lambda_function_layers))
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url group AWS Lambda function not under test.')
+    def test_uasset_signed_url_group_lambda_function_has_iam_role(self) -> None:
+        """
+        Test that an AWS Lambda function for retrieving a signed URL used for uploading a group's picture to the
+        uasset.saintsxctf.com S3 bucket has the proper IAM role.
+        """
+        if self.prod_env:
+            function_name = 'SaintsXCTFUassetSignedUrlGroupPROD'
+        else:
+            function_name = 'SaintsXCTFUassetSignedUrlGroupDEV'
+
+        self.assertTrue(Lambda.lambda_function_has_iam_role(
+            function_name=function_name,
+            role_name='uasset-lambda-role'
+        ))
+
+    @unittest.skipIf(not prod_env, 'Development uasset signed url group AWS Lambda function not under test.')
+    def test_uasset_signed_url_group_lambda_function_has_cloudwatch_log_group(self) -> None:
+        """
+        Test that a Cloudwatch log group exists for the uasset signed url group AWS Lambda function.
+        """
+        if self.prod_env:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetSignedUrlGroupPROD'
+        else:
+            log_group_name = '/aws/lambda/SaintsXCTFUassetSignedUrlGroupDEV'
 
         CloudWatchLogs.cloudwatch_log_group_exists(test_case=self, log_group_name=log_group_name, retention_days=7)
