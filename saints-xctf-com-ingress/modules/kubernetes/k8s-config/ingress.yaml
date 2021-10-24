@@ -1,15 +1,15 @@
-# Kubernetes ingress object for the SaintsXCTF API application's ALB ingress controller.
+# Kubernetes ingress object for the SaintsXCTF application's ALB ingress controller.
 # Author: Andrew Jarombek
 # Date: 7/20/2020
 
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: saints-xctf-api-ingress
+  name: saints-xctf-ingress
   namespace: saints-xctf
   annotations:
     kubernetes.io/ingress.class: alb
-    external-dns.alpha.kubernetes.io/hostname: api.saintsxctf.com,www.api.saintsxctf.com
+    external-dns.alpha.kubernetes.io/hostname: saintsxctf.com,www.saintsxctf.com,api.saintsxctf.com,www.api.saintsxctf.com
     alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": {"Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -20,13 +20,35 @@ metadata:
     alb.ingress.kubernetes.io/security-groups: ${SECURITY_GROUPS_ID}
     alb.ingress.kubernetes.io/subnets: ${SUBNET_IDS}
     alb.ingress.kubernetes.io/target-type: instance
-    alb.ingress.kubernetes.io/tags: Name=saints-xctf-api-load-balancer,Application=saints-xctf,Environment=${ENV}
+    alb.ingress.kubernetes.io/tags: Name=saints-xctf-load-balancer,Application=saints-xctf,Environment=${ENV}
   labels:
     version: v1.0.0
     environment: production
     application: saints-xctf-api
 spec:
   rules:
+    - host: saintsxctf.com
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: ssl-redirect
+              servicePort: use-annotation
+          - path: /*
+            backend:
+              serviceName: saints-xctf-web-service
+              servicePort: 80
+    - host: www.saintsxctf.com
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: ssl-redirect
+              servicePort: use-annotation
+          - path: /*
+            backend:
+              serviceName: saints-xctf-web-service
+              servicePort: 80
     - host: api.saintsxctf.com
       http:
         paths:
@@ -36,7 +58,7 @@ spec:
               servicePort: use-annotation
           - path: /*
             backend:
-              serviceName: saints-xctf-api-service
+              serviceName: saints-xctf-api
               servicePort: 80
     - host: www.api.saintsxctf.com
       http:
@@ -47,5 +69,5 @@ spec:
               servicePort: use-annotation
           - path: /*
             backend:
-              serviceName: saints-xctf-api-service
+              serviceName: saints-xctf-api
               servicePort: 80
