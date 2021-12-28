@@ -37,6 +37,7 @@ class TestDatabaseDeployment(unittest.TestCase):
         self.s3: S3Client = boto3.client('s3')
 
         self.prod_env = prod_env
+        self.bucket_name = 'saints-xctf-database-deployments'
 
     def test_deployment_lambda_function_exists(self) -> None:
         """
@@ -137,5 +138,16 @@ class TestDatabaseDeployment(unittest.TestCase):
         Test if a saints-xctf-database-deployments S3 bucket exists
         """
         bucket_name = 'saints-xctf-database-deployments'
-        s3_bucket = self.s3.list_objects(Bucket=bucket_name)
-        self.assertTrue(s3_bucket.get('Name') == bucket_name)
+        s3_bucket = self.s3.list_objects(Bucket=self.bucket_name)
+        self.assertTrue(s3_bucket.get('Name') == self.bucket_name)
+
+    def test_saints_xctf_database_deployments_s3_bucket_public_access(self) -> None:
+        """
+        Test whether the public access configuration for a saints-xctf-database-deployments S3 bucket is correct
+        """
+        public_access_block = self.s3.get_public_access_block(Bucket=self.bucket_name)
+        config = public_access_block.get('PublicAccessBlockConfiguration')
+        self.assertTrue(config.get('BlockPublicAcls'))
+        self.assertTrue(config.get('IgnorePublicAcls'))
+        self.assertTrue(config.get('BlockPublicPolicy'))
+        self.assertTrue(config.get('RestrictPublicBuckets'))

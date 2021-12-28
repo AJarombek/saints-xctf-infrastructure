@@ -26,20 +26,31 @@ class TestSXCTFAsset(unittest.TestCase):
         self.s3: S3Client = boto3.client('s3')
         self.cloudfront: CloudFrontClient = boto3.client('cloudfront')
         self.prod_env = prod_env
+        self.bucket_name = 'asset.saintsxctf.com'
 
     def test_asset_saintsxctf_s3_bucket_exists(self) -> None:
         """
         Test if an asset.saintsxctf.com S3 bucket exists
         """
-        bucket_name = 'asset.saintsxctf.com'
-        s3_bucket = self.s3.list_objects(Bucket=bucket_name)
-        self.assertTrue(s3_bucket.get('Name') == bucket_name)
+        s3_bucket = self.s3.list_objects(Bucket=self.bucket_name)
+        self.assertTrue(s3_bucket.get('Name') == self.bucket_name)
+
+    def test_asset_saintsxctf_s3_bucket_public_access(self) -> None:
+        """
+        Test whether the public access configuration for a asset.saintsxctf.com S3 bucket is correct
+        """
+        public_access_block = self.s3.get_public_access_block(Bucket=self.bucket_name)
+        config = public_access_block.get('PublicAccessBlockConfiguration')
+        self.assertTrue(config.get('BlockPublicAcls'))
+        self.assertTrue(config.get('IgnorePublicAcls'))
+        self.assertTrue(config.get('BlockPublicPolicy'))
+        self.assertTrue(config.get('RestrictPublicBuckets'))
 
     def test_s3_bucket_objects_correct(self) -> None:
         """
         Test if the S3 bucket for asset.saintsxctf.com contains the proper objects
         """
-        contents = self.s3.list_objects(Bucket='asset.saintsxctf.com').get('Contents')
+        contents = self.s3.list_objects(Bucket=self.bucket_name).get('Contents')
         self.assertTrue(all([
             len(contents) == 11,
             contents[0].get('Key') == 'amazon-app-store.png',

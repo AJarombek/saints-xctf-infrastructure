@@ -42,6 +42,15 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "saints-xctf-db-backups" {
+  bucket = aws_s3_bucket.saints-xctf-db-backups.id
+
+  block_public_acls = true
+  block_public_policy = true
+  restrict_public_buckets = true
+  ignore_public_acls = true
+}
+
 #-------------------------------------
 # Executed After Resources are Created
 #-------------------------------------

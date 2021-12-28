@@ -32,7 +32,9 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.sts: STSClient = boto3.client('sts', region_name='us-east-1')
         self.synthetics = boto3.client('synthetics', region_name='us-east-1')
         self.events: EventsClient = boto3.client('events', region_name='us-east-1')
+
         self.prod_env = prod_env
+        self.bucket_name = 'saints-xctf-canaries'
 
         if self.prod_env:
             self.env = 'prod'
@@ -58,8 +60,19 @@ class TestSyntheticMonitoring(unittest.TestCase):
         """
         Test if a saints-xctf-canaries S3 bucket exists
         """
-        s3_bucket = self.s3.list_objects(Bucket='saints-xctf-canaries')
-        self.assertTrue(s3_bucket.get('Name') == 'saints-xctf-canaries')
+        s3_bucket = self.s3.list_objects(Bucket=self.bucket_name)
+        self.assertTrue(s3_bucket.get('Name') == self.bucket_name)
+
+    def test_saints_xctf_canaries_s3_bucket_public_access(self) -> None:
+        """
+        Test whether the public access configuration for a saints-xctf-canaries S3 bucket is correct
+        """
+        public_access_block = self.s3.get_public_access_block(Bucket=self.bucket_name)
+        config = public_access_block.get('PublicAccessBlockConfiguration')
+        self.assertTrue(config.get('BlockPublicAcls'))
+        self.assertTrue(config.get('IgnorePublicAcls'))
+        self.assertTrue(config.get('BlockPublicPolicy'))
+        self.assertTrue(config.get('RestrictPublicBuckets'))
 
     def test_saints_xctf_canaries_s3_bucket_has_policy(self) -> None:
         """
@@ -67,7 +80,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         """
         account_id = self.sts.get_caller_identity().get('Account')
 
-        bucket_policy_response = self.s3.get_bucket_policy(Bucket='saints-xctf-canaries')
+        bucket_policy_response = self.s3.get_bucket_policy(Bucket=self.bucket_name)
         bucket_policy: Dict[str, Any] = json.loads(bucket_policy_response.get('Policy'))
 
         self.assertEqual(bucket_policy.get('Version'), '2012-10-17')

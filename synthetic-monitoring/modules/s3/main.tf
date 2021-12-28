@@ -32,6 +32,15 @@ resource "aws_s3_bucket" "saints-xctf-canaries" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "saints-xctf-canaries" {
+  bucket = aws_s3_bucket.saints-xctf-canaries.id
+
+  block_public_acls = true
+  block_public_policy = true
+  restrict_public_buckets = true
+  ignore_public_acls = true
+}
+
 resource "aws_s3_bucket_policy" "saints-xctf-canaries-policy" {
   bucket = aws_s3_bucket.saints-xctf-canaries.id
   policy = jsonencode({

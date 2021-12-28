@@ -26,14 +26,25 @@ class TestSXCTFAsset(unittest.TestCase):
         self.s3: S3Client = boto3.client('s3')
         self.cloudfront: CloudFrontClient = boto3.client('cloudfront')
         self.prod_env = prod_env
+        self.bucket_name = 'uasset.saintsxctf.com'
 
     def test_uasset_saintsxctf_s3_bucket_exists(self) -> None:
         """
         Test if an uasset.saintsxctf.com S3 bucket exists
         """
-        bucket_name = 'uasset.saintsxctf.com'
-        s3_bucket = self.s3.list_objects(Bucket=bucket_name)
-        self.assertTrue(s3_bucket.get('Name') == bucket_name)
+        s3_bucket = self.s3.list_objects(Bucket=self.bucket_name)
+        self.assertTrue(s3_bucket.get('Name') == self.bucket_name)
+
+    def test_uasset_saintsxctf_s3_bucket_public_access(self) -> None:
+        """
+        Test whether the public access configuration for a uasset.saintsxctf.com S3 bucket is correct
+        """
+        public_access_block = self.s3.get_public_access_block(Bucket=self.bucket_name)
+        config = public_access_block.get('PublicAccessBlockConfiguration')
+        self.assertTrue(config.get('BlockPublicAcls'))
+        self.assertTrue(config.get('IgnorePublicAcls'))
+        self.assertTrue(config.get('BlockPublicPolicy'))
+        self.assertTrue(config.get('RestrictPublicBuckets'))
 
     def test_s3_bucket_cloudfront_distributed(self) -> None:
         """

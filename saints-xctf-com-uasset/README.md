@@ -7,5 +7,5 @@ Assets are accessible through the `uasset.saintsxctf.com` domain.
 
 | Filename     | Description                                                                                      |
 |--------------|--------------------------------------------------------------------------------------------------|
-| `assets`     | Any non-user assets in this bucket.                                                              |
+| `asset`      | Any non-user assets in this bucket.                                                              |
 | `main.tf`    | Main Terraform script used to create and populate the S3 bucket.                                 |

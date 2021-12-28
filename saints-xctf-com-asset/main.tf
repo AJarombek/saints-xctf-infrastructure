@@ -10,10 +10,10 @@ provider "aws" {
 }
 
 terraform {
-  required_version = ">= 0.13.6"
+  required_version = ">= 1.1.2"
 
   required_providers {
-    aws = ">= 3.37.0"
+    aws = ">= 3.70.0"
   }
 
   backend "s3" {
@@ -46,8 +46,7 @@ data "aws_route53_zone" "saintsxctf" {
 
 resource "aws_s3_bucket" "asset-saintsxctf" {
   bucket = "asset.saintsxctf.com"
-  acl = "public-read"
-  policy = file("${path.module}/policy.json")
+  acl = "private"
 
   tags = {
     Name = "asset.saintsxctf.com"
@@ -63,6 +62,37 @@ resource "aws_s3_bucket" "asset-saintsxctf" {
     allowed_methods = ["GET"]
     allowed_headers = ["*"]
   }
+}
+
+resource "aws_s3_bucket_policy" "asset-saintsxctf" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+  policy = data.aws_iam_policy_document.asset-saintsxctf.json
+}
+
+data "aws_iam_policy_document" "asset-saintsxctf" {
+  statement {
+    sid = "CloudfrontOAI"
+
+    principals {
+      identifiers = [aws_cloudfront_origin_access_identity.origin-access-identity.iam_arn]
+      type = "AWS"
+    }
+
+    actions = ["s3:GetObject", "s3:ListBucket"]
+    resources = [
+      aws_s3_bucket.asset-saintsxctf.arn,
+      "${aws_s3_bucket.asset-saintsxctf.arn}/*"
+    ]
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "asset-saintsxctf" {
+  bucket = aws_s3_bucket.asset-saintsxctf.id
+
+  block_public_acls = true
+  block_public_policy = true
+  restrict_public_buckets = true
+  ignore_public_acls = true
 }
 
 resource "aws_cloudfront_distribution" "asset-saintsxctf-distribution" {

@@ -10,10 +10,10 @@ provider "aws" {
 }
 
 terraform {
-  required_version = ">= 0.13"
+  required_version = ">= 1.1.2"
 
   required_providers {
-    aws = ">= 3.7.0"
+    aws = ">= 3.70.0"
   }
 
   backend "s3" {

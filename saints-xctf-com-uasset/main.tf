@@ -10,10 +10,10 @@ provider "aws" {
 }
 
 terraform {
-  required_version = ">= 0.13.6"
+  required_version = ">= 1.1.2"
 
   required_providers {
-    aws = ">= 3.37.0"
+    aws = ">= 3.70.0"
   }
 
   backend "s3" {
@@ -27,6 +27,8 @@ terraform {
 #-----------------------
 # Existing AWS Resources
 #-----------------------
+
+data "aws_caller_identity" "current" {}
 
 data "aws_acm_certificate" "wildcard-saintsxctf-com-cert" {
   domain = "*.saintsxctf.com"
@@ -46,8 +48,7 @@ data "aws_route53_zone" "saintsxctf" {
 
 resource "aws_s3_bucket" "uasset-saintsxctf" {
   bucket = "uasset.saintsxctf.com"
-  acl = "public-read"
-  policy = file("${path.module}/policy.json")
+  acl = "private"
 
   tags = {
     Name = "uasset.saintsxctf.com"
@@ -63,6 +64,49 @@ resource "aws_s3_bucket" "uasset-saintsxctf" {
     allowed_methods = ["GET"]
     allowed_headers = ["*"]
   }
+}
+
+resource "aws_s3_bucket_policy" "uasset-saintsxctf" {
+  bucket = aws_s3_bucket.uasset-saintsxctf.id
+  policy = data.aws_iam_policy_document.uasset-saintsxctf.json
+}
+
+data "aws_iam_policy_document" "uasset-saintsxctf" {
+  statement {
+    sid = "CloudfrontOAI"
+
+    principals {
+      identifiers = [aws_cloudfront_origin_access_identity.origin-access-identity.iam_arn]
+      type = "AWS"
+    }
+
+    actions = ["s3:GetObject", "s3:ListBucket"]
+    resources = [
+      aws_s3_bucket.uasset-saintsxctf.arn,
+      "${aws_s3_bucket.uasset-saintsxctf.arn}/*"
+    ]
+  }
+
+  statement {
+    sid = "PrivatePutObject"
+
+    principals {
+      identifiers = [data.aws_caller_identity.current.account_id]
+      type = "AWS"
+    }
+
+    actions = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.uasset-saintsxctf.arn}/*"]
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "uasset-saintsxctf" {
+  bucket = aws_s3_bucket.uasset-saintsxctf.id
+
+  block_public_acls = true
+  block_public_policy = true
+  restrict_public_buckets = true
+  ignore_public_acls = true
 }
 
 resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
