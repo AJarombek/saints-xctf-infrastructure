@@ -5,12 +5,13 @@ Modules which create HTTPS certificates for `saintsxctf.com`, `asset.saintsxctf.
 
 ### Directories
 
-| Directory Name          | Description                                                                 |
-|-------------------------|-----------------------------------------------------------------------------|
-| `api-saints-xctf`       | ACM certificates for `*.api.saintsxctf.com`.                                |
-| `asset-saints-xctf`     | ACM certificates for `*.asset.saintsxctf.com`.                              |
-| `auth-saints-xctf`      | ACM certificates for `*.auth.saintsxctf.com`.                               |
-| `dev-saints-xctf`       | ACM certificates for `*.dev.saintsxctf.com`.                                |
-| `fn-saints-xctf`        | ACM certificates for `*.fn.saintsxctf.com`.                                 |
-| `saints-xctf`           | ACM certificates for `*.saintsxctf.com` and `saintsxctf.com`.               |
-| `uasset-saints-xctf`    | ACM certificates for `*.uasset.saintsxctf.com`.                             |
+| Directory Name        | Description                                                   |
+|-----------------------|---------------------------------------------------------------|
+| `api-saints-xctf`     | ACM certificates for `*.api.saintsxctf.com`.                  |
+| `asset-saints-xctf`   | ACM certificates for `*.asset.saintsxctf.com`.                |
+| `auth-saints-xctf`    | ACM certificates for `*.auth.saintsxctf.com`.                 |
+| `dev-api-saints-xctf` | ACM certificates for `*.dev.api.saintsxctf.com`.              |
+| `dev-saints-xctf`     | ACM certificates for `*.dev.saintsxctf.com`.                  |
+| `fn-saints-xctf`      | ACM certificates for `*.fn.saintsxctf.com`.                   |
+| `saints-xctf`         | ACM certificates for `*.saintsxctf.com` and `saintsxctf.com`. |
+| `uasset-saints-xctf`  | ACM certificates for `*.uasset.saintsxctf.com`.               |

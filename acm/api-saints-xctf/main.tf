@@ -42,19 +42,3 @@ module "saints-xctf-api-acm-certificate" {
   # Optional arguments
   route53_zone_private = false
 }
-
-module "saints-xctf-dev-api-acm-certificate" {
-  source = "github.com/ajarombek/terraform-modules//acm-certificate?ref=v0.1.13"
-
-  # Mandatory arguments
-  name = "saints-xctf-dev-api-acm-certificate"
-  tag_name = "saints-xctf-dev-api-acm-certificate"
-  tag_application = "saints-xctf"
-  tag_environment = "development"
-
-  route53_zone_name = "saintsxctf.com."
-  acm_domain_name = "*.dev.api.saintsxctf.com"
-
-  # Optional arguments
-  route53_zone_private = false
-}
