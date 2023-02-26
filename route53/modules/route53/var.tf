@@ -6,5 +6,5 @@
 
 variable "prod" {
   description = "If the environment of the launch configuration is production"
-  default = false
+  default     = false
 }

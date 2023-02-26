@@ -11,25 +11,25 @@ data "aws_secretsmanager_secret" "saints-xctf-andy-password" {
 data "aws_iam_policy_document" "canary-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
-    effect = "Allow"
+    effect  = "Allow"
 
     principals {
       identifiers = ["lambda.amazonaws.com"]
-      type = "Service"
+      type        = "Service"
     }
   }
 }
 
 resource "aws_iam_role" "canary-role" {
-  name = "canary-role"
-  path = "/saints-xctf-com/"
+  name               = "canary-role"
+  path               = "/saints-xctf-com/"
   assume_role_policy = data.aws_iam_policy_document.canary-assume-role-policy.json
-  description = "IAM role for AWS Synthetic Monitoring Canaries"
+  description        = "IAM role for AWS Synthetic Monitoring Canaries"
 }
 
 data "aws_iam_policy_document" "canary-policy" {
   statement {
-    sid = "CanaryGeneric"
+    sid    = "CanaryGeneric"
     effect = "Allow"
     actions = [
       "s3:PutObject",
@@ -44,21 +44,21 @@ data "aws_iam_policy_document" "canary-policy" {
   }
 
   statement {
-    sid = "CanarySecretsManager"
-    effect = "Allow"
-    actions = ["secretsmanager:GetSecretValue"]
+    sid       = "CanarySecretsManager"
+    effect    = "Allow"
+    actions   = ["secretsmanager:GetSecretValue"]
     resources = [data.aws_secretsmanager_secret.saints-xctf-andy-password.arn]
   }
 }
 
 resource "aws_iam_policy" "canary-policy" {
-  name = "canary-policy"
-  path = "/saints-xctf-com/"
-  policy = data.aws_iam_policy_document.canary-policy.json
+  name        = "canary-policy"
+  path        = "/saints-xctf-com/"
+  policy      = data.aws_iam_policy_document.canary-policy.json
   description = "IAM role for AWS Synthetic Monitoring Canaries"
 }
 
 resource "aws_iam_role_policy_attachment" "canary-policy-attachment" {
-  role = aws_iam_role.canary-role.name
+  role       = aws_iam_role.canary-role.name
   policy_arn = aws_iam_policy.canary-policy.arn
 }

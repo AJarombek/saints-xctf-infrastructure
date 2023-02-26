@@ -14,20 +14,20 @@ terraform {
 
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = ">= 3.48.0"
     }
   }
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/synthetic-monitoring/env/prod"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/synthetic-monitoring/env/prod"
+    region  = "us-east-1"
   }
 }
 
 module "canaries" {
   source = "../../modules/canaries"
-  prod = true
+  prod   = true
 }

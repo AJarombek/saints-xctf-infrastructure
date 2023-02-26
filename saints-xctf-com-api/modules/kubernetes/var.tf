@@ -6,5 +6,5 @@
 
 variable "prod" {
   description = "If the environment for the Kubernetes infrastructure is production"
-  default = false
+  default     = false
 }

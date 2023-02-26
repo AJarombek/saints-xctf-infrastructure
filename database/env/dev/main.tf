@@ -12,16 +12,16 @@ terraform {
   required_version = ">= 0.12"
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/database/env/dev"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/database/env/dev"
+    region  = "us-east-1"
   }
 }
 
 module "rds" {
-  source = "../../modules/rds"
-  prod = false
+  source   = "../../modules/rds"
+  prod     = false
   username = var.username
   password = var.password
 }

@@ -5,7 +5,7 @@
  */
 
 resource "aws_ecr_repository" "saints-xctf-api-flask-repository" {
-  name = "saints-xctf-api-flask"
+  name                 = "saints-xctf-api-flask"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -13,14 +13,14 @@ resource "aws_ecr_repository" "saints-xctf-api-flask-repository" {
   }
 
   tags = {
-    Name = "saints-xctf-api-flask-container-repository"
+    Name        = "saints-xctf-api-flask-container-repository"
     Application = "saints-xctf"
     Environment = "all"
   }
 }
 
 resource "aws_ecr_repository" "saints-xctf-api-nginx-repository" {
-  name = "saints-xctf-api-nginx"
+  name                 = "saints-xctf-api-nginx"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -28,7 +28,7 @@ resource "aws_ecr_repository" "saints-xctf-api-nginx-repository" {
   }
 
   tags = {
-    Name = "saints-xctf-api-nginx-container-repository"
+    Name        = "saints-xctf-api-nginx-container-repository"
     Application = "saints-xctf"
     Environment = "all"
   }

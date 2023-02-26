@@ -6,7 +6,7 @@
 
 resource "aws_s3_bucket" "saints-xctf-database-deployments" {
   bucket = "saints-xctf-database-deployments"
-  acl = "private"
+  acl    = "private"
   policy = file("${path.module}/policy.json")
 
   versioning {
@@ -22,7 +22,7 @@ resource "aws_s3_bucket" "saints-xctf-database-deployments" {
   }
 
   tags = {
-    Name = "saints-xctf-database-deployments"
+    Name        = "saints-xctf-database-deployments"
     Application = "saints-xctf"
     Environment = "All"
   }
@@ -31,8 +31,8 @@ resource "aws_s3_bucket" "saints-xctf-database-deployments" {
 resource "aws_s3_bucket_public_access_block" "saints-xctf-database-deployments" {
   bucket = aws_s3_bucket.saints-xctf-database-deployments.id
 
-  block_public_acls = true
-  block_public_policy = true
+  block_public_acls       = true
+  block_public_policy     = true
   restrict_public_buckets = true
-  ignore_public_acls = true
+  ignore_public_acls      = true
 }

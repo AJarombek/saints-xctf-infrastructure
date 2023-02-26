@@ -9,40 +9,40 @@ locals {
 
   lambda_functions = {
     uasset_user = {
-      function_name = "SaintsXCTFUassetUser${upper(local.env)}"
-      filename = "${path.module}/SaintsXCTFUassetUser.zip"
+      function_name    = "SaintsXCTFUassetUser${upper(local.env)}"
+      filename         = "${path.module}/SaintsXCTFUassetUser.zip"
       source_code_hash = filebase64sha256("${path.module}/SaintsXCTFUassetUser.zip")
-      description = "Upload a user's profile picture to the uasset.saintsxctf.com S3 bucket."
-      tags_name = "saints-xctf-com-lambda-uasset-user"
-      log_group_name = "/aws/lambda/SaintsXCTFUassetUser${upper(local.env)}"
-      layers = [data.aws_lambda_layer_version.upload-picture-layer.arn]
+      description      = "Upload a user's profile picture to the uasset.saintsxctf.com S3 bucket."
+      tags_name        = "saints-xctf-com-lambda-uasset-user"
+      log_group_name   = "/aws/lambda/SaintsXCTFUassetUser${upper(local.env)}"
+      layers           = [data.aws_lambda_layer_version.upload-picture-layer.arn]
     },
     uasset_group = {
-      function_name = "SaintsXCTFUassetGroup${upper(local.env)}"
-      filename = "${path.module}/SaintsXCTFUassetGroup.zip"
+      function_name    = "SaintsXCTFUassetGroup${upper(local.env)}"
+      filename         = "${path.module}/SaintsXCTFUassetGroup.zip"
       source_code_hash = filebase64sha256("${path.module}/SaintsXCTFUassetGroup.zip")
-      description = "Upload a group's picture to the uasset.saintsxctf.com S3 bucket."
-      tags_name = "saints-xctf-com-lambda-uasset-group"
-      log_group_name = "/aws/lambda/SaintsXCTFUassetGroup${upper(local.env)}"
-      layers = [data.aws_lambda_layer_version.upload-picture-layer.arn]
+      description      = "Upload a group's picture to the uasset.saintsxctf.com S3 bucket."
+      tags_name        = "saints-xctf-com-lambda-uasset-group"
+      log_group_name   = "/aws/lambda/SaintsXCTFUassetGroup${upper(local.env)}"
+      layers           = [data.aws_lambda_layer_version.upload-picture-layer.arn]
     },
     uasset_signed_url_user = {
-      function_name = "SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
-      filename = "${path.module}/SaintsXCTFUassetSignedUrlUser.zip"
+      function_name    = "SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
+      filename         = "${path.module}/SaintsXCTFUassetSignedUrlUser.zip"
       source_code_hash = filebase64sha256("${path.module}/SaintsXCTFUassetSignedUrlUser.zip")
-      description = "Retrieve a URL used to upload a user's profile picture to the uasset.saintsxctf.com S3 bucket."
-      tags_name = "saints-xctf-com-lambda-uasset-signed-url-user"
-      log_group_name = "/aws/lambda/SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
-      layers = []
+      description      = "Retrieve a URL used to upload a user's profile picture to the uasset.saintsxctf.com S3 bucket."
+      tags_name        = "saints-xctf-com-lambda-uasset-signed-url-user"
+      log_group_name   = "/aws/lambda/SaintsXCTFUassetSignedUrlUser${upper(local.env)}"
+      layers           = []
     },
     uasset_signed_url_group = {
-      function_name = "SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
-      filename = "${path.module}/SaintsXCTFUassetSignedUrlGroup.zip"
+      function_name    = "SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
+      filename         = "${path.module}/SaintsXCTFUassetSignedUrlGroup.zip"
       source_code_hash = filebase64sha256("${path.module}/SaintsXCTFUassetSignedUrlGroup.zip")
-      description = "Retrieve a URL used to upload a group's picture to the uasset.saintsxctf.com S3 bucket."
-      tags_name = "saints-xctf-com-lambda-uasset-signed-url-group"
-      log_group_name = "/aws/lambda/SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
-      layers = []
+      description      = "Retrieve a URL used to upload a group's picture to the uasset.saintsxctf.com S3 bucket."
+      tags_name        = "saints-xctf-com-lambda-uasset-signed-url-group"
+      log_group_name   = "/aws/lambda/SaintsXCTFUassetSignedUrlGroup${upper(local.env)}"
+      layers           = []
     }
   }
 }
@@ -52,10 +52,10 @@ data "aws_lambda_layer_version" "upload-picture-layer" {
 }
 
 resource "aws_lambda_function" "uasset" {
-  handler = "index.handler"
-  role = aws_iam_role.lambda-role.arn
-  runtime = "nodejs12.x"
-  timeout = 10
+  handler     = "index.handler"
+  role        = aws_iam_role.lambda-role.arn
+  runtime     = "nodejs12.x"
+  timeout     = 10
   memory_size = 128
 
   layers = each.value.layers
@@ -68,13 +68,13 @@ resource "aws_lambda_function" "uasset" {
 
   for_each = local.lambda_functions
 
-  function_name = each.value.function_name
-  filename = each.value.filename
+  function_name    = each.value.function_name
+  filename         = each.value.filename
   source_code_hash = each.value.source_code_hash
-  description = each.value.description
+  description      = each.value.description
 
   tags = {
-    Name = each.value.tags_name
+    Name        = each.value.tags_name
     Environment = local.env
     Application = "saints-xctf-com"
   }
@@ -91,25 +91,25 @@ resource "aws_cloudwatch_log_group" "uasset-user-log-group" {
 data "aws_iam_policy_document" "lambda-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
-    effect = "Allow"
+    effect  = "Allow"
 
     principals {
       identifiers = ["lambda.amazonaws.com", "apigateway.amazonaws.com"]
-      type = "Service"
+      type        = "Service"
     }
   }
 }
 
 resource "aws_iam_role" "lambda-role" {
-  name = "uasset-lambda-role-${local.env}"
-  path = "/saints-xctf-com/"
+  name               = "uasset-lambda-role-${local.env}"
+  path               = "/saints-xctf-com/"
   assume_role_policy = data.aws_iam_policy_document.lambda-assume-role-policy.json
-  description = "IAM role for an AWS Lambda function that interacts with the uasset.saintsxctf.com S3 bucket in the ${upper(local.env)} environment"
+  description        = "IAM role for an AWS Lambda function that interacts with the uasset.saintsxctf.com S3 bucket in the ${upper(local.env)} environment"
 }
 
 data "aws_iam_policy_document" "lambda-policy" {
   statement {
-    sid = "UassetLambda"
+    sid    = "UassetLambda"
     effect = "Allow"
     actions = [
       "logs:CreateLogGroup",
@@ -121,7 +121,7 @@ data "aws_iam_policy_document" "lambda-policy" {
   }
 
   statement {
-    sid = "UassetLambdaS3"
+    sid    = "UassetLambdaS3"
     effect = "Allow"
     actions = [
       "s3:PutObject",
@@ -132,13 +132,13 @@ data "aws_iam_policy_document" "lambda-policy" {
 }
 
 resource "aws_iam_policy" "lambda-policy" {
-  name = "uasset-lambda-policy-${local.env}"
-  path = "/saints-xctf-com/"
-  policy = data.aws_iam_policy_document.lambda-policy.json
+  name        = "uasset-lambda-policy-${local.env}"
+  path        = "/saints-xctf-com/"
+  policy      = data.aws_iam_policy_document.lambda-policy.json
   description = "IAM policy for an AWS Lambda function that interacts with the uasset.saintsxctf.com S3 bucket in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-logging-policy-attachment" {
-  role = aws_iam_role.lambda-role.name
+  role       = aws_iam_role.lambda-role.name
   policy_arn = aws_iam_policy.lambda-policy.arn
 }

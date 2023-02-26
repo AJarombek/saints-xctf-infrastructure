@@ -6,5 +6,5 @@
 
 variable "prod" {
   description = "If the environment of the database deployment is production"
-  default = false
+  default     = false
 }

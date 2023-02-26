@@ -5,23 +5,23 @@
  */
 
 resource "aws_iam_role" "lambda-role" {
-  name = "saints-xctf-database-deployment-lambda-role"
+  name               = "saints-xctf-database-deployment-lambda-role"
   assume_role_policy = file("${path.module}/assume-role-policy.json")
 
   tags = {
-    Name = "saints-xctf-database-deployment-lambda-role"
+    Name        = "saints-xctf-database-deployment-lambda-role"
     Environment = "all"
     Application = "saints-xctf"
   }
 }
 
 resource "aws_iam_policy" "lambda-policy" {
-  name = "saints-xctf-database-deployment-lambda-policy"
-  path = "/saintsxctf/"
+  name   = "saints-xctf-database-deployment-lambda-policy"
+  path   = "/saintsxctf/"
   policy = file("${path.module}/policy.json")
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {
   policy_arn = aws_iam_policy.lambda-policy.arn
-  role = aws_iam_role.lambda-role.name
+  role       = aws_iam_role.lambda-role.name
 }

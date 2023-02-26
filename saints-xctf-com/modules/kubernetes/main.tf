@@ -15,13 +15,13 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 provider "kubernetes" {
-  host = data.aws_eks_cluster.cluster.endpoint
+  host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
 
   exec {
     api_version = "client.authentication.k8s.io/v1alpha1"
-    command = "aws"
-    args = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
   }
 }
 
@@ -30,12 +30,12 @@ provider "kubernetes" {
 #----------------
 
 locals {
-  env = var.prod ? "production" : "development"
-  namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
-  image = var.prod ? "saints-xctf-web-nginx" : "saints-xctf-web-nginx-dev"
+  env           = var.prod ? "production" : "development"
+  namespace     = var.prod ? "saints-xctf" : "saints-xctf-dev"
+  image         = var.prod ? "saints-xctf-web-nginx" : "saints-xctf-web-nginx-dev"
   short_version = "2.0.9"
-  version = "v${local.short_version}"
-  account_id = data.aws_caller_identity.current.account_id
+  version       = "v${local.short_version}"
+  account_id    = data.aws_caller_identity.current.account_id
 }
 
 #---------------------------------------------------
@@ -44,32 +44,32 @@ locals {
 
 resource "kubernetes_deployment" "deployment" {
   metadata {
-    name = "saints-xctf-web-deployment"
+    name      = "saints-xctf-web-deployment"
     namespace = local.namespace
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = local.env
       application = "saints-xctf-web"
     }
   }
 
   spec {
-    replicas = 2
+    replicas          = 2
     min_ready_seconds = 10
 
     strategy {
       type = "RollingUpdate"
 
       rolling_update {
-        max_surge = "1"
+        max_surge       = "1"
         max_unavailable = "0"
       }
     }
 
     selector {
       match_labels = {
-        version = local.version
+        version     = local.version
         environment = local.env
         application = "saints-xctf-web"
       }
@@ -78,7 +78,7 @@ resource "kubernetes_deployment" "deployment" {
     template {
       metadata {
         labels = {
-          version = local.version
+          version     = local.version
           environment = local.env
           application = "saints-xctf-web"
         }
@@ -90,9 +90,9 @@ resource "kubernetes_deployment" "deployment" {
             required_during_scheduling_ignored_during_execution {
               node_selector_term {
                 match_expressions {
-                  key = "workload"
+                  key      = "workload"
                   operator = "In"
-                  values = ["production-applications"]
+                  values   = ["production-applications"]
                 }
               }
             }
@@ -100,11 +100,11 @@ resource "kubernetes_deployment" "deployment" {
         }
 
         container {
-          name = "saints-xctf-web"
+          name  = "saints-xctf-web"
           image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/${local.image}:${local.short_version}"
 
           readiness_probe {
-            period_seconds = 5
+            period_seconds        = 5
             initial_delay_seconds = 20
 
             http_get {
@@ -114,9 +114,9 @@ resource "kubernetes_deployment" "deployment" {
           }
 
           liveness_probe {
-            period_seconds = 5
+            period_seconds        = 5
             initial_delay_seconds = 20
-            failure_threshold = 4
+            failure_threshold     = 4
 
             http_get {
               path = "/api/"
@@ -126,7 +126,7 @@ resource "kubernetes_deployment" "deployment" {
 
           port {
             container_port = 80
-            protocol = "TCP"
+            protocol       = "TCP"
           }
         }
       }
@@ -136,11 +136,11 @@ resource "kubernetes_deployment" "deployment" {
 
 resource "kubernetes_service" "service" {
   metadata {
-    name = "saints-xctf-web-service"
+    name      = "saints-xctf-web-service"
     namespace = local.namespace
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = local.env
       application = "saints-xctf-web"
     }
@@ -150,9 +150,9 @@ resource "kubernetes_service" "service" {
     type = "NodePort"
 
     port {
-      port = 80
+      port        = 80
       target_port = 80
-      protocol = "TCP"
+      protocol    = "TCP"
     }
 
     selector = {

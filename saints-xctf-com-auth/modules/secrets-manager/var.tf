@@ -6,7 +6,7 @@
 
 variable "prod" {
   description = "If the environment of the secrets is production."
-  default = true
+  default     = true
 }
 
 variable "rotation-lambda-arn" {
@@ -14,7 +14,7 @@ variable "rotation-lambda-arn" {
 }
 
 variable "secret_rotation_depends_on" {
-  type = any
-  default = null
+  type        = any
+  default     = null
   description = "Items in the dependency graph that secret rotation depends on"
 }

@@ -5,8 +5,8 @@
  */
 
 locals {
-  env = var.prod ? "prod" : "dev"
-  env_key = var.prod ? "saints-xctf-key.pem" : "saints-xctf-dev-key.pem"
+  env        = var.prod ? "prod" : "dev"
+  env_key    = var.prod ? "saints-xctf-key.pem" : "saints-xctf-dev-key.pem"
   env_record = var.prod ? "saintsxctf.com" : "dev.saintsxctf.com"
 }
 
@@ -35,7 +35,7 @@ data "aws_instances" "saints-xctf-instances" {
 }
 
 data "template_file" "saints-xctf-https-config" {
-  count = length(data.aws_instances.saints-xctf-instances.ids)
+  count    = length(data.aws_instances.saints-xctf-instances.ids)
   template = file("${path.module}/configure-https.sh")
 
   vars = {
@@ -48,26 +48,26 @@ data "template_file" "saints-xctf-https-config" {
 #------------------------------
 
 resource "aws_route53_record" "saintsxctf-com-a" {
-  name = local.env_record
-  type = "A"
+  name    = local.env_record
+  type    = "A"
   zone_id = data.aws_route53_zone.saintsxctf-com-zone.zone_id
 
   alias {
     evaluate_target_health = true
-    name = data.aws_lb.saints-xctf-dev-server-lb.dns_name
-    zone_id = data.aws_lb.saints-xctf-dev-server-lb.zone_id
+    name                   = data.aws_lb.saints-xctf-dev-server-lb.dns_name
+    zone_id                = data.aws_lb.saints-xctf-dev-server-lb.zone_id
   }
 }
 
 resource "aws_route53_record" "www-saintsxctf-com-a" {
-  name = "www.${local.env_record}"
-  type = "A"
+  name    = "www.${local.env_record}"
+  type    = "A"
   zone_id = data.aws_route53_zone.saintsxctf-com-zone.zone_id
 
   alias {
     evaluate_target_health = true
-    name = data.aws_lb.saints-xctf-dev-server-lb.dns_name
-    zone_id = data.aws_lb.saints-xctf-dev-server-lb.zone_id
+    name                   = data.aws_lb.saints-xctf-dev-server-lb.dns_name
+    zone_id                = data.aws_lb.saints-xctf-dev-server-lb.zone_id
   }
 }
 
@@ -75,13 +75,13 @@ resource "null_resource" "saintsxctf-com-https" {
   count = length(data.aws_instances.saints-xctf-instances.ids)
 
   connection {
-    type = "ssh"
-    host = data.aws_instances.saints-xctf-instances.public_ips[count.index]
-    user = "ubuntu"
-    port = 22
+    type        = "ssh"
+    host        = data.aws_instances.saints-xctf-instances.public_ips[count.index]
+    user        = "ubuntu"
+    port        = 22
     private_key = file("~/Documents/${local.env_key}")
-    agent = true
-    timeout = "3m"
+    agent       = true
+    timeout     = "3m"
   }
 
   provisioner "remote-exec" {

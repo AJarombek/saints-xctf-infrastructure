@@ -5,7 +5,7 @@
  */
 
 locals {
-  env = var.prod ? "prod" : "dev"
+  env         = var.prod ? "prod" : "dev"
   public_cidr = "0.0.0.0/0"
 }
 
@@ -40,9 +40,9 @@ data "aws_iam_role" "lambda-role" {
 }
 
 data "archive_file" "lambda-zip" {
-  source_dir = "${path.module}/func"
+  source_dir  = "${path.module}/func"
   output_path = "${path.module}/dist/lambda-${local.env}.zip"
-  type = "zip"
+  type        = "zip"
 }
 
 #---------------------------------------------------------
@@ -51,15 +51,15 @@ data "archive_file" "lambda-zip" {
 
 resource "aws_lambda_function" "database-deployment-lambda-function" {
   function_name = "SaintsXCTFDatabaseDeployment${upper(local.env)}"
-  filename = "${path.module}/dist/lambda-${local.env}.zip"
-  handler = "lambda.deploy"
-  role = data.aws_iam_role.lambda-role.arn
-  runtime = "python3.8"
-  timeout = 600
+  filename      = "${path.module}/dist/lambda-${local.env}.zip"
+  handler       = "lambda.deploy"
+  role          = data.aws_iam_role.lambda-role.arn
+  runtime       = "python3.8"
+  timeout       = 600
 
   environment {
     variables = {
-      ENV = local.env
+      ENV     = local.env
       DB_HOST = data.aws_db_instance.saints-xctf-mysql-database.address
     }
   }
@@ -73,21 +73,21 @@ resource "aws_lambda_function" "database-deployment-lambda-function" {
   }
 
   tags = {
-    Name = "saints-xctf-${local.env}-database-deployment"
+    Name        = "saints-xctf-${local.env}-database-deployment"
     Environment = upper(local.env)
     Application = "saints-xctf"
   }
 }
 
 resource "aws_lambda_alias" "database-deployment-lambda-alias" {
-  name = "SaintsXCTFDatabaseDeploymentAlias${upper(local.env)}"
-  description = "AWS Lambda function which deploys SQL scripts to an RDS database for SaintsXCTF."
-  function_name = aws_lambda_function.database-deployment-lambda-function.function_name
+  name             = "SaintsXCTFDatabaseDeploymentAlias${upper(local.env)}"
+  description      = "AWS Lambda function which deploys SQL scripts to an RDS database for SaintsXCTF."
+  function_name    = aws_lambda_function.database-deployment-lambda-function.function_name
   function_version = "$LATEST"
 }
 
 resource "aws_cloudwatch_log_group" "database-deployment-log-group" {
-  name = "/aws/lambda/SaintsXCTFDatabaseDeployment${upper(local.env)}"
+  name              = "/aws/lambda/SaintsXCTFDatabaseDeployment${upper(local.env)}"
   retention_in_days = 7
 }
 
@@ -95,26 +95,26 @@ module "security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
-  name = "saints-xctf-${local.env}-database-deployment-security"
+  name     = "saints-xctf-${local.env}-database-deployment-security"
   tag_name = "saints-xctf-${local.env}-database-deployment-security"
-  vpc_id = data.aws_vpc.application-vpc.id
+  vpc_id   = data.aws_vpc.application-vpc.id
 
   # Optional arguments
   sg_rules = [
     {
       # All Inbound traffic
-      type = "ingress"
-      from_port = 0
-      to_port = 0
-      protocol = "-1"
+      type        = "ingress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
       cidr_blocks = local.public_cidr
     },
     {
       # All Outbound traffic
-      type = "egress"
-      from_port = 0
-      to_port = 0
-      protocol = "-1"
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
       cidr_blocks = local.public_cidr
     }
   ]

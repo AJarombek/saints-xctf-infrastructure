@@ -6,5 +6,5 @@
 
 variable "prod" {
   description = "If the environment of the canary functions is production"
-  default = true
+  default     = true
 }

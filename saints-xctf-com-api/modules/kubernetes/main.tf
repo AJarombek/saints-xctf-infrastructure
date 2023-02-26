@@ -15,13 +15,13 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 provider "kubernetes" {
-  host = data.aws_eks_cluster.cluster.endpoint
+  host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
 
   exec {
     api_version = "client.authentication.k8s.io/v1alpha1"
-    command = "aws"
-    args = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
   }
 }
 
@@ -30,12 +30,12 @@ provider "kubernetes" {
 #----------------
 
 locals {
-  env = var.prod ? "production" : "development"
-  short_env = var.prod ? "prod" : "dev"
-  namespace = var.prod ? "saints-xctf" : "saints-xctf-dev"
+  env           = var.prod ? "production" : "development"
+  short_env     = var.prod ? "prod" : "dev"
+  namespace     = var.prod ? "saints-xctf" : "saints-xctf-dev"
   short_version = "2.0.3"
-  version = "v${local.short_version}"
-  account_id = data.aws_caller_identity.current.account_id
+  version       = "v${local.short_version}"
+  account_id    = data.aws_caller_identity.current.account_id
 }
 
 #---------------------------------------------------
@@ -44,46 +44,46 @@ locals {
 
 resource "kubernetes_deployment" "nginx-deployment" {
   metadata {
-    name = "saints-xctf-api-nginx-deployment"
+    name      = "saints-xctf-api-nginx-deployment"
     namespace = local.namespace
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = local.env
       application = "saints-xctf-api"
-      task = "nginx"
+      task        = "nginx"
     }
   }
 
   spec {
-    replicas = 2
+    replicas          = 2
     min_ready_seconds = 10
 
     strategy {
       type = "RollingUpdate"
 
       rolling_update {
-        max_surge = "1"
+        max_surge       = "1"
         max_unavailable = "0"
       }
     }
 
     selector {
       match_labels = {
-        version = local.version
+        version     = local.version
         environment = local.env
         application = "saints-xctf-api"
-        task = "nginx"
+        task        = "nginx"
       }
     }
 
     template {
       metadata {
         labels = {
-          version = local.version
+          version     = local.version
           environment = local.env
           application = "saints-xctf-api"
-          task = "nginx"
+          task        = "nginx"
         }
       }
 
@@ -93,9 +93,9 @@ resource "kubernetes_deployment" "nginx-deployment" {
             required_during_scheduling_ignored_during_execution {
               node_selector_term {
                 match_expressions {
-                  key = "workload"
+                  key      = "workload"
                   operator = "In"
-                  values = ["production-applications"]
+                  values   = ["production-applications"]
                 }
               }
             }
@@ -103,11 +103,11 @@ resource "kubernetes_deployment" "nginx-deployment" {
         }
 
         container {
-          name = "saints-xctf-api-nginx"
+          name  = "saints-xctf-api-nginx"
           image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:${local.short_version}"
 
           readiness_probe {
-            period_seconds = 5
+            period_seconds        = 5
             initial_delay_seconds = 20
 
             http_get {
@@ -117,9 +117,9 @@ resource "kubernetes_deployment" "nginx-deployment" {
           }
 
           liveness_probe {
-            period_seconds = 5
+            period_seconds        = 5
             initial_delay_seconds = 20
-            failure_threshold = 4
+            failure_threshold     = 4
 
             http_get {
               path = "/"
@@ -129,7 +129,7 @@ resource "kubernetes_deployment" "nginx-deployment" {
 
           port {
             container_port = 80
-            protocol = "TCP"
+            protocol       = "TCP"
           }
         }
       }
@@ -139,46 +139,46 @@ resource "kubernetes_deployment" "nginx-deployment" {
 
 resource "kubernetes_deployment" "flask-deployment" {
   metadata {
-    name = "saints-xctf-api-flask-deployment"
+    name      = "saints-xctf-api-flask-deployment"
     namespace = local.namespace
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = local.env
       application = "saints-xctf-api"
-      task = "flask"
+      task        = "flask"
     }
   }
 
   spec {
-    replicas = 2
+    replicas          = 2
     min_ready_seconds = 10
 
     strategy {
       type = "RollingUpdate"
 
       rolling_update {
-        max_surge = "1"
+        max_surge       = "1"
         max_unavailable = "0"
       }
     }
 
     selector {
       match_labels = {
-        version = local.version
+        version     = local.version
         environment = local.env
         application = "saints-xctf-api"
-        task = "flask"
+        task        = "flask"
       }
     }
 
     template {
       metadata {
         labels = {
-          version = local.version
+          version     = local.version
           environment = local.env
           application = "saints-xctf-api"
-          task = "flask"
+          task        = "flask"
         }
       }
 
@@ -188,9 +188,9 @@ resource "kubernetes_deployment" "flask-deployment" {
             required_during_scheduling_ignored_during_execution {
               node_selector_term {
                 match_expressions {
-                  key = "workload"
+                  key      = "workload"
                   operator = "In"
-                  values = ["production-applications"]
+                  values   = ["production-applications"]
                 }
               }
             }
@@ -198,21 +198,21 @@ resource "kubernetes_deployment" "flask-deployment" {
         }
 
         container {
-          name = "saints-xctf-api-flask"
+          name  = "saints-xctf-api-flask"
           image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.short_version}"
 
           env {
-            name = "FLASK_ENV"
+            name  = "FLASK_ENV"
             value = local.env
           }
 
           env {
-            name = "ENV"
+            name  = "ENV"
             value = local.short_env
           }
 
           readiness_probe {
-            period_seconds = 5
+            period_seconds        = 5
             initial_delay_seconds = 20
 
             tcp_socket {
@@ -221,9 +221,9 @@ resource "kubernetes_deployment" "flask-deployment" {
           }
 
           liveness_probe {
-            period_seconds = 5
+            period_seconds        = 5
             initial_delay_seconds = 20
-            failure_threshold = 4
+            failure_threshold     = 4
 
             tcp_socket {
               port = 5000
@@ -232,7 +232,7 @@ resource "kubernetes_deployment" "flask-deployment" {
 
           port {
             container_port = 5000
-            protocol = "TCP"
+            protocol       = "TCP"
           }
         }
       }
@@ -242,11 +242,11 @@ resource "kubernetes_deployment" "flask-deployment" {
 
 resource "kubernetes_service" "service" {
   metadata {
-    name = "saints-xctf-api"
+    name      = "saints-xctf-api"
     namespace = local.namespace
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = local.env
       application = "saints-xctf-api"
     }
@@ -256,25 +256,25 @@ resource "kubernetes_service" "service" {
     type = "NodePort"
 
     port {
-      port = 80
+      port        = 80
       target_port = 80
-      protocol = "TCP"
+      protocol    = "TCP"
     }
 
     selector = {
       application = "saints-xctf-api"
-      task = "nginx"
+      task        = "nginx"
     }
   }
 }
 
 resource "kubernetes_service" "internal-service" {
   metadata {
-    name = "saints-xctf-api-internal"
+    name      = "saints-xctf-api-internal"
     namespace = local.namespace
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = local.env
       application = "saints-xctf-api"
     }
@@ -284,25 +284,25 @@ resource "kubernetes_service" "internal-service" {
     type = "ClusterIP"
 
     port {
-      port = 5001
+      port        = 5001
       target_port = 80
-      protocol = "TCP"
+      protocol    = "TCP"
     }
 
     selector = {
       application = "saints-xctf-api"
-      task = "nginx"
+      task        = "nginx"
     }
   }
 }
 
 resource "kubernetes_service" "flask-service" {
   metadata {
-    name = "saints-xctf-api-flask"
+    name      = "saints-xctf-api-flask"
     namespace = local.namespace
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = local.env
       application = "saints-xctf-api"
     }
@@ -312,14 +312,14 @@ resource "kubernetes_service" "flask-service" {
     type = "ClusterIP"
 
     port {
-      port = 5000
+      port        = 5000
       target_port = 5000
-      protocol = "TCP"
+      protocol    = "TCP"
     }
 
     selector = {
       application = "saints-xctf-api"
-      task = "flask"
+      task        = "flask"
     }
   }
 }

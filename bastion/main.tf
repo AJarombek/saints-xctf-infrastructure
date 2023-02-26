@@ -6,7 +6,7 @@
 
 locals {
   public_cidr = "0.0.0.0/0"
-  my_cidr = "69.124.72.192/32"
+  my_cidr     = "69.124.72.192/32"
 }
 
 provider "aws" {
@@ -17,10 +17,10 @@ terraform {
   required_version = ">= 0.12"
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/bastion"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/bastion"
+    region  = "us-east-1"
   }
 }
 
@@ -68,12 +68,12 @@ resource "aws_instance" "bastion" {
   # Use Amazon Linux 2
   ami = "ami-035be7bafff33b6b6"
 
-  instance_type = "t2.micro"
-  key_name = "bastion-key"
+  instance_type               = "t2.micro"
+  key_name                    = "bastion-key"
   associate_public_ip_address = true
 
-  subnet_id = data.aws_subnet.saints-xctf-public-subnet-1.id
-  security_groups = [module.bastion-subnet-security-group.security_group_id[0]]
+  subnet_id            = data.aws_subnet.saints-xctf-public-subnet-1.id
+  security_groups      = [module.bastion-subnet-security-group.security_group_id[0]]
   iam_instance_profile = aws_iam_instance_profile.bastion-instance-profile.name
 
   lifecycle {
@@ -83,7 +83,7 @@ resource "aws_instance" "bastion" {
   user_data = data.template_file.bastion-startup.rendered
 
   tags = {
-    Name = "saints-xctf-bastion-host"
+    Name        = "saints-xctf-bastion-host"
     Application = "saints-xctf"
   }
 
@@ -101,50 +101,50 @@ module "bastion-subnet-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
-  name = "saints-xctf-bastion-security"
+  name     = "saints-xctf-bastion-security"
   tag_name = "saints-xctf-bastion-security-group"
-  vpc_id = data.aws_vpc.saints-xctf-vpc.id
+  vpc_id   = data.aws_vpc.saints-xctf-vpc.id
 
   # Optional arguments
   sg_rules = [
     {
       # Inbound traffic for SSH
-      type = "ingress"
-      from_port = 22
-      to_port = 22
-      protocol = "tcp"
+      type        = "ingress"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
       cidr_blocks = local.my_cidr
     },
     {
       # Inbound traffic for ping
-      type = "ingress"
-      from_port = -1
-      to_port = -1
-      protocol = "icmp"
+      type        = "ingress"
+      from_port   = -1
+      to_port     = -1
+      protocol    = "icmp"
       cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for HTTP
-      type = "egress"
-      from_port = 80
-      to_port = 80
-      protocol = "tcp"
+      type        = "egress"
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
       cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for HTTP
-      type = "egress"
-      from_port = 443
-      to_port = 443
-      protocol = "tcp"
+      type        = "egress"
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
       cidr_blocks = local.public_cidr
     },
     {
       # Outbound traffic for MySQL
-      type = "egress"
-      from_port = 3306
-      to_port = 3306
-      protocol = "tcp"
+      type        = "egress"
+      from_port   = 3306
+      to_port     = 3306
+      protocol    = "tcp"
       cidr_blocks = local.public_cidr
     },
   ]

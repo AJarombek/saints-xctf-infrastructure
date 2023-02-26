@@ -36,7 +36,7 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
   }
 
   tags = {
-    Name = "saints-xctf-database-backups"
+    Name        = "saints-xctf-database-backups"
     Application = "saints-xctf"
     Environment = var.prod ? "Production" : "Development"
   }
@@ -45,10 +45,10 @@ resource "aws_s3_bucket" "saints-xctf-db-backups" {
 resource "aws_s3_bucket_public_access_block" "saints-xctf-db-backups" {
   bucket = aws_s3_bucket.saints-xctf-db-backups.id
 
-  block_public_acls = true
-  block_public_policy = true
+  block_public_acls       = true
+  block_public_policy     = true
   restrict_public_buckets = true
-  ignore_public_acls = true
+  ignore_public_acls      = true
 }
 
 #-------------------------------------

@@ -16,14 +16,14 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/database-backup/env/dev"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/database-backup/env/dev"
+    region  = "us-east-1"
   }
 }
 
 module "s3" {
   source = "../../modules/s3"
-  prod = false
+  prod   = false
 }

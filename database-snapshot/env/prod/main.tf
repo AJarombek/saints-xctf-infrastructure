@@ -12,14 +12,14 @@ terraform {
   required_version = ">= 0.12"
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/database-snapshot/env/prod"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/database-snapshot/env/prod"
+    region  = "us-east-1"
   }
 }
 
 module "lambda" {
   source = "../../modules/lambda"
-  prod = true
+  prod   = true
 }

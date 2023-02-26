@@ -6,5 +6,5 @@
 
 variable "prod" {
   description = "If the environment for the saintsxctf.com Kubernetes Ingress is production"
-  default = false
+  default     = false
 }

@@ -6,5 +6,5 @@
 
 variable "prod" {
   description = "If the environment of the AWS Lambda function is production"
-  default = true
+  default     = true
 }

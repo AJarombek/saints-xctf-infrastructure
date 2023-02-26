@@ -6,15 +6,15 @@
 
 variable "prod" {
   description = "If the environment that rds instance lives in is production"
-  default = false
+  default     = false
 }
 
 variable "username" {
   description = "Master username for the database"
-  default = "andy"
+  default     = "andy"
 }
 
 variable "password" {
   description = "Master password for the database"
-  default = "andy"
+  default     = "andy"
 }

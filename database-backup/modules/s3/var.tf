@@ -6,5 +6,5 @@
 
 variable "prod" {
   description = "If the environment that the S3 bucket lives in is production"
-  default = false
+  default     = false
 }

@@ -17,10 +17,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/s3-uasset"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/s3-uasset"
+    region  = "us-east-1"
   }
 }
 
@@ -48,7 +48,7 @@ data "aws_route53_zone" "saintsxctf" {
 
 resource "aws_s3_bucket" "uasset-saintsxctf" {
   bucket = "uasset.saintsxctf.com"
-  acl = "private"
+  acl    = "private"
 
   tags = {
     Name = "uasset.saintsxctf.com"
@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "uasset-saintsxctf" {
 
     principals {
       identifiers = [aws_cloudfront_origin_access_identity.origin-access-identity.iam_arn]
-      type = "AWS"
+      type        = "AWS"
     }
 
     actions = ["s3:GetObject", "s3:ListBucket"]
@@ -92,10 +92,10 @@ data "aws_iam_policy_document" "uasset-saintsxctf" {
 
     principals {
       identifiers = [data.aws_caller_identity.current.account_id]
-      type = "AWS"
+      type        = "AWS"
     }
 
-    actions = ["s3:PutObject"]
+    actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.uasset-saintsxctf.arn}/*"]
   }
 }
@@ -103,16 +103,16 @@ data "aws_iam_policy_document" "uasset-saintsxctf" {
 resource "aws_s3_bucket_public_access_block" "uasset-saintsxctf" {
   bucket = aws_s3_bucket.uasset-saintsxctf.id
 
-  block_public_acls = true
-  block_public_policy = true
+  block_public_acls       = true
+  block_public_policy     = true
   restrict_public_buckets = true
-  ignore_public_acls = true
+  ignore_public_acls      = true
 }
 
 resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
   origin {
     domain_name = aws_s3_bucket.uasset-saintsxctf.bucket_regional_domain_name
-    origin_id = "origin-bucket-${aws_s3_bucket.uasset-saintsxctf.id}"
+    origin_id   = "origin-bucket-${aws_s3_bucket.uasset-saintsxctf.id}"
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
@@ -128,7 +128,7 @@ resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
   # Whether the cloudfront distribution can use ipv6
   is_ipv6_enabled = true
 
-  comment = "uasset.saintsxctf.com CloudFront Distribution"
+  comment             = "uasset.saintsxctf.com CloudFront Distribution"
   default_root_object = "saintsxctf.png"
 
   # Extra CNAMEs for this distribution
@@ -148,7 +148,7 @@ resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
       cookies {
         forward = "none"
       }
-      headers = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
+      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       query_string = false
     }
 
@@ -158,9 +158,9 @@ resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
     viewer_protocol_policy = "redirect-to-https"
 
     # Determines the amount of time an object exists in the CloudFront cache
-    min_ttl = 0
+    min_ttl     = 0
     default_ttl = 3600
-    max_ttl = 86400
+    max_ttl     = 86400
   }
 
   restrictions {
@@ -172,11 +172,11 @@ resource "aws_cloudfront_distribution" "uasset-saintsxctf-distribution" {
   # The SSL certificate for CloudFront
   viewer_certificate {
     acm_certificate_arn = data.aws_acm_certificate.wildcard-saintsxctf-com-cert.arn
-    ssl_support_method = "sni-only"
+    ssl_support_method  = "sni-only"
   }
 
   tags = {
-    Name = "uasset-saintsxctf-com-cloudfront"
+    Name        = "uasset-saintsxctf-com-cloudfront"
     Environment = "production"
   }
 }
@@ -188,7 +188,7 @@ resource "aws_cloudfront_origin_access_identity" "origin-access-identity" {
 resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
   origin {
     domain_name = aws_s3_bucket.uasset-saintsxctf.bucket_regional_domain_name
-    origin_id = "origin-bucket-${aws_s3_bucket.uasset-saintsxctf.id}"
+    origin_id   = "origin-bucket-${aws_s3_bucket.uasset-saintsxctf.id}"
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.origin-access-identity.cloudfront_access_identity_path
@@ -204,7 +204,7 @@ resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
   # Whether the cloudfront distribution can use ipv6
   is_ipv6_enabled = true
 
-  comment = "www.uasset.saintsxctf.com CloudFront Distribution"
+  comment             = "www.uasset.saintsxctf.com CloudFront Distribution"
   default_root_object = "saintsxctf.png"
 
   # Extra CNAMEs for this distribution
@@ -224,7 +224,7 @@ resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
       cookies {
         forward = "none"
       }
-      headers = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
+      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       query_string = false
     }
 
@@ -234,9 +234,9 @@ resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
     viewer_protocol_policy = "allow-all"
 
     # Determines the amount of time an object exists in the CloudFront cache
-    min_ttl = 0
+    min_ttl     = 0
     default_ttl = 3600
-    max_ttl = 86400
+    max_ttl     = 86400
   }
 
   restrictions {
@@ -248,36 +248,36 @@ resource "aws_cloudfront_distribution" "www-uasset-saintsxctf-distribution" {
   # The SSL certificate for CloudFront
   viewer_certificate {
     acm_certificate_arn = data.aws_acm_certificate.wildcard-uasset-saintsxctf-com-cert.arn
-    ssl_support_method = "sni-only"
+    ssl_support_method  = "sni-only"
   }
 
   tags = {
-    Name = "www-asset-saintsxctf-com-cloudfront"
+    Name        = "www-asset-saintsxctf-com-cloudfront"
     Environment = "production"
   }
 }
 
 resource "aws_route53_record" "uasset-saintsxctf-a" {
-  name = "uasset.saintsxctf.com."
-  type = "A"
+  name    = "uasset.saintsxctf.com."
+  type    = "A"
   zone_id = data.aws_route53_zone.saintsxctf.zone_id
 
   alias {
     evaluate_target_health = false
-    name = aws_cloudfront_distribution.uasset-saintsxctf-distribution.domain_name
-    zone_id = aws_cloudfront_distribution.uasset-saintsxctf-distribution.hosted_zone_id
+    name                   = aws_cloudfront_distribution.uasset-saintsxctf-distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.uasset-saintsxctf-distribution.hosted_zone_id
   }
 }
 
 resource "aws_route53_record" "www-uasset-saintsxctf-a" {
-  name = "www.uasset.saintsxctf.com."
-  type = "A"
+  name    = "www.uasset.saintsxctf.com."
+  type    = "A"
   zone_id = data.aws_route53_zone.saintsxctf.zone_id
 
   alias {
     evaluate_target_health = false
-    name = aws_cloudfront_distribution.www-uasset-saintsxctf-distribution.domain_name
-    zone_id = aws_cloudfront_distribution.www-uasset-saintsxctf-distribution.hosted_zone_id
+    name                   = aws_cloudfront_distribution.www-uasset-saintsxctf-distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.www-uasset-saintsxctf-distribution.hosted_zone_id
   }
 }
 
@@ -287,9 +287,9 @@ resource "aws_route53_record" "www-uasset-saintsxctf-a" {
 #-------------------
 
 resource "aws_s3_bucket_object" "saintsxctf-png" {
-  bucket = aws_s3_bucket.uasset-saintsxctf.id
-  key = "saintsxctf.png"
-  source = "asset/saintsxctf.png"
-  etag = filemd5("${path.cwd}/asset/saintsxctf.png")
+  bucket       = aws_s3_bucket.uasset-saintsxctf.id
+  key          = "saintsxctf.png"
+  source       = "asset/saintsxctf.png"
+  etag         = filemd5("${path.cwd}/asset/saintsxctf.png")
   content_type = "image/png"
 }

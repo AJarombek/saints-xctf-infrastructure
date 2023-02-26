@@ -10,12 +10,12 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "saints-xctf-auth-secret" {
-  name = "saints-xctf-auth-${local.env}"
-  description = "SaintsXCTF authentication RSA credential for the ${upper(local.env)} environment"
+  name                    = "saints-xctf-auth-${local.env}"
+  description             = "SaintsXCTF authentication RSA credential for the ${upper(local.env)} environment"
   recovery_window_in_days = 0
 
   tags = {
-    Name = "saints-xctf-auth-${local.env}-secret"
+    Name        = "saints-xctf-auth-${local.env}-secret"
     Environment = upper(local.env)
     Application = "saints-xctf"
   }
@@ -23,7 +23,7 @@ resource "aws_secretsmanager_secret" "saints-xctf-auth-secret" {
 
 resource "aws_secretsmanager_secret_rotation" "saints-xctf-auth-secret-rotation" {
   rotation_lambda_arn = var.rotation-lambda-arn
-  secret_id = aws_secretsmanager_secret.saints-xctf-auth-secret.id
+  secret_id           = aws_secretsmanager_secret.saints-xctf-auth-secret.id
 
   rotation_rules {
     automatically_after_days = 28
@@ -31,9 +31,9 @@ resource "aws_secretsmanager_secret_rotation" "saints-xctf-auth-secret-rotation"
 }
 
 resource "aws_secretsmanager_secret_version" "saints-xctf-auth-secret-version" {
-  count = 0
-  secret_id = aws_secretsmanager_secret.saints-xctf-auth-secret.id
-  secret_string = jsonencode({})
+  count          = 0
+  secret_id      = aws_secretsmanager_secret.saints-xctf-auth-secret.id
+  secret_string  = jsonencode({})
   version_stages = ["AWSCURRENT"]
 }
 

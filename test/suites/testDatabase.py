@@ -58,7 +58,7 @@ class TestDatabase(unittest.TestCase):
         rds_engine = self.rds_instance.get('Engine')
         rds_version = self.rds_instance.get('EngineVersion')
         self.assertEqual(rds_engine, 'mysql')
-        self.assertEqual(rds_version, '5.7.33')
+        self.assertEqual(rds_version, '5.7.38')
 
     @unittest.skipIf(not prod_env, 'Development RDS instance not running.')
     def test_rds_in_proper_subnets(self) -> None:

@@ -691,7 +691,7 @@ class TestSXCTFFn(unittest.TestCase):
         )
 
     @unittest.skipIf(not prod_env, 'Development uasset signed url user AWS Lambda function not under test.')
-    def test_uasset_signed_url_user_lambda_function_uses_no_layers(self) -> None:
+    def test_uasset_signed_url_user_lambda_function_uses_layers(self) -> None:
         """
         Test that the AWS Lambda function for retrieving a signed URL used for uploading a user's profile picture to
         the uasset.saintsxctf.com S3 bucket has no Lambda layers.
@@ -703,7 +703,15 @@ class TestSXCTFFn(unittest.TestCase):
 
         lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
         lambda_function_layers: List[dict] = lambda_function_response.get('Configuration').get('Layers')
-        self.assertEqual(0, len(lambda_function_layers))
+        self.assertEqual(1, len(lambda_function_layers))
+
+        layers_response: dict = self.aws_lambda.list_layers(CompatibleRuntime='nodejs')
+        layers: List[dict] = layers_response.get('Layers')
+        matching_layers = [layer for layer in layers if layer.get('LayerName') == 'upload-picture-layer']
+        self.assertEqual(1, len(matching_layers))
+
+        layer_arn: str = matching_layers[0].get('LayerArn')
+        self.assertTrue(layer_arn in lambda_function_layers[0].get('Arn'))
 
     @unittest.skipIf(not prod_env, 'Development uasset signed url user AWS Lambda function not under test.')
     def test_uasset_signed_url_user_lambda_function_has_iam_role(self) -> None:
@@ -767,7 +775,15 @@ class TestSXCTFFn(unittest.TestCase):
 
         lambda_function_response = self.aws_lambda.get_function(FunctionName=function_name)
         lambda_function_layers: List[dict] = lambda_function_response.get('Configuration').get('Layers')
-        self.assertEqual(0, len(lambda_function_layers))
+        self.assertEqual(1, len(lambda_function_layers))
+
+        layers_response: dict = self.aws_lambda.list_layers(CompatibleRuntime='nodejs')
+        layers: List[dict] = layers_response.get('Layers')
+        matching_layers = [layer for layer in layers if layer.get('LayerName') == 'upload-picture-layer']
+        self.assertEqual(1, len(matching_layers))
+
+        layer_arn: str = matching_layers[0].get('LayerArn')
+        self.assertTrue(layer_arn in lambda_function_layers[0].get('Arn'))
 
     @unittest.skipIf(not prod_env, 'Development uasset signed url group AWS Lambda function not under test.')
     def test_uasset_signed_url_group_lambda_function_has_iam_role(self) -> None:

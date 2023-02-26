@@ -13,37 +13,37 @@ terraform {
 
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = ">= 3.42.0"
     }
   }
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/saints-xctf-com-auth/env/dev"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/saints-xctf-com-auth/env/dev"
+    region  = "us-east-1"
   }
 }
 
 module "lambda" {
   source = "../../modules/lambda"
-  prod = false
+  prod   = false
 }
 
 module "api-gateway" {
   source = "../../modules/api-gateway"
-  prod = false
+  prod   = false
 
-  authenticate-lambda-name = module.lambda.authenticate-function-name
+  authenticate-lambda-name       = module.lambda.authenticate-function-name
   authenticate-lambda-invoke-arn = module.lambda.authenticate-function-invoke-arn
-  token-lambda-name = module.lambda.token-function-name
-  token-lambda-invoke-arn = module.lambda.token-function-invoke-arn
+  token-lambda-name              = module.lambda.token-function-name
+  token-lambda-invoke-arn        = module.lambda.token-function-invoke-arn
 }
 
 module "secrets-manager" {
   source = "../../modules/secrets-manager"
-  prod = false
+  prod   = false
 
   rotation-lambda-arn = module.lambda.rotate-function-arn
 

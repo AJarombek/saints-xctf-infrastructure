@@ -12,10 +12,10 @@ terraform {
   required_version = ">= 0.12"
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/route53/env/all"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/route53/env/all"
+    region  = "us-east-1"
   }
 }
 
@@ -28,10 +28,10 @@ resource "aws_route53_zone" "saintsxctf" {
 }
 
 resource "aws_route53_record" "saintsxctf-ns" {
-  name = "saintsxctf.com."
-  type = "NS"
+  name    = "saintsxctf.com."
+  type    = "NS"
   zone_id = aws_route53_zone.saintsxctf.zone_id
-  ttl = 172800
+  ttl     = 172800
 
   records = [
     aws_route53_zone.saintsxctf.name_servers.0,

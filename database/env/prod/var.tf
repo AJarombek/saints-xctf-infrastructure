@@ -6,10 +6,10 @@
 
 variable "username" {
   description = "Master username for the database"
-  type = string
+  type        = string
 }
 
 variable "password" {
   description = "Master password for the database"
-  type = string
+  type        = string
 }

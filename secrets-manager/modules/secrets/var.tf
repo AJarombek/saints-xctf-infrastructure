@@ -6,7 +6,7 @@
 
 variable "prod" {
   description = "If the environment of the secrets is production."
-  default = true
+  default     = true
 }
 
 variable "rds_secrets" {
@@ -16,5 +16,5 @@ variable "rds_secrets" {
     password = "password"
   }
 
-  type = map
+  type = map(any)
 }

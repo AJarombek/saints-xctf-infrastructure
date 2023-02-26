@@ -51,29 +51,36 @@ bazel --version
 
 ### Directories
 
-| Directory Name            | Description                                                                         |
-|---------------------------|-------------------------------------------------------------------------------------|
-| `acm`                     | HTTPS Certificates for the application load balancer.                               |
-| `bastion`                 | Bastion host for connecting to resources in the private subnets.                    |
-| `database`                | Infrastructure for the SaintsXCTF MySQL database.                                   |
-| `database-backup`         | S3 buckets for storing RDS database backups.                                        |
-| `database-client`         | MySQL database client for access to the RDS database from a web GUI.                |
-| `database-deployment`     | Lambda function for deploying scripts to RDS databases.                             |
-| `database-snapshot`       | Lambda functions for creating backups and restoring RDS databases.                  |
-| `iam`                     | IAM policies used in the SaintsXCTF VPC.                                            |
-| `route53`                 | Configures the DNS records for the application.                                     |
-| `saints-xctf-com`         | Kubernetes configuration for the application front-end.                             |
-| `saints-xctf-com-api`     | Kubernetes configuration for the application API.                                   |
-| `saints-xctf-com-asset`   | S3 bucket containing assets used for the SaintsXCTF application .                   |
-| `saints-xctf-com-auth`    | Authentication API and Lambda functions.                                            |
-| `saints-xctf-com-fn`      | API of Lambda functions used for different purposes including sending emails.       |
-| `saints-xctf-com-uasset`  | S3 bucket containing application users assets.                                      |
-| `secrets-manager`         | Secrets for the SaintsXCTF application and infrastructure.                          |
-| `synthetic-monitoring`    | CloudWatch Synthetic Monitoring for end to end testing.                             |
-| `test`                    | Python AWS infrastructure test suite.                                               |
-| `test-k8s`                | Go Kubernetes infrastructure test suite.                                            |
+| Directory Name           | Description                                                                   |
+|--------------------------|-------------------------------------------------------------------------------|
+| `.github`                | GitHub Actions for CI/CD pipelines.                                           |
+| `acm`                    | HTTPS Certificates for the application load balancer.                         |
+| `bastion`                | Bastion host for connecting to resources in the private subnets.              |
+| `database`               | Infrastructure for the SaintsXCTF MySQL database.                             |
+| `database-backup`        | S3 buckets for storing RDS database backups.                                  |
+| `database-client`        | MySQL database client for access to the RDS database from a web GUI.          |
+| `database-deployment`    | Lambda function for deploying scripts to RDS databases.                       |
+| `database-snapshot`      | Lambda functions for creating backups and restoring RDS databases.            |
+| `iam`                    | IAM policies used in the SaintsXCTF VPC.                                      |
+| `route53`                | Configures the DNS records for the application.                               |
+| `saints-xctf-com`        | Kubernetes configuration for the application front-end.                       |
+| `saints-xctf-com-api`    | Kubernetes configuration for the application API.                             |
+| `saints-xctf-com-asset`  | S3 bucket containing assets used for the SaintsXCTF application .             |
+| `saints-xctf-com-auth`   | Authentication API and Lambda functions.                                      |
+| `saints-xctf-com-fn`     | API of Lambda functions used for different purposes including sending emails. |
+| `saints-xctf-com-uasset` | S3 bucket containing application users assets.                                |
+| `secrets-manager`        | Secrets for the SaintsXCTF application and infrastructure.                    |
+| `synthetic-monitoring`   | CloudWatch Synthetic Monitoring for end to end testing.                       |
+| `test`                   | Python AWS infrastructure test suite.                                         |
+| `test-k8s`               | Go Kubernetes infrastructure test suite.                                      |
 
 ### Versions
+
+**[v2.0.2](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.2) - GitHub Actions**
+
+> Release Date: February 26th, 2023
+
+Integrate Terraform formatting, AWS tests, and Kubernetes tests with GitHub Actions CI/CD.
 
 **[v2.0.1](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.1) - Synthetic Monitoring Canaries Release**
 

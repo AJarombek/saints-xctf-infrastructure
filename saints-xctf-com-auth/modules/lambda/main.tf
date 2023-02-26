@@ -5,7 +5,7 @@
  */
 
 locals {
-  env = var.prod ? "prod" : "dev"
+  env         = var.prod ? "prod" : "dev"
   public_cidr = "0.0.0.0/0"
 }
 
@@ -40,15 +40,15 @@ data "aws_subnet" "application-vpc-public-subnet-1" {
 # ---------------------------------------
 
 resource "aws_lambda_function" "authorizer" {
-  function_name = "SaintsXCTFAuthorizer${upper(local.env)}"
-  filename = "${path.module}/SaintsXCTFAuthorizer.zip"
-  description = "SaintsXCTF Lambda authorizer function"
-  handler = "function.lambda_handler"
-  role = aws_iam_role.lambda-role.arn
-  runtime = "python3.8"
+  function_name    = "SaintsXCTFAuthorizer${upper(local.env)}"
+  filename         = "${path.module}/SaintsXCTFAuthorizer.zip"
+  description      = "SaintsXCTF Lambda authorizer function"
+  handler          = "function.lambda_handler"
+  role             = aws_iam_role.lambda-role.arn
+  runtime          = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthorizer.zip")
-  timeout = 10
-  memory_size = 128
+  timeout          = 10
+  memory_size      = 128
 
   environment {
     variables = {
@@ -57,14 +57,14 @@ resource "aws_lambda_function" "authorizer" {
   }
 
   tags = {
-    Name = "saints-xctf-com-lambda-authorizer"
+    Name        = "saints-xctf-com-lambda-authorizer"
     Environment = local.env
     Application = "saints-xctf-com"
   }
 }
 
 resource "aws_cloudwatch_log_group" "authorizer-log-group" {
-  name = "/aws/lambda/SaintsXCTFAuthorizer${upper(local.env)}"
+  name              = "/aws/lambda/SaintsXCTFAuthorizer${upper(local.env)}"
   retention_in_days = 7
 }
 
@@ -73,51 +73,51 @@ resource "aws_cloudwatch_log_group" "authorizer-log-group" {
 # -----------------------------------
 
 resource "aws_lambda_function" "rotate" {
-  function_name = "SaintsXCTFRotate${upper(local.env)}"
-  filename = "${path.module}/SaintsXCTFRotate.zip"
-  description = "SaintsXCTF function to rotate public and private keys used to sign JWT tokens"
-  handler = "function.lambda_handler"
-  role = aws_iam_role.rotate-lambda-role.arn
-  runtime = "python3.8"
+  function_name    = "SaintsXCTFRotate${upper(local.env)}"
+  filename         = "${path.module}/SaintsXCTFRotate.zip"
+  description      = "SaintsXCTF function to rotate public and private keys used to sign JWT tokens"
+  handler          = "function.lambda_handler"
+  role             = aws_iam_role.rotate-lambda-role.arn
+  runtime          = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFRotate.zip")
-  timeout = 10
-  memory_size = 128
+  timeout          = 10
+  memory_size      = 128
 
   tags = {
-    Name = "saints-xctf-com-lambda-rotate"
+    Name        = "saints-xctf-com-lambda-rotate"
     Environment = local.env
     Application = "saints-xctf-com"
   }
 }
 
 resource "aws_lambda_permission" "rotate-secrets-manager-permission" {
-  action = "lambda:InvokeFunction"
-  statement_id = "RotateSecretsManager"
+  action        = "lambda:InvokeFunction"
+  statement_id  = "RotateSecretsManager"
   function_name = aws_lambda_function.rotate.function_name
-  principal = "secretsmanager.amazonaws.com"
+  principal     = "secretsmanager.amazonaws.com"
 }
 
 resource "aws_cloudwatch_log_group" "rotate-log-group" {
-  name = "/aws/lambda/SaintsXCTFRotate${upper(local.env)}"
+  name              = "/aws/lambda/SaintsXCTFRotate${upper(local.env)}"
   retention_in_days = 7
 }
 
 resource "aws_iam_role" "rotate-lambda-role" {
-  name = "rotate-secret-lambda-role-${local.env}"
-  path = "/saints-xctf-com/"
+  name               = "rotate-secret-lambda-role-${local.env}"
+  path               = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/rotate-lambda-role.json")
-  description = "IAM role for a SecretsManager secret rotation AWS Lambda function in the ${upper(local.env)} environment"
+  description        = "IAM role for a SecretsManager secret rotation AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_policy" "rotate-lambda-policy" {
-  name = "rotate-secret-lambda-policy-${local.env}"
-  path = "/saints-xctf-com/"
-  policy = file("${path.module}/rotate-lambda-policy.json")
+  name        = "rotate-secret-lambda-policy-${local.env}"
+  path        = "/saints-xctf-com/"
+  policy      = file("${path.module}/rotate-lambda-policy.json")
   description = "IAM policy for a SecretsManager secret rotation AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "rotate-lambda-policy-attachment" {
-  role = aws_iam_role.rotate-lambda-role.name
+  role       = aws_iam_role.rotate-lambda-role.name
   policy_arn = aws_iam_policy.rotate-lambda-policy.arn
 }
 
@@ -126,16 +126,16 @@ resource "aws_iam_role_policy_attachment" "rotate-lambda-policy-attachment" {
 # ------------------------------------------
 
 resource "aws_lambda_function" "authenticate" {
-  function_name = "SaintsXCTFAuthenticate${upper(local.env)}"
-  filename = "${path.module}/SaintsXCTFAuthenticate.zip"
-  description = "SaintsXCTF function to authenticate users with a JWT token"
-  handler = "function.lambda_handler"
-  role = aws_iam_role.lambda-role.arn
-  runtime = "python3.8"
+  function_name    = "SaintsXCTFAuthenticate${upper(local.env)}"
+  filename         = "${path.module}/SaintsXCTFAuthenticate.zip"
+  description      = "SaintsXCTF function to authenticate users with a JWT token"
+  handler          = "function.lambda_handler"
+  role             = aws_iam_role.lambda-role.arn
+  runtime          = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthenticate.zip")
-  memory_size = 512
-  timeout = 10
-  publish = true
+  memory_size      = 512
+  timeout          = 10
+  publish          = true
 
   environment {
     variables = {
@@ -144,26 +144,26 @@ resource "aws_lambda_function" "authenticate" {
   }
 
   tags = {
-    Name = "saints-xctf-com-lambda-authenticate"
+    Name        = "saints-xctf-com-lambda-authenticate"
     Environment = local.env
     Application = "saints-xctf-com"
   }
 }
 
 resource "aws_lambda_alias" "authenticate-alias" {
-  function_name = aws_lambda_function.authenticate.function_name
+  function_name    = aws_lambda_function.authenticate.function_name
   function_version = aws_lambda_function.authenticate.version
-  name = "SaintsXCTFAuthenticate${upper(local.env)}Current"
+  name             = "SaintsXCTFAuthenticate${upper(local.env)}Current"
 }
 
 resource "aws_lambda_provisioned_concurrency_config" "authenticate" {
-  function_name = aws_lambda_function.authenticate.function_name
+  function_name                     = aws_lambda_function.authenticate.function_name
   provisioned_concurrent_executions = 1
-  qualifier = aws_lambda_alias.authenticate-alias.name
+  qualifier                         = aws_lambda_alias.authenticate-alias.name
 }
 
 resource "aws_cloudwatch_log_group" "authenticate-log-group" {
-  name = "/aws/lambda/SaintsXCTFAuthenticate${upper(local.env)}"
+  name              = "/aws/lambda/SaintsXCTFAuthenticate${upper(local.env)}"
   retention_in_days = 7
 }
 
@@ -172,16 +172,16 @@ resource "aws_cloudwatch_log_group" "authenticate-log-group" {
 # -----------------------------------
 
 resource "aws_lambda_function" "token" {
-  function_name = "SaintsXCTFToken${upper(local.env)}"
-  filename = "${path.module}/SaintsXCTFToken.zip"
-  description = "SaintsXCTF function to get a JWT token for a user"
-  handler = "function.lambda_handler"
-  role = aws_iam_role.token-lambda-role.arn
-  runtime = "python3.8"
+  function_name    = "SaintsXCTFToken${upper(local.env)}"
+  filename         = "${path.module}/SaintsXCTFToken.zip"
+  description      = "SaintsXCTF function to get a JWT token for a user"
+  handler          = "function.lambda_handler"
+  role             = aws_iam_role.token-lambda-role.arn
+  runtime          = "python3.8"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFToken.zip")
-  memory_size = 1792
-  timeout = 10
-  publish = true
+  memory_size      = 1792
+  timeout          = 10
+  publish          = true
 
   environment {
     variables = {
@@ -198,48 +198,48 @@ resource "aws_lambda_function" "token" {
   }
 
   tags = {
-    Name = "saints-xctf-com-lambda-token"
+    Name        = "saints-xctf-com-lambda-token"
     Environment = local.env
     Application = "saints-xctf-com"
   }
 }
 
 resource "aws_lambda_alias" "token-alias" {
-  function_name = aws_lambda_function.token.function_name
+  function_name    = aws_lambda_function.token.function_name
   function_version = aws_lambda_function.token.version
-  name = "SaintsXCTFToken${upper(local.env)}Current"
+  name             = "SaintsXCTFToken${upper(local.env)}Current"
 }
 
 resource "aws_lambda_provisioned_concurrency_config" "token" {
-  function_name = aws_lambda_function.token.function_name
+  function_name                     = aws_lambda_function.token.function_name
   provisioned_concurrent_executions = 1
-  qualifier = aws_lambda_alias.token-alias.name
+  qualifier                         = aws_lambda_alias.token-alias.name
 }
 
 module "lambda-auth-token-security-group" {
   source = "github.com/ajarombek/terraform-modules//security-group?ref=v0.1.6"
 
   # Mandatory arguments
-  name = "saints-xctf-auth-token-lambda-security-${local.env}"
+  name     = "saints-xctf-auth-token-lambda-security-${local.env}"
   tag_name = "saints-xctf-auth-token-lambda-security-${local.env}"
-  vpc_id = data.aws_vpc.application-vpc.id
+  vpc_id   = data.aws_vpc.application-vpc.id
 
   # Optional arguments
   sg_rules = [
     {
       # All Inbound traffic
-      type = "ingress"
-      from_port = 0
-      to_port = 0
-      protocol = "-1"
+      type        = "ingress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
       cidr_blocks = local.public_cidr
     },
     {
       # All Outbound traffic
-      type = "egress"
-      from_port = 0
-      to_port = 0
-      protocol = "-1"
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
       cidr_blocks = local.public_cidr
     }
   ]
@@ -248,26 +248,26 @@ module "lambda-auth-token-security-group" {
 }
 
 resource "aws_cloudwatch_log_group" "token-log-group" {
-  name = "/aws/lambda/SaintsXCTFToken${upper(local.env)}"
+  name              = "/aws/lambda/SaintsXCTFToken${upper(local.env)}"
   retention_in_days = 7
 }
 
 resource "aws_iam_role" "token-lambda-role" {
-  name = "token-lambda-role-${local.env}"
-  path = "/saints-xctf-com/"
+  name               = "token-lambda-role-${local.env}"
+  path               = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/token-lambda-role.json")
-  description = "IAM role for a JWT request AWS Lambda function in the ${upper(local.env)} environment"
+  description        = "IAM role for a JWT request AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_policy" "token-lambda-policy" {
-  name = "token-lambda-policy-${local.env}"
-  path = "/saints-xctf-com/"
-  policy = file("${path.module}/token-lambda-policy.json")
+  name        = "token-lambda-policy-${local.env}"
+  path        = "/saints-xctf-com/"
+  policy      = file("${path.module}/token-lambda-policy.json")
   description = "IAM policy for a JWT request AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "token-lambda-policy-attachment" {
-  role = aws_iam_role.token-lambda-role.name
+  role       = aws_iam_role.token-lambda-role.name
   policy_arn = aws_iam_policy.token-lambda-policy.arn
 }
 
@@ -276,20 +276,20 @@ resource "aws_iam_role_policy_attachment" "token-lambda-policy-attachment" {
 # ----------------
 
 resource "aws_iam_role" "lambda-role" {
-  name = "authorizer-lambda-role-${local.env}"
-  path = "/saints-xctf-com/"
+  name               = "authorizer-lambda-role-${local.env}"
+  path               = "/saints-xctf-com/"
   assume_role_policy = file("${path.module}/lambda-role.json")
-  description = "IAM role for logging and accessing secrets from an AWS Lambda function in the ${upper(local.env)} environment"
+  description        = "IAM role for logging and accessing secrets from an AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_policy" "lambda-policy" {
-  name = "authorizer-lambda-policy-${local.env}"
-  path = "/saints-xctf-com/"
-  policy = file("${path.module}/lambda-policy.json")
+  name        = "authorizer-lambda-policy-${local.env}"
+  path        = "/saints-xctf-com/"
+  policy      = file("${path.module}/lambda-policy.json")
   description = "IAM policy for logging and accessing secrets from an AWS Lambda function in the ${upper(local.env)} environment"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-policy-attachment" {
-  role = aws_iam_role.lambda-role.name
+  role       = aws_iam_role.lambda-role.name
   policy_arn = aws_iam_policy.lambda-policy.arn
 }

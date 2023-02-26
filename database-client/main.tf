@@ -12,15 +12,15 @@ terraform {
   required_version = ">= 0.14"
 
   required_providers {
-    aws = ">= 3.32.0"
+    aws        = ">= 3.32.0"
     kubernetes = ">= 2.0.2"
   }
 
   backend "s3" {
-    bucket = "andrew-jarombek-terraform-state"
+    bucket  = "andrew-jarombek-terraform-state"
     encrypt = true
-    key = "saints-xctf-infrastructure/database-client"
-    region = "us-east-1"
+    key     = "saints-xctf-infrastructure/database-client"
+    region  = "us-east-1"
   }
 }
 
@@ -53,18 +53,18 @@ data "aws_subnet" "kubernetes-grandmas-blanket-public-subnet" {
 }
 
 data "aws_acm_certificate" "saintsxctf-cert" {
-  domain = "*.saintsxctf.com"
+  domain   = "*.saintsxctf.com"
   statuses = ["ISSUED"]
 }
 
 provider "kubernetes" {
-  host = data.aws_eks_cluster.cluster.endpoint
+  host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
 
   exec {
     api_version = "client.authentication.k8s.io/v1alpha1"
-    command = "aws"
-    args = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
   }
 }
 
@@ -78,32 +78,32 @@ locals {
 
 resource "kubernetes_deployment" "deployment" {
   metadata {
-    name = "saints-xctf-database-client-deployment"
+    name      = "saints-xctf-database-client-deployment"
     namespace = "saints-xctf"
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = "all"
       application = "saints-xctf-database-client"
     }
   }
 
   spec {
-    replicas = 1
+    replicas          = 1
     min_ready_seconds = 10
 
     strategy {
       type = "RollingUpdate"
 
       rolling_update {
-        max_surge = "1"
+        max_surge       = "1"
         max_unavailable = "0"
       }
     }
 
     selector {
       match_labels = {
-        version = local.version
+        version     = local.version
         environment = "all"
         application = "saints-xctf-database-client"
       }
@@ -112,7 +112,7 @@ resource "kubernetes_deployment" "deployment" {
     template {
       metadata {
         labels = {
-          version = local.version
+          version     = local.version
           environment = "all"
           application = "saints-xctf-database-client"
         }
@@ -124,9 +124,9 @@ resource "kubernetes_deployment" "deployment" {
             required_during_scheduling_ignored_during_execution {
               node_selector_term {
                 match_expressions {
-                  key = "workload"
+                  key      = "workload"
                   operator = "In"
-                  values = ["development-tests"]
+                  values   = ["development-tests"]
                 }
               }
             }
@@ -134,11 +134,11 @@ resource "kubernetes_deployment" "deployment" {
         }
 
         container {
-          name = "saints-xctf-database-client"
+          name  = "saints-xctf-database-client"
           image = "phpmyadmin/phpmyadmin:latest"
 
           readiness_probe {
-            period_seconds = 5
+            period_seconds        = 5
             initial_delay_seconds = 20
 
             http_get {
@@ -148,13 +148,13 @@ resource "kubernetes_deployment" "deployment" {
           }
 
           env {
-            name = "PMA_ARBITRARY"
+            name  = "PMA_ARBITRARY"
             value = "1"
           }
 
           port {
             container_port = 80
-            protocol = "TCP"
+            protocol       = "TCP"
           }
         }
       }
@@ -164,11 +164,11 @@ resource "kubernetes_deployment" "deployment" {
 
 resource "kubernetes_service" "service" {
   metadata {
-    name = "saints-xctf-database-client-service"
+    name      = "saints-xctf-database-client-service"
     namespace = "saints-xctf"
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = "all"
       application = "saints-xctf-database-client"
     }
@@ -178,9 +178,9 @@ resource "kubernetes_service" "service" {
     type = "NodePort"
 
     port {
-      port = 80
+      port        = 80
       target_port = 80
-      protocol = "TCP"
+      protocol    = "TCP"
     }
 
     selector = {
@@ -191,27 +191,27 @@ resource "kubernetes_service" "service" {
 
 resource "kubernetes_ingress" "ingress" {
   metadata {
-    name = "saints-xctf-database-client-ingress"
+    name      = "saints-xctf-database-client-ingress"
     namespace = "saints-xctf"
 
     annotations = {
-      "kubernetes.io/ingress.class" = "alb"
-      "external-dns.alpha.kubernetes.io/hostname" = "db.saintsxctf.com"
+      "kubernetes.io/ingress.class"                    = "alb"
+      "external-dns.alpha.kubernetes.io/hostname"      = "db.saintsxctf.com"
       "alb.ingress.kubernetes.io/actions.ssl-redirect" = "{\"Type\": \"redirect\", \"RedirectConfig\": {\"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\"}}"
-      "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
-      "alb.ingress.kubernetes.io/certificate-arn" = data.aws_acm_certificate.saintsxctf-cert.arn
-      "alb.ingress.kubernetes.io/healthcheck-path" = "/"
-      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\":80}, {\"HTTPS\":443}]"
-      "alb.ingress.kubernetes.io/healthcheck-protocol": "HTTP"
-      "alb.ingress.kubernetes.io/scheme" = "internet-facing"
+      "alb.ingress.kubernetes.io/backend-protocol"     = "HTTP"
+      "alb.ingress.kubernetes.io/certificate-arn"      = data.aws_acm_certificate.saintsxctf-cert.arn
+      "alb.ingress.kubernetes.io/healthcheck-path"     = "/"
+      "alb.ingress.kubernetes.io/listen-ports"         = "[{\"HTTP\":80}, {\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/healthcheck-protocol" : "HTTP"
+      "alb.ingress.kubernetes.io/scheme"          = "internet-facing"
       "alb.ingress.kubernetes.io/security-groups" = aws_security_group.saints-xctf-database-client-lb-sg.id
-      "alb.ingress.kubernetes.io/subnets" = "${data.aws_subnet.kubernetes-dotty-public-subnet.id},${data.aws_subnet.kubernetes-grandmas-blanket-public-subnet.id}"
-      "alb.ingress.kubernetes.io/target-type" = "instance"
-      "alb.ingress.kubernetes.io/tags" = "Name=saints-xctf-database-client-load-balancer,Application=saints-xctf-database-client,Environment=all"
+      "alb.ingress.kubernetes.io/subnets"         = "${data.aws_subnet.kubernetes-dotty-public-subnet.id},${data.aws_subnet.kubernetes-grandmas-blanket-public-subnet.id}"
+      "alb.ingress.kubernetes.io/target-type"     = "instance"
+      "alb.ingress.kubernetes.io/tags"            = "Name=saints-xctf-database-client-load-balancer,Application=saints-xctf-database-client,Environment=all"
     }
 
     labels = {
-      version = local.version
+      version     = local.version
       environment = "all"
       application = "saints-xctf-database-client"
     }
@@ -245,7 +245,7 @@ resource "kubernetes_ingress" "ingress" {
 }
 
 resource "aws_security_group" "saints-xctf-database-client-lb-sg" {
-  name = "saints-xctf-database-client-lb-security-group"
+  name   = "saints-xctf-database-client-lb-security-group"
   vpc_id = data.aws_vpc.application-vpc.id
 
   lifecycle {
@@ -253,28 +253,28 @@ resource "aws_security_group" "saints-xctf-database-client-lb-sg" {
   }
 
   ingress {
-    protocol = "tcp"
-    from_port = 80
-    to_port = 80
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
     cidr_blocks = [var.db_client_access_cidr]
   }
 
   ingress {
-    protocol = "tcp"
-    from_port = 443
-    to_port = 443
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = [var.db_client_access_cidr]
   }
 
   egress {
-    protocol = "-1"
-    from_port = 0
-    to_port = 0
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name = "saints-xctf-database-client-lb-security-group"
+    Name        = "saints-xctf-database-client-lb-security-group"
     Application = "saints-xctf-database-client"
     Environment = "all"
   }

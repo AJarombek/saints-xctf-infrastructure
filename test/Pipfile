@@ -17,3 +17,6 @@ aws_test_functions = {git = "https://github.com/ajarombek/cloud-modules.git", su
 
 [requires]
 python_version = "3.8"
+
+[scripts]
+test = "python runner.py"

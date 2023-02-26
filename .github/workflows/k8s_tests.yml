@@ -1,0 +1,54 @@
+# GitHub Action for running Kubernetes tests.
+# Author: Andrew Jarombek
+# Date: 2/22/2023
+
+name: Kubernetes Tests
+
+on:
+  push:
+    branches: ["main", "feature/*"]
+  pull_request:
+    branches: ["main"]
+
+  schedule:
+    - cron: "0 5 * * 5"
+
+  workflow_dispatch:
+
+jobs:
+  k8s_tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "Job running on a ${{ runner.os }} server"
+
+      - name: Check Out Repository Code
+        uses: actions/checkout@v3
+
+      - run: echo "Checked out branch '${{ github.ref }}' of the ${{ github.repository }} repository"
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        with:
+          command: cp
+          source: s3://andrew-jarombek-file-vault/kubeconfig_andrew-jarombek-eks-cluster
+          destination: ./test-k8s/kubeconfig
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.14
+
+      - name: Install AWS IAM Authenticator
+        uses: prepor/action-aws-iam-authenticator@master
+
+      - name: Test
+        run: go test --kubeconfig ./kubeconfig
+        working-directory: ./test-k8s
+        env:
+          TEST_ENV: prod
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
