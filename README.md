@@ -28,14 +28,8 @@ repository.
 
 ### Integration
 
-There are multiple Jenkins jobs for this infrastructure.  They are all located in the SaintsXCTF
-[`infrastructure`](http://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/) folder:
-
-[![Jenkins](https://img.shields.io/badge/Jenkins-%20saints--xctf--infrastructure--test--prod-blue?style=for-the-badge)](https://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/job/saints-xctf-infrastructure-test-prod/)
-> Runs tests on the production environment AWS infrastructure created with Terraform.
-
-[![Jenkins](https://img.shields.io/badge/Jenkins-%20saints--xctf--infrastructure--test--dev-blue?style=for-the-badge)](https://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/job/saints-xctf-infrastructure-test-dev/)
-> Runs tests on the development environment AWS infrastructure created with Terraform.
+There are multiple Jenkins jobs for this infrastructure, all located in the SaintsXCTF
+[`infrastructure`](http://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/) folder.
 
 ### Commands
 
@@ -75,6 +69,12 @@ bazel --version
 | `test-k8s`               | Go Kubernetes infrastructure test suite.                                      |
 
 ### Versions
+
+**[v2.0.3](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.3) - EKS V2 Cluster**
+
+> Release Date: April 3rd, 2023
+
+Integrate the API and website with the V2 EKS cluster.
 
 **[v2.0.2](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.2) - GitHub Actions**
 

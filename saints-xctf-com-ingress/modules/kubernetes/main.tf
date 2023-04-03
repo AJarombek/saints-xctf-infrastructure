@@ -7,11 +7,11 @@
 data "aws_caller_identity" "current" {}
 
 data "aws_eks_cluster" "cluster" {
-  name = "andrew-jarombek-eks-cluster"
+  name = "andrew-jarombek-eks-v2"
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = "andrew-jarombek-eks-cluster"
+  name = "andrew-jarombek-eks-v2"
 }
 
 data "aws_vpc" "application-vpc" {
@@ -63,7 +63,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
 
   exec {
-    api_version = "client.authentication.k8s.io/v1alpha1"
+    api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
     args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
   }
@@ -146,7 +146,7 @@ resource "aws_security_group" "saints-xctf-com-lb-sg" {
 # Kubernetes Resources for the Ingress
 #-------------------------------------
 
-resource "kubernetes_ingress" "ingress" {
+resource "kubernetes_ingress_v1" "ingress" {
   metadata {
     name      = "saints-xctf-com-ingress"
     namespace = local.namespace
@@ -183,8 +183,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "ssl-redirect"
-            service_port = "use-annotation"
+            service {
+              name = "ssl-redirect"
+              port {
+                name = "use-annotation"
+              }
+            }
           }
         }
 
@@ -192,8 +196,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "saints-xctf-web-service"
-            service_port = 80
+            service {
+              name = "saints-xctf-web-service"
+              port {
+                number = 80
+              }
+            }
           }
         }
       }
@@ -207,8 +215,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "ssl-redirect"
-            service_port = "use-annotation"
+            service {
+              name = "ssl-redirect"
+              port {
+                name = "use-annotation"
+              }
+            }
           }
         }
 
@@ -216,8 +228,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "saints-xctf-web-service"
-            service_port = 80
+            service {
+              name = "saints-xctf-web-service"
+              port {
+                number = 80
+              }
+            }
           }
         }
       }
@@ -231,8 +247,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "saints-xctf-api"
-            service_port = 80
+            service {
+              name = "saints-xctf-api"
+              port {
+                number = 80
+              }
+            }
           }
         }
       }
@@ -246,8 +266,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "saints-xctf-api"
-            service_port = 80
+            service {
+              name = "saints-xctf-api"
+              port {
+                number = 80
+              }
+            }
           }
         }
       }

@@ -7,11 +7,11 @@
 data "aws_caller_identity" "current" {}
 
 data "aws_eks_cluster" "cluster" {
-  name = "andrew-jarombek-eks-cluster"
+  name = "andrew-jarombek-eks-v2"
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = "andrew-jarombek-eks-cluster"
+  name = "andrew-jarombek-eks-v2"
 }
 
 provider "kubernetes" {
@@ -19,7 +19,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
 
   exec {
-    api_version = "client.authentication.k8s.io/v1alpha1"
+    api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
     args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
   }

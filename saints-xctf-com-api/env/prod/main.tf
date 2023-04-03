@@ -13,7 +13,7 @@ terraform {
 
   required_providers {
     aws        = ">= 3.42.0"
-    kubernetes = ">= 2.0.2"
+    kubernetes = ">= 2.11.0"
   }
 
   backend "s3" {
