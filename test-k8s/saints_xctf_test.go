@@ -7,6 +7,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	k8sfuncs "github.com/ajarombek/cloud-modules/kubernetes-test-functions"
 	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,20 +17,14 @@ import (
 // TestSaintsXCTFIngressExists determines if an ingress object exists in the 'saints-xctf' (or 'saints-xctf-dev')
 // namespace with the name 'saints-xctf-com-ingress'.
 func TestSaintsXCTFIngressExists(t *testing.T) {
-    // TODO Fix Ingress Tests
-	t.Skip("Skipping test due to k8s client issue")
-
 	skipDev(t)
 	k8sfuncs.IngressExists(t, ClientSet, namespace, "saints-xctf-com-ingress")
 }
 
 // TestSaintsXCTFIngressAnnotations determines if the 'saints-xctf-com-ingress' Ingress object contains the expected annotations.
 func TestSaintsXCTFIngressAnnotations(t *testing.T) {
-    // TODO Fix Ingress Tests
-	t.Skip("Skipping test due to k8s client issue")
-
 	skipDev(t)
-	ingress, err := ClientSet.NetworkingV1beta1().Ingresses(namespace).Get("saints-xctf-com-ingress", v1meta.GetOptions{})
+	ingress, err := ClientSet.NetworkingV1().Ingresses(namespace).Get(context.TODO(), "saints-xctf-com-ingress", v1meta.GetOptions{})
 
 	if err != nil {
 		panic(err.Error())
@@ -59,7 +54,7 @@ func TestSaintsXCTFIngressAnnotations(t *testing.T) {
 	k8sfuncs.AnnotationsEqual(t, annotations, "alb.ingress.kubernetes.io/healthcheck-path", "/")
 	k8sfuncs.AnnotationsEqual(t, annotations, "alb.ingress.kubernetes.io/healthcheck-protocol", "HTTP")
 	k8sfuncs.AnnotationsEqual(t, annotations, "alb.ingress.kubernetes.io/target-type", "instance")
-	k8sfuncs.AnnotationsEqual(t, annotations, "alb.ingress.kubernetes.io/tags", "Name=saints-xctf-com-load-balancer,Application=saints-xctf-com,Environment=" + environment)
+	k8sfuncs.AnnotationsEqual(t, annotations, "alb.ingress.kubernetes.io/tags", "Name=saints-xctf-com-load-balancer,Application=saints-xctf-com,Environment="+environment)
 
 	// ALB Ingress annotations pattern matching
 	uuidPattern := "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
