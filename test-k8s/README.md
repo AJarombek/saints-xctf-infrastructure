@@ -5,7 +5,7 @@
 ```bash
 # Run the Kubernetes tests using the local Kubeconfig file.  Set TEST_ENV to either 'dev' or 'prod'.
 export TEST_ENV=<dev|prod>
-go test --kubeconfig ~/Documents/global-aws-infrastructure/eks/kubeconfig_andrew-jarombek-eks-cluster
+go test --kubeconfig ~/.kube/config
 ```
 
 ### Files

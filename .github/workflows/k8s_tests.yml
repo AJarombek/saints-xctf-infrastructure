@@ -6,7 +6,7 @@ name: Kubernetes Tests
 
 on:
   push:
-    branches: ["main", "feature/*"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -39,7 +39,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.14
+          go-version: 1.20.4
 
       - name: Install AWS IAM Authenticator
         uses: prepor/action-aws-iam-authenticator@master

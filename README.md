@@ -70,6 +70,13 @@ bazel --version
 
 ### Versions
 
+**[v2.0.4](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.4) - Kubernetes Tests Upgraded**
+
+> Release Date: June 4th, 2023
+
++ Kubernetes Ingress Tests Fixed
++ Kubernetes Tests Upgraded to Go 1.20
+
 **[v2.0.3](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.3) - EKS V2 Cluster**
 
 > Release Date: April 3rd, 2023
