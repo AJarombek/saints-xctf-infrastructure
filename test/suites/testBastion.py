@@ -10,13 +10,12 @@ import boto3
 
 
 class TestBastion(unittest.TestCase):
-
     def setUp(self) -> None:
         """
         Perform set-up logic before executing any unit tests
         """
-        self.ec2 = boto3.resource('ec2')
-        self.iam = boto3.client('iam')
+        self.ec2 = boto3.resource("ec2")
+        self.iam = boto3.client("iam")
 
     @unittest.SkipTest
     def get_bastion_ec2(self) -> list:
@@ -25,14 +24,8 @@ class TestBastion(unittest.TestCase):
         :return: A list of EC2 instances
         """
         filters = [
-            {
-                'Name': 'tag:Name',
-                'Values': ['bastion-host']
-            },
-            {
-                'Name': 'instance-state-name',
-                'Values': ['running']
-            }
+            {"Name": "tag:Name", "Values": ["bastion-host"]},
+            {"Name": "instance-state-name", "Values": ["running"]},
         ]
 
         return list(self.ec2.instances.filter(Filters=filters).all())
@@ -58,7 +51,7 @@ class TestBastion(unittest.TestCase):
         vpc = instances[0].vpc
         vpc_tag = vpc.tags[0]
 
-        self.assertEqual(vpc_tag, {'Key': 'Name', 'Value': 'SaintsXCTFcom VPC'})
+        self.assertEqual(vpc_tag, {"Key": "Name", "Value": "SaintsXCTFcom VPC"})
 
     @unittest.SkipTest
     def test_bastion_subnet(self) -> None:
@@ -73,7 +66,10 @@ class TestBastion(unittest.TestCase):
         subnet = instances[0].subnet
         subnet_tag = subnet.tags[0]
 
-        return subnet_tag == {'Key': 'Name', 'Value': 'SaintsXCTFcom VPC Public Subnet 1'}
+        return subnet_tag == {
+            "Key": "Name",
+            "Value": "SaintsXCTFcom VPC Public Subnet 1",
+        }
 
     @unittest.SkipTest
     def test_bastion_rds_access(self) -> None:
@@ -86,21 +82,26 @@ class TestBastion(unittest.TestCase):
         if len(instances) == 0:
             self.assertTrue(False)
 
-        instance_profile_arn = instances[0].iam_instance_profile.get('Arn')
+        instance_profile_arn = instances[0].iam_instance_profile.get("Arn")
 
         # Second get the instance profile from IAM
-        instance_profile = self.iam.get_instance_profile(InstanceProfileName='bastion-instance-profile')\
-            .get('InstanceProfile')
+        instance_profile = self.iam.get_instance_profile(
+            InstanceProfileName="bastion-instance-profile"
+        ).get("InstanceProfile")
 
         # Third get the RDS access IAM Role resource name from IAM
-        role = self.iam.get_role(RoleName='rds-access-role')
-        role_arn = role.get('Role').get('Arn')
+        role = self.iam.get_role(RoleName="rds-access-role")
+        role_arn = role.get("Role").get("Arn")
 
         # Finally prove that the two instance profiles are equal, and the instance profile IAM role is rds-access-role
-        self.assertTrue(all([
-            instance_profile_arn == instance_profile.get('Arn'),
-            role_arn == instance_profile.get('Roles')[0].get('Arn')
-        ]))
+        self.assertTrue(
+            all(
+                [
+                    instance_profile_arn == instance_profile.get("Arn"),
+                    role_arn == instance_profile.get("Roles")[0].get("Arn"),
+                ]
+            )
+        )
 
     @unittest.SkipTest
     def test_bastion_security_group(self) -> None:
@@ -113,5 +114,4 @@ class TestBastion(unittest.TestCase):
             self.assertTrue(False)
 
         security_group = instances[0].security_groups[0]
-        self.assertEqual(security_group.get('GroupName'), "bastion-security")
-
+        self.assertEqual(security_group.get("GroupName"), "bastion-security")

@@ -12,64 +12,100 @@ from boto3_type_annotations.s3 import Client as S3Client
 from boto3_type_annotations.cloudfront import Client as CloudFrontClient
 
 try:
-    prod_env = os.environ['TEST_ENV'] == "prod"
+    prod_env = os.environ["TEST_ENV"] == "prod"
 except KeyError:
     prod_env = True
 
 
 class TestSXCTFAsset(unittest.TestCase):
-
     def setUp(self) -> None:
         """
         Perform set-up logic before executing any unit tests
         """
-        self.s3: S3Client = boto3.client('s3')
-        self.cloudfront: CloudFrontClient = boto3.client('cloudfront')
+        self.s3: S3Client = boto3.client("s3")
+        self.cloudfront: CloudFrontClient = boto3.client("cloudfront")
         self.prod_env = prod_env
-        self.bucket_name = 'uasset.saintsxctf.com'
+        self.bucket_name = "uasset.saintsxctf.com"
 
     def test_uasset_saintsxctf_s3_bucket_exists(self) -> None:
         """
         Test if an uasset.saintsxctf.com S3 bucket exists
         """
         s3_bucket = self.s3.list_objects(Bucket=self.bucket_name)
-        self.assertTrue(s3_bucket.get('Name') == self.bucket_name)
+        self.assertTrue(s3_bucket.get("Name") == self.bucket_name)
 
     def test_uasset_saintsxctf_s3_bucket_public_access(self) -> None:
         """
         Test whether the public access configuration for a uasset.saintsxctf.com S3 bucket is correct
         """
         public_access_block = self.s3.get_public_access_block(Bucket=self.bucket_name)
-        config = public_access_block.get('PublicAccessBlockConfiguration')
-        self.assertTrue(config.get('BlockPublicAcls'))
-        self.assertTrue(config.get('IgnorePublicAcls'))
-        self.assertTrue(config.get('BlockPublicPolicy'))
-        self.assertTrue(config.get('RestrictPublicBuckets'))
+        config = public_access_block.get("PublicAccessBlockConfiguration")
+        self.assertTrue(config.get("BlockPublicAcls"))
+        self.assertTrue(config.get("IgnorePublicAcls"))
+        self.assertTrue(config.get("BlockPublicPolicy"))
+        self.assertTrue(config.get("RestrictPublicBuckets"))
 
     def test_s3_bucket_cloudfront_distributed(self) -> None:
         """
         Ensure that the uasset.saintsxctf.com S3 bucket is distributed with CloudFront as expected
         """
         distributions = self.cloudfront.list_distributions()
-        dist_list = distributions.get('DistributionList').get('Items')
+        dist_list = distributions.get("DistributionList").get("Items")
         dists = [
-            item for item in dist_list
-            if item.get('Aliases').get('Items')[0] in ['uasset.saintsxctf.com', 'www.uasset.saintsxctf.com']
+            item
+            for item in dist_list
+            if item.get("Aliases").get("Items")[0]
+            in ["uasset.saintsxctf.com", "www.uasset.saintsxctf.com"]
         ]
 
         self.assertEqual(2, len(dists))
 
         for dist in dists:
-            self.assertTrue(all([
-                dist.get('Status') == 'Deployed',
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Quantity') == 3,
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[0] == 'HEAD',
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[1] == 'GET',
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('Items')[2] == 'OPTIONS',
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Quantity') == 3,
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Items')[0] == 'HEAD',
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Items')[1] == 'GET',
-                dist.get('DefaultCacheBehavior').get('AllowedMethods').get('CachedMethods').get('Items')[2] == 'OPTIONS',
-                dist.get('Restrictions').get('GeoRestriction').get('RestrictionType') == 'none',
-                dist.get('HttpVersion') == 'HTTP2'
-            ]))
+            self.assertTrue(
+                all(
+                    [
+                        dist.get("Status") == "Deployed",
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("Quantity")
+                        == 3,
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("Items")[0]
+                        == "HEAD",
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("Items")[1]
+                        == "GET",
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("Items")[2]
+                        == "OPTIONS",
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("CachedMethods")
+                        .get("Quantity")
+                        == 3,
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("CachedMethods")
+                        .get("Items")[0]
+                        == "HEAD",
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("CachedMethods")
+                        .get("Items")[1]
+                        == "GET",
+                        dist.get("DefaultCacheBehavior")
+                        .get("AllowedMethods")
+                        .get("CachedMethods")
+                        .get("Items")[2]
+                        == "OPTIONS",
+                        dist.get("Restrictions")
+                        .get("GeoRestriction")
+                        .get("RestrictionType")
+                        == "none",
+                        dist.get("HttpVersion") == "HTTP2",
+                    ]
+                )
+            )

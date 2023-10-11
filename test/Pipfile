@@ -8,6 +8,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+black = ">=23.9.1"
 
 [packages]
 boto3 = ">=1.17.108"

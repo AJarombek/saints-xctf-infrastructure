@@ -10,66 +10,76 @@ import os
 import boto3
 
 try:
-    prod_env = os.environ['TEST_ENV'] == "prod"
+    prod_env = os.environ["TEST_ENV"] == "prod"
 except KeyError:
     prod_env = True
 
 
 class TestRoute53(unittest.TestCase):
-
     def setUp(self) -> None:
         """
         Perform set-up logic before executing any unit tests
         """
-        self.route53 = boto3.client('route53')
+        self.route53 = boto3.client("route53")
         self.prod_env = prod_env
 
     def test_saintsxctf_zone_exists(self) -> None:
         """
         Determine if the saintsxctf.com Route53 zone exists.
         """
-        zones = self.route53.list_hosted_zones_by_name(DNSName='saintsxctf.com.', MaxItems='1').get('HostedZones')
+        zones = self.route53.list_hosted_zones_by_name(
+            DNSName="saintsxctf.com.", MaxItems="1"
+        ).get("HostedZones")
         self.assertTrue(len(zones) == 1)
 
     def test_saintsxctf_zone_public(self) -> None:
         """
         Determine if the saintsxctf.com Route53 zone is public.
         """
-        zones = self.route53.list_hosted_zones_by_name(DNSName='saintsxctf.com.', MaxItems='1').get('HostedZones')
-        self.assertTrue(zones[0].get('Config').get('PrivateZone') is False)
+        zones = self.route53.list_hosted_zones_by_name(
+            DNSName="saintsxctf.com.", MaxItems="1"
+        ).get("HostedZones")
+        self.assertTrue(zones[0].get("Config").get("PrivateZone") is False)
 
     def test_saintsxctf_ns_record_exists(self) -> None:
         """
         Determine if the 'NS' record exists for 'saintsxctf.com.' in Route53
         """
-        a_record = self.get_record('saintsxctf.com.', 'saintsxctf.com.', 'NS')
-        self.assertTrue(a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'NS')
+        a_record = self.get_record("saintsxctf.com.", "saintsxctf.com.", "NS")
+        self.assertTrue(
+            a_record.get("Name") == "saintsxctf.com." and a_record.get("Type") == "NS"
+        )
 
-    @unittest.skipIf(not prod_env, 'A record not configured in development.')
+    @unittest.skipIf(not prod_env, "A record not configured in development.")
     def test_saintsxctf_a_record_exists(self) -> None:
         """
         Determine if the 'A' record exists for 'saintsxctf.com.' in Route53
         """
         if self.prod_env:
-            record_name = 'saintsxctf.com.'
+            record_name = "saintsxctf.com."
         else:
-            record_name = 'dev.saintsxctf.com.'
+            record_name = "dev.saintsxctf.com."
 
-        a_record = self.get_record('saintsxctf.com.', record_name, 'A')
-        self.assertTrue(a_record.get('Name') == 'saintsxctf.com.' and a_record.get('Type') == 'A')
+        a_record = self.get_record("saintsxctf.com.", record_name, "A")
+        self.assertTrue(
+            a_record.get("Name") == "saintsxctf.com." and a_record.get("Type") == "A"
+        )
 
-    @unittest.skipIf(not prod_env, 'A record not configured in development.')
+    @unittest.skipIf(not prod_env, "A record not configured in development.")
     def test_www_saintsxctf_a_record_exists(self) -> None:
         """
         Determine if the 'A' record exists for 'www.saintsxctf.com.' in Route53
         """
         if self.prod_env:
-            record_name = 'www.saintsxctf.com.'
+            record_name = "www.saintsxctf.com."
         else:
-            record_name = 'www.dev.saintsxctf.com.'
+            record_name = "www.dev.saintsxctf.com."
 
-        a_record = self.get_record('saintsxctf.com.', record_name, 'A')
-        self.assertTrue(a_record.get('Name') == 'www.saintsxctf.com.' and a_record.get('Type') == 'A')
+        a_record = self.get_record("saintsxctf.com.", record_name, "A")
+        self.assertTrue(
+            a_record.get("Name") == "www.saintsxctf.com."
+            and a_record.get("Type") == "A"
+        )
 
     def get_record(self, zone_name: str, record_name: str, record_type: str) -> dict:
         """
@@ -84,9 +94,9 @@ class TestRoute53(unittest.TestCase):
             HostedZoneId=hosted_zone_id,
             StartRecordName=record_name,
             StartRecordType=record_type,
-            MaxItems='1'
+            MaxItems="1",
         )
-        return record_sets.get('ResourceRecordSets')[0]
+        return record_sets.get("ResourceRecordSets")[0]
 
     def get_hosted_zone_id(self, name: str) -> str:
         """
@@ -94,5 +104,7 @@ class TestRoute53(unittest.TestCase):
         :param name: The DNS name of the Hosted Zone
         :return: A string representing the Hosted Zone ID
         """
-        hosted_zone = self.route53.list_hosted_zones_by_name(DNSName=name, MaxItems='1').get('HostedZones')[0]
-        return hosted_zone.get('Id')
+        hosted_zone = self.route53.list_hosted_zones_by_name(
+            DNSName=name, MaxItems="1"
+        ).get("HostedZones")[0]
+        return hosted_zone.get("Id")
