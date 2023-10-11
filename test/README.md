@@ -24,6 +24,22 @@ Or if you want the test results to be placed in a log, execute the following com
 python3 runner.py test_results.log
 ```
 
+To update the lockfile with Pipfile dependencies, execute the following command:
+
+```bash
+pipenv install
+```
+
+To format the code, execute the following commands:
+
+```bash
+pipenv shell
+black .
+
+# To check the formatting without modifying the code
+black --check .
+```
+
 ### Jenkins Job
 
 This test suite has a corresponding Jenkins job located on my 

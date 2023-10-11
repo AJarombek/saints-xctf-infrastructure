@@ -1,0 +1,37 @@
+# GitHub Action for performing code analysis on Python code.
+# Author: Andrew Jarombek
+# Date: 10/11/2023
+
+name: Python Code Analysis
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  schedule:
+    - cron: "0 5 * * 5"
+
+  workflow_dispatch:
+
+jobs:
+  black_formatting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "Job running on a ${{ runner.os }} server"
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Black formatting dry run
+        uses: psf/black@23.9.1
+        with:
+          options: "--check"
+          src: "test"
