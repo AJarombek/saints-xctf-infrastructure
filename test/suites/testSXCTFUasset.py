@@ -54,8 +54,7 @@ class TestSXCTFAsset(unittest.TestCase):
         dists = [
             item
             for item in dist_list
-            if item.get("Aliases").get("Items")[0]
-            in ["uasset.saintsxctf.com"]
+            if item.get("Aliases").get("Items")[0] in ["uasset.saintsxctf.com"]
         ]
 
         self.assertEqual(1, len(dists))
