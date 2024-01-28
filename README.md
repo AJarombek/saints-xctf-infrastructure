@@ -33,14 +33,10 @@ There are multiple Jenkins jobs for this infrastructure, all located in the Sain
 
 ### Commands
 
-**One Time Bazel Setup (MacOS)**
+**Run GitHub Actions Locally**
 
 ```bash
-brew tap bazelbuild/tap
-brew install bazelbuild/tap/bazel
-
-# Confirm the installation was successful.
-bazel --version
+act -W '.github/workflows/aws_tests.yml' --detect-event
 ```
 
 ### Directories
@@ -69,6 +65,14 @@ bazel --version
 | `test-k8s`               | Go Kubernetes infrastructure test suite.                                      |
 
 ### Versions
+
+**[v2.0.5](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.5) - ACM Updates**
+
+> Release Date: January 28th, 2024
+
++ Update ACM certificates for `saintsxctf.com` and `*.saintsxctf.com`.
++ Remove Unused ACM certificates.
++ Remove CloudFront Distributions for `www.` subdomains.
 
 **[v2.0.4](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.4) - Kubernetes Tests Upgraded**
 

@@ -38,7 +38,7 @@ module "saints-xctf-fn-acm-certificate" {
   source = "github.com/ajarombek/cloud-modules//terraform-modules/acm-certificate?ref=v0.2.13"
 
   # Mandatory arguments
-  name            = "saints-xctf-fn-acm-certificate"
+  name              = "saints-xctf-fn-acm-certificate"
   route53_zone_name = "saintsxctf.com."
   acm_domain_name   = "*.fn.saintsxctf.com"
 

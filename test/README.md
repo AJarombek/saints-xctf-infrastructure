@@ -53,6 +53,5 @@ This test suite has a corresponding Jenkins job located on my
 | `suites/`            | Test suites written in Python's `unittest` library.                                          |
 | `utils/`             | Utility functions for working with the `boto3` AWS SDK.                                      |
 | `runner.py`          | Invokes all the test suites.                                                                 |
-| `setup.sh`           | Bash script to setup the environment for a test suite.                                       |
 | `requirements.txt`   | Used to create a virtual environment with `pipenv`.                                          |
 | `Pipfile`            | Used to create a virtual environment with `pip`.                                             |

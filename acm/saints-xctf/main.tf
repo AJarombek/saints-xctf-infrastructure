@@ -38,7 +38,7 @@ module "saints-xctf-acm-certificate" {
   source = "github.com/ajarombek/cloud-modules//terraform-modules/acm-certificate?ref=v0.2.13"
 
   # Mandatory arguments
-  name            = "saints-xctf-acm-certificate"
+  name              = "saints-xctf-acm-certificate"
   route53_zone_name = "saintsxctf.com."
   acm_domain_name   = "saintsxctf.com"
 
@@ -57,7 +57,7 @@ module "saints-xctf-wildcard-acm-certificate" {
   source = "github.com/ajarombek/cloud-modules//terraform-modules/acm-certificate?ref=v0.2.13"
 
   # Mandatory arguments
-  name            = "saints-xctf-wildcard-acm-certificate"
+  name              = "saints-xctf-wildcard-acm-certificate"
   route53_zone_name = "saintsxctf.com."
   acm_domain_name   = "*.saintsxctf.com"
 

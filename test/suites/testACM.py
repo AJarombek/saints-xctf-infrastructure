@@ -30,23 +30,13 @@ class TestACM(unittest.TestCase):
 
         self.assertTrue(False)
 
+    @unittest.skip("*.dev.api.saintsxctf.com certificate inactive.")
     def test_acm_dev_api_wildcard_cert_issued(self) -> None:
         """
         Test that the development api wildcard ACM certificate exists
         """
         for cert in self.acm_certificates.get("CertificateSummaryList"):
             if cert.get("DomainName") == "*.dev.api.saintsxctf.com":
-                self.assertTrue(True)
-                return
-
-        self.assertTrue(False)
-
-    def test_acm_asset_wildcard_cert_issued(self) -> None:
-        """
-        Test that the asset wildcard ACM certificate exists
-        """
-        for cert in self.acm_certificates.get("CertificateSummaryList"):
-            if cert.get("DomainName") == "*.asset.saintsxctf.com":
                 self.assertTrue(True)
                 return
 
@@ -64,7 +54,7 @@ class TestACM(unittest.TestCase):
 
         self.assertTrue(False)
 
-    @unittest.SkipTest
+    @unittest.skip("*.dev.saintsxctf.com certificate inactive.")
     def test_acm_dev_wildcard_cert_issued(self) -> None:
         """
         Test that the dev wildcard ACM certificate exists
@@ -105,17 +95,6 @@ class TestACM(unittest.TestCase):
         """
         for cert in self.acm_certificates.get("CertificateSummaryList"):
             if cert.get("DomainName") == "saintsxctf.com":
-                self.assertTrue(True)
-                return
-
-        self.assertTrue(False)
-
-    def test_acm_uasset_wildcard_cert_issued(self) -> None:
-        """
-        Test that the uasset wildcard ACM certificate exists
-        """
-        for cert in self.acm_certificates.get("CertificateSummaryList"):
-            if cert.get("DomainName") == "*.uasset.saintsxctf.com":
                 self.assertTrue(True)
                 return
 
