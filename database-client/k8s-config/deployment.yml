@@ -39,7 +39,7 @@ spec:
                   - key: workload
                     operator: In
                     values:
-                      - development-tests
+                      - production-applications
       containers:
         - name: saints-xctf-database-client
           image: phpmyadmin/phpmyadmin:latest

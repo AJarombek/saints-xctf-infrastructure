@@ -45,7 +45,6 @@ act -W '.github/workflows/aws_tests.yml' --detect-event
 |--------------------------|-------------------------------------------------------------------------------|
 | `.github`                | GitHub Actions for CI/CD pipelines.                                           |
 | `acm`                    | HTTPS Certificates for the application load balancer.                         |
-| `bastion`                | Bastion host for connecting to resources in the private subnets.              |
 | `database`               | Infrastructure for the SaintsXCTF MySQL database.                             |
 | `database-backup`        | S3 buckets for storing RDS database backups.                                  |
 | `database-client`        | MySQL database client for access to the RDS database from a web GUI.          |
