@@ -8,6 +8,7 @@ locals {
   env                   = var.prod ? "prod" : "dev"
   subnet_number         = var.prod ? 0 : 1
   backups_retained_days = var.prod ? 3 : 0
+  db_identifier         = "saints-xctf-mysql-database-${local.env}"
 }
 
 #----------------------------------
@@ -84,14 +85,15 @@ resource "aws_security_group" "saints-xctf-database-security" {
     Name        = "saints-xctf-database-security-${local.env}"
     Environment = upper(local.env)
     Application = "saints-xctf"
+    Terraform   = var.terraform_tag
   }
 }
 
 resource "aws_db_instance" "saints-xctf-mysql-database" {
-  identifier     = "saints-xctf-mysql-database-${local.env}"
+  identifier     = local.db_identifier
   instance_class = "db.t2.micro"
   engine         = "MySQL"
-  engine_version = "5.7.38"
+  engine_version = "8.0.36"
 
   allocated_storage       = 5
   backup_retention_period = local.backups_retained_days
@@ -104,7 +106,7 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   maintenance_window        = "Mon:04:00-Mon:07:00"
   final_snapshot_identifier = "saintsxctf-${local.env}"
 
-  name     = "saintsxctf"
+  db_name  = "saintsxctf"
   username = var.username
   password = var.password
   port     = 3306
@@ -120,10 +122,14 @@ resource "aws_db_instance" "saints-xctf-mysql-database" {
   # Enables HA for the database instance
   multi_az = true
 
+  deletion_protection = true
+  skip_final_snapshot = false
+
   tags = {
     Name        = "saints-xctf-mysql-${local.env}-database"
     Environment = upper(local.env)
     Application = "saints-xctf"
+    Terraform   = var.terraform_tag
   }
 }
 
@@ -138,6 +144,7 @@ resource "aws_db_subnet_group" "saints-xctf-mysql-database-subnet" {
     Name        = "saints-xctf-mysql-${local.env}-database-subnets"
     Environment = upper(local.env)
     Application = "saints-xctf"
+    Terraform   = var.terraform_tag
   }
 }
 
@@ -161,6 +168,6 @@ resource "aws_cloudwatch_metric_alarm" "saints-xctf-mysql-database-storage-low-a
   threshold = 20
 
   dimensions = {
-    DBInstanceIdentifier = aws_db_instance.saints-xctf-mysql-database.id
+    DBInstanceIdentifier = local.db_identifier
   }
 }

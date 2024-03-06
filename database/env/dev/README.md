@@ -13,4 +13,3 @@ terraform apply -var 'username=XXX' -var 'password=XXX'
 |---------------------|----------------------------------------------------------------------------------------------|
 | `main.tf`           | Terraform module for the `DEV` database.                                                     |
 | `var.tf`            | Variables passed in via the command line.                                                    |
-| `test.sh`           | Testing the connection to MySQL from different machines.                                     |

@@ -45,7 +45,6 @@ act -W '.github/workflows/aws_tests.yml' --detect-event
 |--------------------------|-------------------------------------------------------------------------------|
 | `.github`                | GitHub Actions for CI/CD pipelines.                                           |
 | `acm`                    | HTTPS Certificates for the application load balancer.                         |
-| `bastion`                | Bastion host for connecting to resources in the private subnets.              |
 | `database`               | Infrastructure for the SaintsXCTF MySQL database.                             |
 | `database-backup`        | S3 buckets for storing RDS database backups.                                  |
 | `database-client`        | MySQL database client for access to the RDS database from a web GUI.          |
@@ -65,6 +64,13 @@ act -W '.github/workflows/aws_tests.yml' --detect-event
 | `test-k8s`               | Go Kubernetes infrastructure test suite.                                      |
 
 ### Versions
+
+**[v2.0.6](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.6) - RDS MySQL 8.0 Upgrade**
+
+> Release Date: March 6th, 2024
+
+* Upgrade MySQL from 5.7.x to 8.0.x
+* Realign Terraform `database` module with existing AWS infrastructure
 
 **[v2.0.5](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.5) - ACM Updates**
 

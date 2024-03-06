@@ -2,6 +2,15 @@
 
 Infrastructure for a database client that can connect to the development and production RDS databases.
 
+### Commands
+
+**SQL Queries**
+
+```sql
+-- Determine the version of MySQL the server is using
+SELECT version();
+```
+
 ### Files
 
 | Filename             | Description                                                                                  |

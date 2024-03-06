@@ -9,11 +9,11 @@ provider "aws" {
 }
 
 terraform {
-  required_version = ">= 0.14"
+  required_version = "~> 1.6.6"
 
   required_providers {
-    aws        = ">= 3.32.0"
-    kubernetes = ">= 2.0.2"
+    aws        = "~> 4.61.0"
+    kubernetes = "~> 2.19.0"
   }
 
   backend "s3" {
@@ -27,11 +27,11 @@ terraform {
 data "aws_caller_identity" "current" {}
 
 data "aws_eks_cluster" "cluster" {
-  name = "andrew-jarombek-eks-cluster"
+  name = "andrew-jarombek-eks-v2"
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = "andrew-jarombek-eks-cluster"
+  name = "andrew-jarombek-eks-v2"
 }
 
 data "aws_vpc" "application-vpc" {
@@ -62,7 +62,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
 
   exec {
-    api_version = "client.authentication.k8s.io/v1alpha1"
+    api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
     args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
   }
@@ -126,7 +126,7 @@ resource "kubernetes_deployment" "deployment" {
                 match_expressions {
                   key      = "workload"
                   operator = "In"
-                  values   = ["development-tests"]
+                  values   = ["production-applications"]
                 }
               }
             }
@@ -189,7 +189,7 @@ resource "kubernetes_service" "service" {
   }
 }
 
-resource "kubernetes_ingress" "ingress" {
+resource "kubernetes_ingress_v1" "ingress" {
   metadata {
     name      = "saints-xctf-database-client-ingress"
     namespace = "saints-xctf"
@@ -226,8 +226,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "ssl-redirect"
-            service_port = "use-annotation"
+            service {
+              name = "ssl-redirect"
+              port {
+                name = "use-annotation"
+              }
+            }
           }
         }
 
@@ -235,8 +239,12 @@ resource "kubernetes_ingress" "ingress" {
           path = "/*"
 
           backend {
-            service_name = "saints-xctf-database-client-service"
-            service_port = 80
+            service {
+              name = "saints-xctf-database-client-service"
+              port {
+                number = 80
+              }
+            }
           }
         }
       }
