@@ -9,7 +9,11 @@ provider "aws" {
 }
 
 terraform {
-  required_version = ">= 0.12"
+  required_version = "~> 1.6.6"
+
+  required_providers {
+    aws = "~> 5.32.1"
+  }
 
   backend "s3" {
     bucket  = "andrew-jarombek-terraform-state"
@@ -20,8 +24,9 @@ terraform {
 }
 
 module "rds" {
-  source   = "../../modules/rds"
-  prod     = true
-  username = var.username
-  password = var.password
+  source        = "../../modules/rds"
+  prod          = true
+  username      = var.username
+  password      = var.password
+  terraform_tag = "saints-xctf-infrastructure/database/env/prod"
 }
