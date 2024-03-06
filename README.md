@@ -65,6 +65,13 @@ act -W '.github/workflows/aws_tests.yml' --detect-event
 
 ### Versions
 
+**[v2.0.6](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.6) - RDS MySQL 8.0 Upgrade**
+
+> Release Date: March 6th, 2024
+
+* Upgrade MySQL from 5.7.x to 8.0.x
+* Realign Terraform `database` module with existing AWS infrastructure
+
 **[v2.0.5](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.5) - ACM Updates**
 
 > Release Date: January 28th, 2024
