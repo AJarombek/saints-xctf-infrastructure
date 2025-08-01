@@ -2,6 +2,8 @@
 
 Infrastructure for a database client that can connect to the development and production RDS databases.
 
+[db.saintsxctf.com](https://db.saintsxctf.com) can take 15-30 minutes for DNS changes to propagate.
+
 ### Commands
 
 **SQL Queries**

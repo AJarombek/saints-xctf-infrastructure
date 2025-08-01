@@ -90,9 +90,9 @@ locals {
   account_id           = data.aws_caller_identity.current.account_id
   domain_cert          = "saintsxctf.com"
   domain_wildcard_cert = "*.saintsxctf.com"
-  dev_domain_cert      = "*.dev.saintsxctf.com"
-  api_domain_cert      = "*.api.saintsxctf.com"
-  dev_api_domain_cert  = "*.dev.api.saintsxctf.com"
+  dev_domain_cert      = "*.saintsxctf.com"
+  api_domain_cert      = "*.saintsxctf.com"
+  dev_api_domain_cert  = "*.saintsxctf.com"
   cert_arn             = data.aws_acm_certificate.saintsxctf-cert.arn
   wildcard_cert_arn    = data.aws_acm_certificate.saintsxctf-wildcard-cert.arn
   dev_cert_arn         = data.aws_acm_certificate.saintsxctf-dev-cert.arn
