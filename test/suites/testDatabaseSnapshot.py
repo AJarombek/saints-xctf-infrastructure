@@ -31,6 +31,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
 
         self.prod_env = prod_env
 
+    @unittest.skip("Database backup lambda function disabled.")
     def test_backup_lambda_function_exists(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups exists as expected.
@@ -80,6 +81,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
             )
         )
 
+    @unittest.skip("Database backup lambda function disabled.")
     def test_backup_lambda_function_in_vpc(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups exists in the proper VPC.
@@ -119,6 +121,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
 
         self.assertTrue(vpc_id == lambda_function_vpc_id)
 
+    @unittest.skip("Database backup lambda function disabled.")
     def test_backup_lambda_function_in_subnets(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups exists in the proper subnets.
@@ -158,6 +161,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
             )
         )
 
+    @unittest.skip("Database backup lambda function disabled.")
     def test_backup_lambda_function_has_iam_role(self) -> None:
         """
         Test that an AWS Lambda function for RDS backups has the proper IAM role.
@@ -233,6 +237,7 @@ class TestDatabaseSnapshot(unittest.TestCase):
             )
         )
 
+    @unittest.skip("Database backup lambda function disabled.")
     def test_backup_lambda_function_has_security_group(self) -> None:
         """
         Test that the Lambda function for backing up an RDS instance has the expected security group.
