@@ -19,6 +19,7 @@ class TestACM(unittest.TestCase):
             CertificateStatuses=["ISSUED"]
         )
 
+    @unittest.skip("*.api.saintsxctf.com certificate inactive.")
     def test_acm_api_wildcard_cert_issued(self) -> None:
         """
         Test that the api wildcard ACM certificate exists

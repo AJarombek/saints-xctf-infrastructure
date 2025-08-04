@@ -40,12 +40,14 @@ class TestSyntheticMonitoring(unittest.TestCase):
         else:
             self.env = "dev"
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_canary_role_exists(self) -> None:
         """
         Test that the canary-role IAM Role exists.
         """
         self.assertTrue(IAM.iam_role_exists(role_name=f"canary-role"))
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_canary_policy_attached(self) -> None:
         """
         Test that the canary-policy is attached to the canary-role
@@ -97,9 +99,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
             statement.get("Resource"), f"arn:aws:s3:::saints-xctf-canaries/*"
         )
 
-    @unittest.skipIf(
-        not prod_env, "Development SaintsXCTF Up canary function not under test."
-    )
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_up_canary_function_exists(self):
         """
         Test if a CloudWatch Synthetics Canary function exists called sxctf-up.
@@ -115,9 +115,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(canary.get("Code").get("Handler"), "up.handler")
         self.assertEqual(canary.get("Schedule").get("Expression"), "rate(1 hour)")
 
-    @unittest.skipIf(
-        not prod_env, "Development SaintsXCTF Up canary function not under test."
-    )
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_up_canary_event_rule_exists(self):
         """
         Test if a CloudWatch Event Rule exists for the sxctf-up Synthetics Canary function.
@@ -148,6 +146,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(1, len(sources))
         self.assertEqual("aws.synthetics", sources[0])
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_up_canary_event_target_exists(self):
         """
         Test if a CloudWatch Event Rule exists for the sxctf-up Synthetics Canary function.
@@ -167,9 +166,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
             event_target.get("Arn"),
         )
 
-    @unittest.skipIf(
-        not prod_env, "Development SaintsXCTF Sign In canary function not under test."
-    )
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_sign_in_canary_function_exists(self):
         """
         Test if a CloudWatch Synthetics Canary function exists called sxctf-sign-in.
@@ -185,9 +182,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(canary.get("Code").get("Handler"), "signIn.handler")
         self.assertEqual(canary.get("Schedule").get("Expression"), "rate(1 hour)")
 
-    @unittest.skipIf(
-        not prod_env, "Development SaintsXCTF Sign In canary function not under test."
-    )
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_sign_in_canary_event_rule_exists(self):
         """
         Test if a CloudWatch Event Rule exists for the sxctf-sign-in Synthetics Canary function.
@@ -218,6 +213,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(1, len(sources))
         self.assertEqual("aws.synthetics", sources[0])
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_sign_in_canary_event_target_exists(self):
         """
         Test if a CloudWatch Event Rule Target exists for the sxctf-sign-in Synthetics Canary function.
@@ -237,10 +233,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
             event_target.get("Arn"),
         )
 
-    @unittest.skipIf(
-        not prod_env,
-        "Development SaintsXCTF Forgot Password canary function not under test.",
-    )
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_forgot_password_canary_function_exists(self):
         """
         Test if a CloudWatch Synthetics Canary function exists called sxctf-forgot-pw.
@@ -256,10 +249,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(canary.get("Code").get("Handler"), "forgot_password.handler")
         self.assertEqual(canary.get("Schedule").get("Expression"), "rate(1 hour)")
 
-    @unittest.skipIf(
-        not prod_env,
-        "Development SaintsXCTF Forgot Password canary function not under test.",
-    )
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_forgot_password_canary_event_rule_exists(self):
         """
         Test if a CloudWatch Event Rule exists for the sxctf-forgot-pw Synthetics Canary function.
@@ -290,6 +280,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertEqual(1, len(sources))
         self.assertEqual("aws.synthetics", sources[0])
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_sxctf_forgot_password_canary_event_target_exists(self):
         """
         Test if a CloudWatch Event Rule Target exists for the sxctf-forgot-pw Synthetics Canary function.

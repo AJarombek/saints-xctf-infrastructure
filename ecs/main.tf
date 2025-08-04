@@ -120,26 +120,115 @@ resource "aws_security_group" "ecs_sg" {
 }
 
 # Application Load Balancers
-resource "aws_lb" "ui_alb" {
-  name               = "saintsxctf-ui-alb"
+resource "aws_lb" "main_alb" {
+  name               = "saintsxctf-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = [
+  subnets = [
     data.aws_subnet.public_subnet_1.id,
     data.aws_subnet.public_subnet_2.id
   ]
 }
 
-resource "aws_lb" "api_alb" {
-  name               = "saintsxctf-api-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = [
-    data.aws_subnet.public_subnet_1.id,
-    data.aws_subnet.public_subnet_2.id
-  ]
+# HTTPS Listener for both UI and API
+resource "aws_lb_listener" "https_listener" {
+  load_balancer_arn = aws_lb.main_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.cert.arn
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ui_tg.arn
+  }
+}
+
+resource "aws_lb_listener_certificate" "wildcard_cert" {
+  listener_arn    = aws_lb_listener.https_listener.arn
+  certificate_arn = data.aws_acm_certificate.wildcard_cert.arn
+}
+
+# Listener rules for API host and path
+resource "aws_lb_listener_rule" "api_host" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 10
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api_tg.arn
+  }
+  condition {
+    host_header {
+      values = ["api.saintsxctf.com"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "api_path" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 20
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api_tg.arn
+  }
+  condition {
+    host_header {
+      values = ["saintsxctf.com"]
+    }
+  }
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "api_www_path" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 30
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api_tg.arn
+  }
+  condition {
+    host_header {
+      values = ["www.saintsxctf.com"]
+    }
+  }
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "ui_www" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 40
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ui_tg.arn
+  }
+  condition {
+    host_header {
+      values = ["www.saintsxctf.com"]
+    }
+  }
+}
+
+# HTTP Listener (redirect to HTTPS)
+resource "aws_lb_listener" "http_listener" {
+  load_balancer_arn = aws_lb.main_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
 }
 
 # Target Groups
@@ -176,80 +265,6 @@ resource "aws_lb_target_group" "api_tg" {
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 2
-  }
-}
-
-resource "aws_lb_target_group" "ui_api_proxy_tg" {
-  name        = "saintsxctf-ui-api-proxy-tg"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.application_vpc.id
-  target_type = "ip"
-  health_check {
-    path                = "/"
-    protocol            = "HTTP"
-    port                = 80
-    matcher             = "200-399"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
-}
-
-# HTTPS Listeners
-resource "aws_lb_listener" "ui_https_listener" {
-  load_balancer_arn = aws_lb.ui_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.cert.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ui_tg.arn
-  }
-}
-
-resource "aws_lb_listener" "api_https_listener" {
-  load_balancer_arn = aws_lb.api_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.wildcard_cert.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api_tg.arn
-  }
-}
-
-# HTTP Listeners (redirect to HTTPS)
-resource "aws_lb_listener" "ui_http_listener" {
-  load_balancer_arn = aws_lb.ui_alb.arn
-  port              = 80
-  protocol          = "HTTP"
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-resource "aws_lb_listener" "api_http_listener" {
-  load_balancer_arn = aws_lb.api_alb.arn
-  port              = 80
-  protocol          = "HTTP"
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
   }
 }
 
@@ -290,8 +305,8 @@ resource "aws_ecs_task_definition" "ui" {
 
   container_definitions = jsonencode([
     {
-      name      = "saintsxctf-ui"
-      image     = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web-nginx:${local.ui_version}"
+      name  = "saintsxctf-ui"
+      image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web-nginx:${local.ui_version}"
       portMappings = [
         {
           containerPort = 80
@@ -326,8 +341,8 @@ resource "aws_ecs_task_definition" "api" {
 
   container_definitions = jsonencode([
     {
-      name      = "saintsxctf-api-nginx"
-      image     = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:${local.api_nginx_version}"
+      name  = "saintsxctf-api-nginx"
+      image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:${local.api_nginx_version}"
       portMappings = [
         {
           containerPort = 80
@@ -344,8 +359,8 @@ resource "aws_ecs_task_definition" "api" {
       }
     },
     {
-      name      = "saintsxctf-api-flask"
-      image     = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.api_version}"
+      name  = "saintsxctf-api-flask"
+      image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.api_version}"
       portMappings = [
         {
           containerPort = 5000
@@ -382,7 +397,7 @@ resource "aws_ecs_service" "ui" {
   desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
-    subnets          = [
+    subnets = [
       data.aws_subnet.public_subnet_1.id,
       data.aws_subnet.public_subnet_2.id
     ]
@@ -400,10 +415,10 @@ resource "aws_ecs_service" "api" {
   name            = "saintsxctf-api"
   cluster         = aws_ecs_cluster.saintsxctf.id
   task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 2
+  desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
-    subnets          = [
+    subnets = [
       data.aws_subnet.public_subnet_1.id,
       data.aws_subnet.public_subnet_2.id
     ]
@@ -415,11 +430,6 @@ resource "aws_ecs_service" "api" {
     container_name   = "saintsxctf-api-nginx"
     container_port   = 80
   }
-  load_balancer {
-    target_group_arn = aws_lb_target_group.ui_api_proxy_tg.arn
-    container_name   = "saintsxctf-api-nginx"
-    container_port   = 80
-  }
 }
 
 # Route53 Zone Data Source
@@ -428,15 +438,15 @@ data "aws_route53_zone" "saintsxctf_com" {
   private_zone = false
 }
 
-# Route53 Alias Records
+# Route53 Alias Records for Combined ALB
 resource "aws_route53_record" "saintsxctf_com" {
   zone_id = data.aws_route53_zone.saintsxctf_com.zone_id
   name    = "saintsxctf.com"
   type    = "A"
 
   alias {
-    name                   = aws_lb.ui_alb.dns_name
-    zone_id                = aws_lb.ui_alb.zone_id
+    name                   = aws_lb.main_alb.dns_name
+    zone_id                = aws_lb.main_alb.zone_id
     evaluate_target_health = true
   }
 }
@@ -447,8 +457,20 @@ resource "aws_route53_record" "api_saintsxctf_com" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.api_alb.dns_name
-    zone_id                = aws_lb.api_alb.zone_id
+    name                   = aws_lb.main_alb.dns_name
+    zone_id                = aws_lb.main_alb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "www_saintsxctf_com" {
+  zone_id = data.aws_route53_zone.saintsxctf_com.zone_id
+  name    = "www.saintsxctf.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main_alb.dns_name
+    zone_id                = aws_lb.main_alb.zone_id
     evaluate_target_health = true
   }
 }
@@ -467,20 +489,4 @@ resource "aws_cloudwatch_log_group" "api_nginx" {
 resource "aws_cloudwatch_log_group" "api_flask" {
   name              = "/ecs/saintsxctf-api-flask"
   retention_in_days = 30
-}
-
-resource "aws_lb_listener_rule" "ui_api_forward" {
-  listener_arn = aws_lb_listener.ui_https_listener.arn
-  priority     = 10
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ui_api_proxy_tg.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/api*"]
-    }
-  }
 }
