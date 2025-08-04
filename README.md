@@ -20,16 +20,7 @@ repository.
 
 + Build SaintsXCTF Function API [If Necessary]
 
-+ Build SaintsXCTF Ingress Kubernetes Infrastructure [If Necessary]
-
-+ Build SaintsXCTF API Kubernetes Infrastructure.  Bump Up Deployment Versions to Match Docker Images.
-
-+ Build SaintsXCTF Web Kubernetes Infrastructure.  Bump Up Deployment Versions to Match Docker Images.
-
-### Integration
-
-There are multiple Jenkins jobs for this infrastructure, all located in the SaintsXCTF
-[`infrastructure`](http://jenkins.jarombek.io/job/saints-xctf/job/infrastructure/) folder.
++ Build SaintsXCTF ECS Infrastructure [If Necessary]
 
 ### Commands
 
@@ -50,6 +41,7 @@ act -W '.github/workflows/aws_tests.yml' --detect-event
 | `database-client`        | MySQL database client for access to the RDS database from a web GUI.          |
 | `database-deployment`    | Lambda function for deploying scripts to RDS databases.                       |
 | `database-snapshot`      | Lambda functions for creating backups and restoring RDS databases.            |
+| `ecs`                    | ECS clusters and services and their corresponding load balancers.             |
 | `iam`                    | IAM policies used in the SaintsXCTF VPC.                                      |
 | `route53`                | Configures the DNS records for the application.                               |
 | `saints-xctf-com`        | Kubernetes configuration for the application front-end.                       |
@@ -64,6 +56,14 @@ act -W '.github/workflows/aws_tests.yml' --detect-event
 | `test-k8s`               | Go Kubernetes infrastructure test suite.                                      |
 
 ### Versions
+
+**[v2.1.0](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.1.0) - EKS to ECS Migration**
+
+> Release Date: August 4th, 2025
+
+* Migrate infrastructure from Amazon EKS (Kubernetes) to Amazon ECS (Elastic Container Service)
+* Update Terraform modules and deployment scripts for ECS
+* Simplify container orchestration and reduce operational overhead and costs
 
 **[v2.0.6](https://github.com/AJarombek/saints-xctf-infrastructure/tree/v2.0.6) - RDS MySQL 8.0 Upgrade**
 
