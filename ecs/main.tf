@@ -125,7 +125,7 @@ resource "aws_lb" "main_alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = [
+  subnets = [
     data.aws_subnet.public_subnet_1.id,
     data.aws_subnet.public_subnet_2.id
   ]
@@ -183,6 +183,39 @@ resource "aws_lb_listener_rule" "api_path" {
   }
 }
 
+resource "aws_lb_listener_rule" "api_www_path" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 30
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api_tg.arn
+  }
+  condition {
+    host_header {
+      values = ["www.saintsxctf.com"]
+    }
+  }
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "ui_www" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 40
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ui_tg.arn
+  }
+  condition {
+    host_header {
+      values = ["www.saintsxctf.com"]
+    }
+  }
+}
+
 # HTTP Listener (redirect to HTTPS)
 resource "aws_lb_listener" "http_listener" {
   load_balancer_arn = aws_lb.main_alb.arn
@@ -219,24 +252,6 @@ resource "aws_lb_target_group" "ui_tg" {
 
 resource "aws_lb_target_group" "api_tg" {
   name        = "saintsxctf-api-tg"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.application_vpc.id
-  target_type = "ip"
-  health_check {
-    path                = "/"
-    protocol            = "HTTP"
-    port                = 80
-    matcher             = "200-399"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
-}
-
-resource "aws_lb_target_group" "ui_api_proxy_tg" {
-  name        = "saintsxctf-ui-api-proxy-tg"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.application_vpc.id
@@ -290,8 +305,8 @@ resource "aws_ecs_task_definition" "ui" {
 
   container_definitions = jsonencode([
     {
-      name      = "saintsxctf-ui"
-      image     = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web-nginx:${local.ui_version}"
+      name  = "saintsxctf-ui"
+      image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-web-nginx:${local.ui_version}"
       portMappings = [
         {
           containerPort = 80
@@ -326,8 +341,8 @@ resource "aws_ecs_task_definition" "api" {
 
   container_definitions = jsonencode([
     {
-      name      = "saintsxctf-api-nginx"
-      image     = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:${local.api_nginx_version}"
+      name  = "saintsxctf-api-nginx"
+      image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-nginx:${local.api_nginx_version}"
       portMappings = [
         {
           containerPort = 80
@@ -344,8 +359,8 @@ resource "aws_ecs_task_definition" "api" {
       }
     },
     {
-      name      = "saintsxctf-api-flask"
-      image     = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.api_version}"
+      name  = "saintsxctf-api-flask"
+      image = "${local.account_id}.dkr.ecr.us-east-1.amazonaws.com/saints-xctf-api-flask:${local.api_version}"
       portMappings = [
         {
           containerPort = 5000
@@ -382,7 +397,7 @@ resource "aws_ecs_service" "ui" {
   desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
-    subnets          = [
+    subnets = [
       data.aws_subnet.public_subnet_1.id,
       data.aws_subnet.public_subnet_2.id
     ]
@@ -403,7 +418,7 @@ resource "aws_ecs_service" "api" {
   desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
-    subnets          = [
+    subnets = [
       data.aws_subnet.public_subnet_1.id,
       data.aws_subnet.public_subnet_2.id
     ]
@@ -412,11 +427,6 @@ resource "aws_ecs_service" "api" {
   }
   load_balancer {
     target_group_arn = aws_lb_target_group.api_tg.arn
-    container_name   = "saintsxctf-api-nginx"
-    container_port   = 80
-  }
-  load_balancer {
-    target_group_arn = aws_lb_target_group.ui_api_proxy_tg.arn
     container_name   = "saintsxctf-api-nginx"
     container_port   = 80
   }
@@ -444,6 +454,18 @@ resource "aws_route53_record" "saintsxctf_com" {
 resource "aws_route53_record" "api_saintsxctf_com" {
   zone_id = data.aws_route53_zone.saintsxctf_com.zone_id
   name    = "api.saintsxctf.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main_alb.dns_name
+    zone_id                = aws_lb.main_alb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "www_saintsxctf_com" {
+  zone_id = data.aws_route53_zone.saintsxctf_com.zone_id
+  name    = "www.saintsxctf.com"
   type    = "A"
 
   alias {
