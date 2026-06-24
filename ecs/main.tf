@@ -30,7 +30,7 @@ locals {
   domain_cert          = "saintsxctf.com"
   wildcard_domain_cert = "*.saintsxctf.com"
   ui_version           = "2.0.9"
-  api_version          = "2.0.3"
+  api_version          = "2.0.6"
   api_nginx_version    = "2.0.5"
 }
 

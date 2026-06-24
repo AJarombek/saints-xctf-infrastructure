@@ -1,0 +1,74 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      directory:
+        description: 'Infra subdirectory to run Terraform in'
+        required: true
+        type: choice
+        options:
+          - ecs
+          - database-client-ecs
+          - iam-github-terraform
+      action:
+        description: 'Terraform action to perform'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      id-token: write   # required for OIDC
+      contents: read
+
+    env:
+      TERRAFORM_DIR: ${{ github.event.inputs.directory }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::739088120071:role/saints-xctf-github-terraform
+          aws-region: us-east-1
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.5
+
+      - name: Terraform Init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
+
+      - name: Terraform Plan
+        if: github.event.inputs.action == 'plan'
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform plan
+
+      - name: Terraform Plan (Destroy)
+        if: github.event.inputs.action == 'destroy'
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform plan -destroy
+
+      - name: Terraform Apply
+        if: github.event.inputs.action == 'apply'
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform apply -auto-approve
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform destroy -auto-approve
+
+

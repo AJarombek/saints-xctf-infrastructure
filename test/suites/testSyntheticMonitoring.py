@@ -58,6 +58,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
             )
         )
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_saints_xctf_canaries_s3_bucket_exists(self) -> None:
         """
         Test if a saints-xctf-canaries S3 bucket exists
@@ -65,6 +66,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         s3_bucket = self.s3.list_objects(Bucket=self.bucket_name)
         self.assertTrue(s3_bucket.get("Name") == self.bucket_name)
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_saints_xctf_canaries_s3_bucket_public_access(self) -> None:
         """
         Test whether the public access configuration for a saints-xctf-canaries S3 bucket is correct
@@ -76,6 +78,7 @@ class TestSyntheticMonitoring(unittest.TestCase):
         self.assertTrue(config.get("BlockPublicPolicy"))
         self.assertTrue(config.get("RestrictPublicBuckets"))
 
+    @unittest.skip("Synthetic monitoring disabled.")
     def test_saints_xctf_canaries_s3_bucket_has_policy(self) -> None:
         """
         Test if the saints-xctf-canaries S3 bucket has the expected policy attached to it.
