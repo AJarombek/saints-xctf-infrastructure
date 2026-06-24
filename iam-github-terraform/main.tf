@@ -124,6 +124,7 @@ resource "aws_iam_policy" "terraform_services" {
         ]
         Resource = [
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/saints*",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs*",
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/saints*",
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/*"
         ]
