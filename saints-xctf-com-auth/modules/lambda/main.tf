@@ -45,7 +45,7 @@ resource "aws_lambda_function" "authorizer" {
   description      = "SaintsXCTF Lambda authorizer function"
   handler          = "function.lambda_handler"
   role             = aws_iam_role.lambda-role.arn
-  runtime          = "python3.8"
+  runtime          = "python3.14"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthorizer.zip")
   timeout          = 10
   memory_size      = 128
@@ -78,7 +78,7 @@ resource "aws_lambda_function" "rotate" {
   description      = "SaintsXCTF function to rotate public and private keys used to sign JWT tokens"
   handler          = "function.lambda_handler"
   role             = aws_iam_role.rotate-lambda-role.arn
-  runtime          = "python3.8"
+  runtime          = "python3.14"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFRotate.zip")
   timeout          = 10
   memory_size      = 128
@@ -131,7 +131,7 @@ resource "aws_lambda_function" "authenticate" {
   description      = "SaintsXCTF function to authenticate users with a JWT token"
   handler          = "function.lambda_handler"
   role             = aws_iam_role.lambda-role.arn
-  runtime          = "python3.8"
+  runtime          = "python3.14"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFAuthenticate.zip")
   memory_size      = 512
   timeout          = 10
@@ -177,7 +177,7 @@ resource "aws_lambda_function" "token" {
   description      = "SaintsXCTF function to get a JWT token for a user"
   handler          = "function.lambda_handler"
   role             = aws_iam_role.token-lambda-role.arn
-  runtime          = "python3.8"
+  runtime          = "python3.14"
   source_code_hash = filebase64sha256("${path.module}/SaintsXCTFToken.zip")
   memory_size      = 1792
   timeout          = 10
